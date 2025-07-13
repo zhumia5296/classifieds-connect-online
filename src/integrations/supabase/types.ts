@@ -454,6 +454,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      expire_featured_ads: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json

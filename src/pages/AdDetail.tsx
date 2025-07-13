@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import ChatWindow from '@/components/ChatWindow';
 import MessageStarter from '@/components/MessageStarter';
 import FeatureAdButton from '@/components/FeatureAdButton';
+import FeaturedAdStatus from '@/components/FeaturedAdStatus';
 import { 
   ArrowLeft, 
   Heart, 
@@ -599,7 +600,12 @@ const AdDetailPage = () => {
 
         {/* Feature Ad Section for Owners */}
         {isOwner && (
-          <div className="mb-8">
+          <div className="mb-8 space-y-4">
+            <FeaturedAdStatus 
+              isFeatured={ad.is_featured}
+              featuredUntil={ad.featured_until}
+              showDetails={true}
+            />
             <FeatureAdButton
               adId={ad.id}
               isOwner={isOwner}
