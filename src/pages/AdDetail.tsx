@@ -11,6 +11,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import ChatWindow from '@/components/ChatWindow';
 import MessageStarter from '@/components/MessageStarter';
+import FeatureAdButton from '@/components/FeatureAdButton';
 import { 
   ArrowLeft, 
   Heart, 
@@ -41,6 +42,7 @@ interface AdDetail {
   contact_phone: string | null;
   created_at: string;
   is_featured: boolean;
+  featured_until?: string;
   views_count: number;
   user_id: string;
   categories: {
@@ -101,6 +103,7 @@ const AdDetailPage = () => {
           contact_phone,
           created_at,
           is_featured,
+          featured_until,
           views_count,
           user_id,
           categories (
@@ -593,6 +596,18 @@ const AdDetailPage = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Feature Ad Section for Owners */}
+        {isOwner && (
+          <div className="mb-8">
+            <FeatureAdButton
+              adId={ad.id}
+              isOwner={isOwner}
+              isFeatured={ad.is_featured}
+              featuredUntil={ad.featured_until}
+            />
+          </div>
+        )}
 
         {/* Chat Dialog */}
         <Dialog open={showChat} onOpenChange={setShowChat}>

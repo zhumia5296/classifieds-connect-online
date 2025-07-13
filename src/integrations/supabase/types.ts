@@ -173,6 +173,56 @@ export type Database = {
           },
         ]
       }
+      featured_ad_orders: {
+        Row: {
+          ad_id: string
+          amount: number
+          created_at: string
+          currency: string | null
+          duration_days: number
+          featured_until: string | null
+          id: string
+          status: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          amount: number
+          created_at?: string
+          currency?: string | null
+          duration_days: number
+          featured_until?: string | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          duration_days?: number
+          featured_until?: string | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_ad_orders_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           ad_id: string

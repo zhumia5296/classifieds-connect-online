@@ -1,1 +1,7 @@
 project_id = "lvvtlseiwrnrvrmenche"
+
+[functions.feature-ad-payment]
+verify_jwt = true
+
+[functions.verify-featured-payment]
+verify_jwt = true
