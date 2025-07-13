@@ -1,7 +1,11 @@
-import { Heart, MapPin, Clock, Star } from "lucide-react";
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Heart, MapPin, Clock, Star, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import ChatWindow from './ChatWindow';
 
 interface AdCardProps {
   id: string;
@@ -14,6 +18,7 @@ interface AdCardProps {
   isLiked?: boolean;
   category: string;
   condition?: string;
+  sellerId?: string;
   onToggleSave?: () => void;
 }
 
@@ -28,13 +33,29 @@ const AdCard = ({
   isLiked = false,
   category,
   condition,
+  sellerId,
   onToggleSave
 }: AdCardProps) => {
+  const { user } = useAuth();
+  const [showChat, setShowChat] = useState(false);
   
   const handleSaveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onToggleSave?.();
+  };
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      // Redirect to auth or show sign-in message
+      window.location.href = '/auth';
+      return;
+    }
+    if (sellerId && sellerId !== user.id) {
+      setShowChat(true);
+    }
   };
 
   const formatCondition = (condition?: string) => {
@@ -111,8 +132,33 @@ const AdCard = ({
               <span>{timeAgo}</span>
             </div>
           </div>
+
+          {/* Contact button */}
+          {sellerId && user && sellerId !== user.id && (
+            <Button 
+              onClick={handleContactClick}
+              className="w-full mt-3"
+              variant="outline"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Contact Seller
+            </Button>
+          )}
         </div>
       </CardContent>
+
+      {/* Chat Dialog */}
+      <Dialog open={showChat} onOpenChange={setShowChat}>
+        <DialogContent className="max-w-4xl h-[80vh] p-0">
+          {sellerId && (
+            <ChatWindow
+              adId={id}
+              recipientId={sellerId}
+              onBack={() => setShowChat(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

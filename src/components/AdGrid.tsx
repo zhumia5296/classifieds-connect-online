@@ -19,6 +19,7 @@ interface Ad {
   condition: string;
   created_at: string;
   is_featured: boolean;
+  user_id: string;
   categories: {
     name: string;
   } | null;
@@ -71,6 +72,7 @@ const AdGrid = () => {
           condition,
           created_at,
           is_featured,
+          user_id,
           category_id,
           categories(name),
           ad_images(image_url, is_primary),
@@ -405,6 +407,7 @@ const AdGrid = () => {
               isLiked={ad.saved_ads.length > 0}
               category={ad.categories?.name || 'Other'}
               condition={ad.condition}
+              sellerId={ad.user_id}
               onToggleSave={() => handleToggleSave(ad.id)}
             />
           ))}

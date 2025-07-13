@@ -1,4 +1,4 @@
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +90,10 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/messages')}>
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Messages
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/saved')}>
                     <Heart className="mr-2 h-4 w-4" />
