@@ -491,10 +491,12 @@ const AdGrid = () => {
               timeAgo={formatTimeAgo(ad.created_at)}
               imageUrl={getImageUrl(ad.ad_images)}
               isFeatured={ad.is_featured}
+              featuredUntil={ad.featured_until}
               isLiked={ad.saved_ads.length > 0}
               category={ad.categories?.name || 'Other'}
               condition={ad.condition}
               sellerId={ad.user_id}
+              isOwner={user?.id === ad.user_id}
               onToggleSave={() => handleToggleSave(ad.id)}
             />
           ))}

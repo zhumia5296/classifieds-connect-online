@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ChatWindow from './ChatWindow';
+import QuickFeatureButton from './QuickFeatureButton';
 
 interface AdCardProps {
   id: string;
@@ -15,10 +16,12 @@ interface AdCardProps {
   timeAgo: string;
   imageUrl: string;
   isFeatured?: boolean;
+  featuredUntil?: string;
   isLiked?: boolean;
   category: string;
   condition?: string;
   sellerId?: string;
+  isOwner?: boolean;
   onToggleSave?: () => void;
 }
 
@@ -30,10 +33,12 @@ const AdCard = ({
   timeAgo,
   imageUrl,
   isFeatured = false,
+  featuredUntil,
   isLiked = false,
   category,
   condition,
   sellerId,
+  isOwner = false,
   onToggleSave
 }: AdCardProps) => {
   const { user } = useAuth();
@@ -156,18 +161,30 @@ const AdCard = ({
           )}
         </div>
 
-        {/* Contact Button */}
-        {user && sellerId && user.id !== sellerId && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full mt-3 hover-scale"
-            onClick={handleContactClick}
-          >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Contact Seller
-          </Button>
-        )}
+        {/* Contact/Feature Buttons */}
+        <div className="flex gap-2">
+          {user && sellerId && user.id !== sellerId && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 hover-scale"
+              onClick={handleContactClick}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Contact Seller
+            </Button>
+          )}
+          
+          {isOwner && (
+            <QuickFeatureButton
+              adId={id}
+              isOwner={isOwner}
+              isFeatured={isFeatured}
+              featuredUntil={featuredUntil}
+              compact={true}
+            />
+          )}
+        </div>
       </CardContent>
 
       {/* Chat Dialog */}

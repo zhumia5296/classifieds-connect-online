@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import QuickFeatureButton from '@/components/QuickFeatureButton';
 import { 
   User, 
   PlusCircle, 
@@ -12,7 +13,9 @@ import {
   MessageSquare,
   TrendingUp,
   Eye,
-  Calendar
+  Calendar,
+  Star,
+  Crown
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -32,22 +35,26 @@ const Dashboard = () => {
 
   const mockAds = [
     {
-      id: 1,
+      id: "1",
       title: "iPhone 14 Pro - Excellent Condition",
       price: "$899",
       status: "active",
       views: 127,
       messages: 8,
-      createdAt: "2024-01-15"
+      createdAt: "2024-01-15",
+      isFeatured: false,
+      featuredUntil: null
     },
     {
-      id: 2,
+      id: "2", 
       title: "2019 Honda Civic - Low Miles",
       price: "$18,500",
       status: "pending",
       views: 89,
       messages: 3,
-      createdAt: "2024-01-12"
+      createdAt: "2024-01-12",
+      isFeatured: true,
+      featuredUntil: "2024-02-15T00:00:00Z"
     }
   ];
 
@@ -155,17 +162,24 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-4">
-                    <Button className="flex items-center gap-2">
+                    <Button 
+                      className="flex items-center gap-2"
+                      onClick={() => window.location.href = '/post-ad'}
+                    >
                       <PlusCircle className="h-4 w-4" />
                       Post New Ad
                     </Button>
-                    <Button variant="outline" className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-2"
+                      onClick={() => window.location.href = '/messages'}
+                    >
                       <MessageSquare className="h-4 w-4" />
                       View Messages
                     </Button>
                     <Button variant="outline" className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      View Analytics
+                      <Star className="h-4 w-4" />
+                      Feature Ad
                     </Button>
                   </div>
                 </CardContent>
@@ -192,6 +206,12 @@ const Dashboard = () => {
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="font-semibold">{ad.title}</h3>
                             {getStatusBadge(ad.status)}
+                            {ad.isFeatured && (
+                              <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-50">
+                                <Crown className="h-3 w-3 mr-1" />
+                                Featured
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-lg font-bold text-primary mb-2">{ad.price}</p>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -208,10 +228,24 @@ const Dashboard = () => {
                               {ad.createdAt}
                             </span>
                           </div>
+                          {ad.isFeatured && ad.featuredUntil && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Featured until: {new Date(ad.featuredUntil).toLocaleDateString()}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Edit</Button>
-                          <Button variant="outline" size="sm">View</Button>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">Edit</Button>
+                            <Button variant="outline" size="sm">View</Button>
+                          </div>
+                          <QuickFeatureButton
+                            adId={ad.id}
+                            isOwner={true}
+                            isFeatured={ad.isFeatured}
+                            featuredUntil={ad.featuredUntil}
+                            compact={true}
+                          />
                         </div>
                       </div>
                     </CardContent>
