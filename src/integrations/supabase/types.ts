@@ -178,27 +178,36 @@ export type Database = {
           ad_id: string
           content: string
           created_at: string
+          edited_at: string | null
           id: string
           is_read: boolean
+          message_type: string | null
           recipient_id: string
+          reply_to_message_id: string | null
           sender_id: string
         }
         Insert: {
           ad_id: string
           content: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_read?: boolean
+          message_type?: string | null
           recipient_id: string
+          reply_to_message_id?: string | null
           sender_id: string
         }
         Update: {
           ad_id?: string
           content?: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_read?: boolean
+          message_type?: string | null
           recipient_id?: string
+          reply_to_message_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -207,6 +216,13 @@ export type Database = {
             columns: ["ad_id"]
             isOneToOne: false
             referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -320,6 +336,41 @@ export type Database = {
           },
         ]
       }
+      typing_indicators: {
+        Row: {
+          ad_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          recipient_id: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          recipient_id: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          recipient_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_indicators_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           assigned_at: string
@@ -349,9 +400,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_typing_indicators: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_unread_message_count: {
+        Args: { user_uuid: string }
+        Returns: number
       }
       get_user_role: {
         Args: { _user_id: string }

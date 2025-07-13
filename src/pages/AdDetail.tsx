@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import ChatWindow from '@/components/ChatWindow';
+import MessageStarter from '@/components/MessageStarter';
 import { 
   ArrowLeft, 
   Heart, 
@@ -488,16 +489,15 @@ const AdDetailPage = () => {
             {/* Contact Actions */}
             {!isOwner && (
               <div className="space-y-3">
-                <Button 
-                  className="w-full" 
-                  onClick={() => setShowChat(true)}
-                  disabled={!user}
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  {user ? 'Contact Seller' : 'Sign in to Contact'}
-                </Button>
+                <MessageStarter
+                  adId={ad.id}
+                  adTitle={ad.title}
+                  sellerId={ad.user_id}
+                  sellerName={ad.profiles?.display_name || undefined}
+                  sellerVerified={ad.profiles?.is_verified}
+                />
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2">{/*existing contact buttons*/}
                   {ad.contact_phone && (
                     <Button variant="outline" asChild>
                       <a href={`tel:${ad.contact_phone}`}>
