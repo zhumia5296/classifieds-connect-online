@@ -1,4 +1,4 @@
-// Push notification utilities
+// Push notification utilities - Enhanced for mobile optimization
 
 export interface PushSubscriptionData {
   endpoint: string;

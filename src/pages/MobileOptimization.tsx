@@ -11,50 +11,108 @@ import {
   Bell, 
   Camera,
   Globe,
-  Zap
+  Zap,
+  Hand,
+  Vibrate,
+  Share,
+  Clipboard,
+  Battery,
+  Cpu
 } from 'lucide-react';
 import { usePWA } from '@/hooks/usePWA';
+import { useEnhancedMobile } from '@/hooks/useEnhancedMobile';
+import { SwipeableCard } from '@/components/mobile/SwipeableCard';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 
 const MobileOptimization = () => {
   const { isInstallable, isInstalled, installApp, requestNotificationPermission } = usePWA();
-  const [deviceInfo, setDeviceInfo] = useState({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
-    platform: '',
-    online: navigator.onLine
-  });
+  const { 
+    deviceInfo, 
+    networkInfo, 
+    performanceMetrics, 
+    triggerHapticFeedback,
+    shareContent,
+    copyToClipboard,
+    wakeLockActive,
+    requestWakeLock,
+    releaseWakeLock,
+    shouldUseReducedData,
+    getOptimalImageQuality
+  } = useEnhancedMobile();
+  
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    const detectDevice = () => {
-      const userAgent = navigator.userAgent;
-      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-      const isTablet = /iPad|Android(?=.*\bMobile\b)(?=.*\bSafari\b)|Android(?=.*\bMobile\b)/i.test(userAgent) && window.screen.width >= 768;
-      
-      setDeviceInfo({
-        isMobile: isMobile && !isTablet,
-        isTablet,
-        isDesktop: !isMobile,
-        platform: userAgent.includes('iPhone') ? 'iOS' : 
-                 userAgent.includes('Android') ? 'Android' : 
-                 userAgent.includes('Windows') ? 'Windows' : 'Other',
-        online: navigator.onLine
-      });
-    };
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Simulate refresh action
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      triggerHapticFeedback('light');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-    detectDevice();
+  const handleShare = async () => {
+    const shared = await shareContent({
+      title: 'Classifieds Connect',
+      text: 'Check out this awesome mobile-optimized classifieds app!',
+      url: window.location.href
+    });
     
-    const handleOnline = () => setDeviceInfo(prev => ({ ...prev, online: true }));
-    const handleOffline = () => setDeviceInfo(prev => ({ ...prev, online: false }));
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+    if (!shared) {
+      // Fallback to clipboard
+      const copied = await copyToClipboard(window.location.href);
+      if (copied) {
+        triggerHapticFeedback('light');
+      }
+    }
+  };
+
+  const enhancedFeatures = [
+    {
+      icon: Hand,
+      title: 'Touch Gestures',
+      description: 'Swipe, pinch, and tap for intuitive navigation',
+      available: deviceInfo.hasTouch,
+      status: deviceInfo.hasTouch ? 'Active' : 'Not Available'
+    },
+    {
+      icon: Vibrate,
+      title: 'Haptic Feedback',
+      description: 'Physical feedback for touch interactions',
+      available: 'vibrate' in navigator,
+      status: 'vibrate' in navigator ? 'Active' : 'Not Available'
+    },
+    {
+      icon: Share,
+      title: 'Native Sharing',
+      description: 'Share content using device native options',
+      available: 'share' in navigator,
+      status: 'share' in navigator ? 'Available' : 'Fallback Active'
+    },
+    {
+      icon: Clipboard,
+      title: 'Clipboard Access',
+      description: 'Copy and paste functionality',
+      available: 'clipboard' in navigator,
+      status: 'clipboard' in navigator ? 'Active' : 'Fallback Active'
+    },
+    {
+      icon: Battery,
+      title: 'Battery Optimization',
+      description: 'Adaptive performance based on battery level',
+      available: deviceInfo.batteryLevel !== undefined,
+      status: deviceInfo.batteryLevel !== undefined ? `${Math.round((deviceInfo.batteryLevel || 0) * 100)}%` : 'Not Available'
+    },
+    {
+      icon: Cpu,
+      title: 'Performance Monitoring',
+      description: 'Real-time performance and memory tracking',
+      available: true,
+      status: `${performanceMetrics.connectionSpeed.toUpperCase()} connection`
+    }
+  ];
 
   const mobileFeatures = [
     {
@@ -68,8 +126,8 @@ const MobileOptimization = () => {
       icon: Wifi,
       title: 'Offline Support',
       description: 'Browse cached content when offline',
-      available: true,
-      status: 'Active'
+      available: 'serviceWorker' in navigator,
+      status: networkInfo.online ? 'Online' : 'Offline Mode'
     },
     {
       icon: Bell,
@@ -102,7 +160,8 @@ const MobileOptimization = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <PullToRefresh onRefresh={handleRefresh} refreshing={isRefreshing}>
+      <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold flex items-center justify-center gap-2">
@@ -140,8 +199,8 @@ const MobileOptimization = () => {
             </div>
             
             <div className="text-center">
-              <Badge variant={deviceInfo.online ? 'default' : 'destructive'}>
-                {deviceInfo.online ? 'Online' : 'Offline'}
+              <Badge variant={networkInfo.online ? 'default' : 'destructive'}>
+                {networkInfo.online ? 'Online' : 'Offline'}
               </Badge>
               <div className="text-sm text-muted-foreground mt-1">Connection</div>
             </div>
@@ -152,6 +211,50 @@ const MobileOptimization = () => {
               </Badge>
               <div className="text-sm text-muted-foreground mt-1">App Status</div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Enhanced Mobile Features */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Enhanced Mobile Capabilities</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Advanced features for superior mobile experience
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            {enhancedFeatures.map((feature, index) => (
+              <SwipeableCard
+                key={index}
+                onTap={() => triggerHapticFeedback('light')}
+                onSave={() => triggerHapticFeedback('medium')}
+                onShare={handleShare}
+                showActions={false}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <feature.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{feature.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge 
+                    variant={feature.available ? 'default' : 'outline'}
+                    className={feature.status === 'Active' || feature.status.includes('%') ? 
+                      'bg-green-100 text-green-800' : ''}
+                  >
+                    {feature.status}
+                  </Badge>
+                </div>
+              </SwipeableCard>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -167,8 +270,12 @@ const MobileOptimization = () => {
         <CardContent>
           <div className="grid gap-4">
             {mobileFeatures.map((feature, index) => (
-              <div key={index}>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+              <SwipeableCard
+                key={index}
+                onTap={() => triggerHapticFeedback('light')}
+                showActions={false}
+              >
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-primary/10">
                       <feature.icon className="h-5 w-5 text-primary" />
@@ -182,14 +289,13 @@ const MobileOptimization = () => {
                   </div>
                   <Badge 
                     variant={feature.available ? 'default' : 'outline'}
-                    className={feature.status === 'Enabled' || feature.status === 'Active' || feature.status === 'Installed' ? 
+                    className={feature.status === 'Enabled' || feature.status === 'Active' || feature.status === 'Installed' || feature.status === 'Online' ? 
                       'bg-green-100 text-green-800' : ''}
                   >
                     {feature.status}
                   </Badge>
                 </div>
-                {index < mobileFeatures.length - 1 && <Separator className="my-2" />}
-              </div>
+              </SwipeableCard>
             ))}
           </div>
         </CardContent>
@@ -267,7 +373,62 @@ const MobileOptimization = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      {/* Advanced Controls */}
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Zap className="h-12 w-12 mx-auto mb-4 text-primary" />
+          <h3 className="text-lg font-semibold mb-2">Wake Lock</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Keep screen awake during important activities
+          </p>
+          <Button 
+            onClick={wakeLockActive ? releaseWakeLock : requestWakeLock}
+            variant={wakeLockActive ? "destructive" : "default"}
+            className="w-full"
+          >
+            {wakeLockActive ? 'Release Wake Lock' : 'Request Wake Lock'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Performance Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-semibold">{performanceMetrics.connectionSpeed}</div>
+              <div className="text-sm text-muted-foreground">Connection</div>
+            </div>
+            
+            {networkInfo.downlink && (
+              <div className="text-center">
+                <div className="text-lg font-semibold">{networkInfo.downlink.toFixed(1)} Mbps</div>
+                <div className="text-sm text-muted-foreground">Downlink</div>
+              </div>
+            )}
+            
+            {performanceMetrics.deviceMemory && (
+              <div className="text-center">
+                <div className="text-lg font-semibold">{performanceMetrics.deviceMemory} GB</div>
+                <div className="text-sm text-muted-foreground">Device Memory</div>
+              </div>
+            )}
+            
+            <div className="text-center">
+              <Badge variant={shouldUseReducedData() ? 'destructive' : 'default'}>
+                {shouldUseReducedData() ? 'Data Saver' : 'Normal'}
+              </Badge>
+              <div className="text-sm text-muted-foreground mt-1">Data Mode</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
+    </PullToRefresh>
   );
 };
 
