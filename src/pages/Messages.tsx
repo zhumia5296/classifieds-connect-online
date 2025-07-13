@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from '@/hooks/use-toast';
 import ChatWindow from '@/components/ChatWindow';
+import RealtimeStatus from '@/components/RealtimeStatus';
 import { MessageCircle, ArrowLeft, Users } from "lucide-react";
 import { formatDistance } from 'date-fns';
 
@@ -192,9 +193,12 @@ const Messages = () => {
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Messages
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Messages
+            </div>
+            <RealtimeStatus />
           </CardTitle>
         </CardHeader>
         <CardContent>

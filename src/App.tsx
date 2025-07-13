@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import PostAd from "./pages/PostAd";
 import AdDetail from "./pages/AdDetail";
 import Messages from "./pages/Messages";
+import RealtimeDemo from "./pages/RealtimeDemo";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/post-ad" element={<PostAd />} />
             <Route path="/ad/:id" element={<AdDetail />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/realtime-demo" element={<RealtimeDemo />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

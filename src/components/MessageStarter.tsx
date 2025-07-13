@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, X, Zap } from "lucide-react";
 
 interface MessageStarterProps {
   adId: string;
@@ -131,6 +131,10 @@ const MessageStarter = ({
           <CardTitle className="text-lg flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
             Send Message
+            <Badge variant="secondary" className="bg-green-100 text-green-800 flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              Real-time
+            </Badge>
           </CardTitle>
           {onClose && (
             <Button

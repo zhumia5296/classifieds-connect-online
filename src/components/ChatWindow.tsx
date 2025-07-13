@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from '@/hooks/use-toast';
 import ChatMessage from './ChatMessage';
+import RealtimeStatus from './RealtimeStatus';
 import { 
   Send, 
   ArrowLeft, 
@@ -282,6 +283,9 @@ const ChatWindow = ({ adId, recipientId, onBack }: ChatWindowProps) => {
                     {ad.title} - {formatPrice(ad.price, ad.currency)}
                   </span>
                 )}
+                <div className="mt-1">
+                  <RealtimeStatus />
+                </div>
               </div>
             </div>
           </div>
