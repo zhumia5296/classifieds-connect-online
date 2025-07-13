@@ -64,87 +64,110 @@ const AdCard = ({
   };
 
   return (
-    <Card className={`group hover:shadow-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden ${
-      isFeatured ? "ring-2 ring-marketplace-featured/50 shadow-featured" : ""
-    }`}>
-      <div className="relative">
-        <div className="aspect-[4/3] overflow-hidden">
-          <img
-            src={imageUrl}
+    <Card 
+      className={`group cursor-pointer transition-all duration-300 hover:shadow-lg overflow-hidden ${
+        isFeatured 
+          ? 'ring-2 ring-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg hover:shadow-xl hover:scale-105 animate-fade-in' 
+          : 'hover:shadow-md hover:-translate-y-1'
+      }`}
+    >
+      <div className="relative overflow-hidden">
+        <div 
+          className="aspect-[4/3] w-full overflow-hidden"
+          onClick={() => window.location.href = `/ad/${id}`}
+        >
+          <img 
+            src={imageUrl} 
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className={`h-full w-full object-cover transition-transform duration-500 ${
+              isFeatured ? 'group-hover:scale-110' : 'group-hover:scale-105'
+            }`}
           />
         </div>
         
-        {/* Overlay badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {isFeatured && (
-            <Badge variant="default" className="bg-marketplace-featured text-marketplace-featured-foreground shadow-featured">
-              <Star className="h-3 w-3 mr-1" />
+        {/* Featured Badge */}
+        {isFeatured && (
+          <div className="absolute top-3 left-3">
+            <Badge 
+              variant="default" 
+              className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-50 shadow-lg animate-pulse border-0"
+            >
+              <Star className="h-3 w-3 mr-1 fill-current" />
               Featured
             </Badge>
-          )}
-          <Badge variant="secondary" className="bg-background/90 text-foreground">
+          </div>
+        )}
+        
+        {/* Category Badge */}
+        <div className="absolute top-3 right-3">
+          <Badge variant="secondary" className="backdrop-blur-sm bg-background/80">
             {category}
           </Badge>
         </div>
         
-        {/* Heart button */}
+        {/* Heart Button */}
         <Button
-          size="icon"
           variant="ghost"
-          className={`absolute top-3 right-3 h-8 w-8 bg-background/80 hover:bg-background transition-all duration-200 ${
-            isLiked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
+          size="icon"
+          className={`absolute bottom-3 right-3 backdrop-blur-sm transition-colors hover-scale ${
+            isLiked 
+              ? 'text-red-500 bg-background/90 hover:bg-background hover:text-red-600' 
+              : 'text-foreground/70 bg-background/80 hover:bg-background hover:text-red-500'
           }`}
           onClick={handleSaveClick}
         >
-          <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+          <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
         </Button>
       </div>
       
       <CardContent className="p-4">
-        <div className="space-y-3">
-          {/* Title */}
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-            {title}
-          </h3>
-          
-          {/* Price */}
-          <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-primary">
+        <div 
+          className="space-y-3 cursor-pointer"
+          onClick={() => window.location.href = `/ad/${id}`}
+        >
+          <div className="space-y-2">
+            <h3 className={`font-semibold text-lg leading-tight line-clamp-2 ${
+              isFeatured ? 'text-primary' : 'text-foreground'
+            } group-hover:text-primary transition-colors`}>
+              {title}
+            </h3>
+            <div className={`text-2xl font-bold ${
+              isFeatured ? 'text-primary' : 'text-foreground'
+            }`}>
               {price}
             </div>
-            {condition && (
-              <Badge variant="outline" className="text-xs">
-                {formatCondition(condition)}
-              </Badge>
-            )}
           </div>
           
-          {/* Location and time */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1 flex-1 min-w-0">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
+            <div className="flex items-center gap-1">
+              <MapPin className="h-4 w-4" />
               <span className="truncate">{location}</span>
             </div>
-            <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
-              <Clock className="h-3 w-3" />
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
               <span>{timeAgo}</span>
             </div>
           </div>
-
-          {/* Contact button */}
-          {sellerId && user && sellerId !== user.id && (
-            <Button 
-              onClick={handleContactClick}
-              className="w-full mt-3"
-              variant="outline"
-            >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Contact Seller
-            </Button>
+          
+          {condition && (
+            <Badge variant="outline" className="text-xs">
+              {formatCondition(condition)}
+            </Badge>
           )}
         </div>
+
+        {/* Contact Button */}
+        {user && sellerId && user.id !== sellerId && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full mt-3 hover-scale"
+            onClick={handleContactClick}
+          >
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Contact Seller
+          </Button>
+        )}
       </CardContent>
 
       {/* Chat Dialog */}

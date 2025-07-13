@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategoryFilter } from '@/hooks/useCategoryFilter';
+import { useFeaturedAdsCleanup } from '@/hooks/useFeaturedAdsCleanup';
 import { supabase } from '@/integrations/supabase/client';
 import AdCard from "./AdCard";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ interface Ad {
   condition: string;
   created_at: string;
   is_featured: boolean;
+  featured_until?: string;
   user_id: string;
   categories: {
     name: string;
@@ -36,6 +38,7 @@ const AdGrid = () => {
   const { user } = useAuth();
   const { selectedCategory, searchQuery } = useCategoryFilter();
   const { toast } = useToast();
+  const { cleanupComplete } = useFeaturedAdsCleanup();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +79,7 @@ const AdGrid = () => {
           condition,
           created_at,
           is_featured,
+          featured_until,
           user_id,
           category_id,
           categories(name),
@@ -168,31 +172,41 @@ const AdGrid = () => {
         }
       }
 
-      // Apply sorting
-      query = query.order('is_featured', { ascending: false });
-      
+      // Featured ads sorting - prioritize active featured ads
+      const isActiveFeatured = (ad: any) => {
+        if (!ad.is_featured || !ad.featured_until) return false;
+        return new Date(ad.featured_until) > new Date();
+      };
+
+      // Apply sorting with featured ads priority
       switch (filters.sortBy) {
         case 'oldest':
-          query = query.order('created_at', { ascending: true });
+          query = query.order('is_featured', { ascending: false })
+                     .order('created_at', { ascending: true });
           break;
         case 'price-low':
-          query = query.order('price', { ascending: true });
+          query = query.order('is_featured', { ascending: false })
+                     .order('price', { ascending: true });
           break;
         case 'price-high':
-          query = query.order('price', { ascending: false });
+          query = query.order('is_featured', { ascending: false })
+                     .order('price', { ascending: false });
           break;
         case 'title':
-          query = query.order('title', { ascending: true });
+          query = query.order('is_featured', { ascending: false })
+                     .order('title', { ascending: true });
           break;
         case 'featured':
           query = query.order('is_featured', { ascending: false })
                      .order('created_at', { ascending: false });
           break;
         case 'popular':
-          query = query.order('views_count', { ascending: false });
+          query = query.order('is_featured', { ascending: false })
+                     .order('views_count', { ascending: false });
           break;
         default: // newest
-          query = query.order('created_at', { ascending: false });
+          query = query.order('is_featured', { ascending: false })
+                     .order('created_at', { ascending: false });
       }
 
       query = query.range(from, to);
@@ -206,7 +220,23 @@ const AdGrid = () => {
 
       if (fetchError) throw fetchError;
 
-      const newAds = data || [];
+      let newAds = data || [];
+      
+      // Filter out expired featured ads and sort properly
+      newAds = newAds.map(ad => ({
+        ...ad,
+        is_featured: ad.is_featured && ad.featured_until && new Date(ad.featured_until) > new Date()
+      }));
+      
+      // Sort to ensure featured ads are always at the top
+      newAds.sort((a, b) => {
+        // First by featured status
+        if (a.is_featured && !b.is_featured) return -1;
+        if (!a.is_featured && b.is_featured) return 1;
+        
+        // Then by creation date
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
       
       if (append) {
         setAds(prev => [...prev, ...newAds]);
