@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSEO } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,6 +61,13 @@ const PostAd = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // SEO for post ad page
+  useSEO({
+    title: "Post Your Ad - Sell Items Online | Classifieds Connect",
+    description: "Create your free classified ad on Classifieds Connect. Reach thousands of potential buyers by posting your item for sale with photos and detailed descriptions.",
+    keywords: "post ad, sell items, create listing, classified ad, marketplace, free ad"
+  });
   
   const [formData, setFormData] = useState<FormData>({
     title: '',

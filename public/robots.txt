@@ -12,3 +12,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

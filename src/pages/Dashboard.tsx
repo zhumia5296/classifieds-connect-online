@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
+import { useSEO } from '@/hooks/useSEO';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,13 @@ import {
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
+  
+  // SEO for dashboard page
+  useSEO({
+    title: "My Dashboard - Classifieds Connect",
+    description: "Manage your ads, view messages, and track your marketplace activity on Classifieds Connect.",
+    keywords: "dashboard, my ads, messages, marketplace, manage ads"
+  });
 
   if (loading) {
     return (

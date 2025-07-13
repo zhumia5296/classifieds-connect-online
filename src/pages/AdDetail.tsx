@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdSEO } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,6 +79,21 @@ const AdDetailPage = () => {
   const [showChat, setShowChat] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageGallery, setShowImageGallery] = useState(false);
+
+  // SEO hook - will update when ad data changes
+  useAdSEO(ad ? {
+    id: ad.id,
+    title: ad.title,
+    description: ad.description,
+    price: ad.price,
+    currency: ad.currency,
+    condition: ad.condition,
+    location: ad.location,
+    images: ad.ad_images,
+    categories: ad.categories,
+    user: ad.profiles,
+    created_at: ad.created_at
+  } : {} as any);
 
   useEffect(() => {
     if (id) {
