@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import CategoryNav from "@/components/CategoryNav";
 import HeroSection from "@/components/HeroSection";
 import AdGrid from "@/components/AdGrid";
+import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
 import { CategoryProvider } from "@/hooks/useCategoryFilter";
@@ -42,7 +43,16 @@ const Index = () => {
         <Navbar />
         <CategoryNav />
         <HeroSection />
-        <AdGrid />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-3">
+              <AdGrid />
+            </div>
+            <div className="space-y-6">
+              <LocationBasedSuggestions />
+            </div>
+          </div>
+        </div>
       </div>
     </CategoryProvider>
   );

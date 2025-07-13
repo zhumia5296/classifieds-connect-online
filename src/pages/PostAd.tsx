@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';
+import LocationInput from '@/components/LocationInput';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,8 @@ interface FormData {
   currency: string;
   condition: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   contact_phone: string;
   contact_email: string;
   category_id: string;
@@ -227,6 +230,8 @@ const PostAd = () => {
         currency: formData.currency,
         condition: formData.condition,
         location: formData.location.trim(),
+        latitude: formData.latitude || null,
+        longitude: formData.longitude || null,
         contact_phone: formData.contact_phone.trim() || null,
         contact_email: formData.contact_email.trim(),
         category_id: formData.category_id,
@@ -623,24 +628,26 @@ const PostAd = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">
-                      Location <span className="text-destructive">*</span>
-                    </Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="location"
-                        placeholder="City, State"
-                        className={`pl-10 ${errors.location ? 'border-destructive' : ''}`}
-                        value={formData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                      />
-                    </div>
-                    {errors.location && (
-                      <p className="text-sm text-destructive">{errors.location}</p>
-                    )}
-                  </div>
+                  <LocationInput
+                    value={formData.location}
+                    onChange={(location, coords) => {
+                      handleInputChange('location', location);
+                      if (coords) {
+                        setFormData(prev => ({
+                          ...prev,
+                          latitude: coords.latitude,
+                          longitude: coords.longitude
+                        }));
+                      }
+                    }}
+                    label="Location"
+                    placeholder="Enter your city or location"
+                    required
+                    className={errors.location ? 'border-destructive' : ''}
+                  />
+                  {errors.location && (
+                    <p className="text-sm text-destructive">{errors.location}</p>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="contact_phone">Phone Number</Label>

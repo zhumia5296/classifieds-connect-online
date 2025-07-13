@@ -17,6 +17,8 @@ interface Ad {
   price: number | null;
   currency: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   condition: string;
   created_at: string;
   is_featured: boolean;
@@ -76,6 +78,8 @@ const AdGrid = () => {
           price,
           currency,
           location,
+          latitude,
+          longitude,
           condition,
           created_at,
           is_featured,
@@ -488,6 +492,8 @@ const AdGrid = () => {
               title={ad.title}
               price={formatPrice(ad.price, ad.currency)}
               location={ad.location}
+              latitude={ad.latitude}
+              longitude={ad.longitude}
               timeAgo={formatTimeAgo(ad.created_at)}
               imageUrl={getImageUrl(ad.ad_images)}
               isFeatured={ad.is_featured}

@@ -66,7 +66,9 @@ export type Database = {
           id: string
           is_active: boolean
           is_featured: boolean
+          latitude: number | null
           location: string | null
+          longitude: number | null
           price: number | null
           status: string
           title: string
@@ -87,7 +89,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_featured?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           price?: number | null
           status?: string
           title: string
@@ -108,7 +112,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_featured?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           price?: number | null
           status?: string
           title?: string
@@ -285,7 +291,9 @@ export type Database = {
           display_name: string | null
           id: string
           is_verified: boolean
+          latitude: number | null
           location: string | null
+          longitude: number | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -297,7 +305,9 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_verified?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -309,7 +319,9 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_verified?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -450,6 +462,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_distance: {
+        Args: { lat1: number; lng1: number; lat2: number; lng2: number }
+        Returns: number
+      }
       cleanup_typing_indicators: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -461,6 +477,29 @@ export type Database = {
       get_admin_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_nearby_ads: {
+        Args: {
+          user_lat: number
+          user_lng: number
+          radius_km?: number
+          limit_count?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          price: number
+          currency: string
+          location: string
+          latitude: number
+          longitude: number
+          distance_km: number
+          created_at: string
+          is_featured: boolean
+          category_name: string
+          image_url: string
+        }[]
       }
       get_unread_message_count: {
         Args: { user_uuid: string }

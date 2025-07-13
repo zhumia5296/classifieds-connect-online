@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, MapPin, Clock, Star, MessageCircle } from "lucide-react";
+import { useLocation } from '@/hooks/useLocation';
+import { Heart, MapPin, Clock, Star, MessageCircle, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { calculateDistance, formatDistance } from '@/lib/location';
 import ChatWindow from './ChatWindow';
 import QuickFeatureButton from './QuickFeatureButton';
 
@@ -13,6 +15,8 @@ interface AdCardProps {
   title: string;
   price: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   timeAgo: string;
   imageUrl: string;
   isFeatured?: boolean;
@@ -30,6 +34,8 @@ const AdCard = ({
   title,
   price,
   location,
+  latitude,
+  longitude,
   timeAgo,
   imageUrl,
   isFeatured = false,
@@ -42,7 +48,18 @@ const AdCard = ({
   onToggleSave
 }: AdCardProps) => {
   const { user } = useAuth();
+  const { location: userLocation } = useLocation();
   const [showChat, setShowChat] = useState(false);
+  
+  // Calculate distance if both user and ad have coordinates
+  const distance = userLocation?.coords && latitude && longitude
+    ? calculateDistance(
+        userLocation.coords.latitude,
+        userLocation.coords.longitude,
+        latitude,
+        longitude
+      )
+    : null;
   
   const handleSaveClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -148,11 +165,25 @@ const AdCard = ({
               <MapPin className="h-4 w-4" />
               <span className="truncate">{location}</span>
             </div>
-            <div className="flex items-center gap-1">
+            {distance ? (
+              <div className="flex items-center gap-1 text-primary">
+                <Navigation className="h-3 w-3" />
+                <span className="font-medium">{formatDistance(distance)}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>{timeAgo}</span>
+              </div>
+            )}
+          </div>
+          
+          {distance && (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>{timeAgo}</span>
             </div>
-          </div>
+          )}
           
           {condition && (
             <Badge variant="outline" className="text-xs">
