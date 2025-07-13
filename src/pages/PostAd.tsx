@@ -23,7 +23,9 @@ import {
   Calendar as CalendarIcon,
   Loader2,
   Image as ImageIcon,
-  AlertCircle
+  AlertCircle,
+  Star,
+  Crown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -45,6 +47,7 @@ interface FormData {
   contact_email: string;
   category_id: string;
   expires_at: Date | undefined;
+  feature_option: 'none' | '7days' | '30days';
 }
 
 const PostAd = () => {
@@ -68,7 +71,8 @@ const PostAd = () => {
     contact_phone: '',
     contact_email: user?.email || '',
     category_id: '',
-    expires_at: undefined
+    expires_at: undefined,
+    feature_option: 'none'
   });
 
   // Redirect if not authenticated
@@ -260,9 +264,38 @@ const PostAd = () => {
         }
       }
 
+      let successMessage = "Your ad is now live and visible to other users.";
+      let adId = ad.id;
+
+      // Handle featuring if selected
+      if (formData.feature_option !== 'none') {
+        const durationDays = formData.feature_option === '7days' ? 7 : 30;
+        
+        try {
+          const { data: paymentData, error: paymentError } = await supabase.functions.invoke('feature-ad-payment', {
+            body: { ad_id: ad.id, duration_days: durationDays }
+          });
+
+          if (paymentError) throw paymentError;
+
+          // Open payment in new tab and show different success message
+          window.open(paymentData.url, '_blank');
+          successMessage = "Ad posted! Complete payment to feature your ad.";
+        } catch (error) {
+          console.error('Error creating feature payment:', error);
+          toast({
+            title: "Ad posted successfully",
+            description: "However, there was an issue setting up the feature payment. You can feature your ad later from the dashboard.",
+            variant: "default"
+          });
+          navigate('/dashboard');
+          return;
+        }
+      }
+
       toast({
         title: "Ad posted successfully!",
-        description: "Your ad is now live and visible to other users.",
+        description: successMessage,
       });
 
       navigate('/dashboard');
@@ -642,28 +675,126 @@ const PostAd = () => {
               </CardContent>
             </Card>
 
+            {/* Feature Ad Option */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  Feature Your Ad
+                </CardTitle>
+                <CardDescription>
+                  Get more visibility by featuring your ad at the top of search results
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div 
+                    className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-primary/50 ${
+                      formData.feature_option === 'none' ? 'border-primary bg-primary/5' : 'border-muted'
+                    }`}
+                    onClick={() => handleInputChange('feature_option', 'none')}
+                  >
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">No Feature</h4>
+                      <p className="text-2xl font-bold">Free</p>
+                      <p className="text-sm text-muted-foreground">Standard listing</p>
+                    </div>
+                    {formData.feature_option === 'none' && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-background rounded-full" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div 
+                    className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-primary/50 ${
+                      formData.feature_option === '7days' ? 'border-primary bg-primary/5' : 'border-muted'
+                    }`}
+                    onClick={() => handleInputChange('feature_option', '7days')}
+                  >
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">7 Days Featured</h4>
+                      <p className="text-2xl font-bold">$7</p>
+                      <p className="text-sm text-muted-foreground">Great for quick sales</p>
+                    </div>
+                    {formData.feature_option === '7days' && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-background rounded-full" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div 
+                    className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-primary/50 ${
+                      formData.feature_option === '30days' ? 'border-primary bg-primary/5' : 'border-muted'
+                    }`}
+                    onClick={() => handleInputChange('feature_option', '30days')}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">30 Days Featured</h4>
+                        <Badge variant="secondary" className="text-xs">Popular</Badge>
+                      </div>
+                      <p className="text-2xl font-bold">$30</p>
+                      <p className="text-sm text-muted-foreground">Best value & exposure</p>
+                    </div>
+                    {formData.feature_option === '30days' && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-background rounded-full" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {formData.feature_option !== 'none' && (
+                  <Alert>
+                    <Crown className="h-4 w-4" />
+                    <AlertDescription>
+                      Featured ads appear at the top of search results with highlighted styling and get up to 5x more views than regular ads.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Submit Buttons */}
-            <div className="flex gap-4 justify-end">
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/')}
                 disabled={loading}
+                className="sm:w-auto"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="min-w-32"
+                className="min-w-32 sm:w-auto"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Posting...
+                    {formData.feature_option !== 'none' ? 'Posting & Setting Up Payment...' : 'Posting...'}
                   </>
                 ) : (
-                  'Post Ad'
+                  <>
+                    {formData.feature_option !== 'none' ? (
+                      <>
+                        <Star className="mr-2 h-4 w-4" />
+                        Post & Feature Ad
+                      </>
+                    ) : (
+                      'Post Ad'
+                    )}
+                  </>
                 )}
               </Button>
             </div>
