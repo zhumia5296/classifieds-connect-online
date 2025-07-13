@@ -151,7 +151,7 @@ const AdDetailPage = () => {
         data.saved_ads = savedAds || [];
       }
 
-      setAd(data as AdDetail);
+      setAd(data as unknown as AdDetail);
     } catch (err) {
       console.error('Error fetching ad details:', err);
       toast({
@@ -169,7 +169,7 @@ const AdDetailPage = () => {
     if (!id) return;
 
     try {
-      await supabase.rpc('increment_ad_views', { ad_id: id as string });
+      await (supabase as any).rpc('increment_ad_views', { ad_id: id });
     } catch (err) {
       console.error('Error incrementing view count:', err);
     }
