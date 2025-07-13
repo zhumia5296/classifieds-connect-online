@@ -82,7 +82,7 @@ export const useAdvancedAnalytics = () => {
 
     try {
       const { error } = await supabase
-        .from('analytics_events')
+        .from('analytics_events' as any)
         .insert([event]);
 
       if (error) {
@@ -111,7 +111,7 @@ export const useAdvancedAnalytics = () => {
 
     try {
       const { error } = await supabase
-        .from('analytics_page_views')
+        .from('analytics_page_views' as any)
         .insert([pageView]);
 
       if (error) {
@@ -137,7 +137,7 @@ export const useAdvancedAnalytics = () => {
 
     try {
       const { error } = await supabase
-        .from('analytics_user_actions')
+        .from('analytics_user_actions' as any)
         .insert([actionData]);
 
       if (error) {
