@@ -46,7 +46,11 @@ const AdGrid = () => {
     priceRange: { min: null, max: null },
     location: '',
     condition: '',
-    sortBy: 'newest'
+    sortBy: 'newest',
+    dateRange: 'all',
+    featuredOnly: false,
+    hasImages: false,
+    categories: []
   });
 
   const ITEMS_PER_PAGE = 12;
@@ -118,6 +122,52 @@ const AdGrid = () => {
         query = query.eq('condition', filters.condition);
       }
 
+      // Apply feature filter
+      if (filters.featuredOnly) {
+        query = query.eq('is_featured', true);
+      }
+
+      // Apply image filter
+      if (filters.hasImages) {
+        query = query.not('ad_images', 'is', null);
+      }
+
+      // Apply category filters (multi-select)
+      if (filters.categories.length > 0) {
+        query = query.in('category_id', filters.categories);
+      }
+
+      // Apply date range filter
+      if (filters.dateRange !== 'all') {
+        const now = new Date();
+        let dateFilter: string;
+        
+        switch (filters.dateRange) {
+          case 'today':
+            now.setHours(0, 0, 0, 0);
+            dateFilter = now.toISOString();
+            break;
+          case 'week':
+            now.setDate(now.getDate() - 7);
+            dateFilter = now.toISOString();
+            break;
+          case 'month':
+            now.setMonth(now.getMonth() - 1);
+            dateFilter = now.toISOString();
+            break;
+          case '3months':
+            now.setMonth(now.getMonth() - 3);
+            dateFilter = now.toISOString();
+            break;
+          default:
+            dateFilter = '';
+        }
+        
+        if (dateFilter) {
+          query = query.gte('created_at', dateFilter);
+        }
+      }
+
       // Apply sorting
       query = query.order('is_featured', { ascending: false });
       
@@ -133,6 +183,13 @@ const AdGrid = () => {
           break;
         case 'title':
           query = query.order('title', { ascending: true });
+          break;
+        case 'featured':
+          query = query.order('is_featured', { ascending: false })
+                     .order('created_at', { ascending: false });
+          break;
+        case 'popular':
+          query = query.order('views_count', { ascending: false });
           break;
         default: // newest
           query = query.order('created_at', { ascending: false });
