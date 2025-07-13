@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useCategoryFilter } from '@/hooks/useCategoryFilter';
 import { supabase } from '@/integrations/supabase/client';
 import AdCard from "./AdCard";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ interface Ad {
 
 const AdGrid = () => {
   const { user } = useAuth();
+  const { selectedCategory } = useCategoryFilter();
   const { toast } = useToast();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,12 +63,33 @@ const AdGrid = () => {
           condition,
           created_at,
           is_featured,
+          category_id,
           categories(name),
           ad_images(image_url, is_primary),
           saved_ads(id)
         `)
         .eq('is_active', true)
-        .eq('status', 'active')
+        .eq('status', 'active');
+
+      // Apply category filter if selected
+      if (selectedCategory) {
+        // First check if it's a parent category by looking for subcategories
+        const { data: subcategories } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('parent_id', selectedCategory);
+        
+        if (subcategories && subcategories.length > 0) {
+          // If it has subcategories, include both parent and children
+          const categoryIds = [selectedCategory, ...subcategories.map(sub => sub.id)];
+          query = query.in('category_id', categoryIds);
+        } else {
+          // If no subcategories, just filter by the category
+          query = query.eq('category_id', selectedCategory);
+        }
+      }
+
+      query = query
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -106,7 +129,7 @@ const AdGrid = () => {
 
   useEffect(() => {
     fetchAds();
-  }, [user]);
+  }, [user, selectedCategory]); // Add selectedCategory as dependency
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -116,6 +139,7 @@ const AdGrid = () => {
 
   const handleRefresh = () => {
     setPage(0);
+    setAds([]); // Clear existing ads when refreshing
     fetchAds();
   };
 

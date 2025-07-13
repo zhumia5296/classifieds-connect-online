@@ -3,6 +3,7 @@ import CategoryNav from "@/components/CategoryNav";
 import HeroSection from "@/components/HeroSection";
 import AdGrid from "@/components/AdGrid";
 import { useAuth } from "@/hooks/useAuth";
+import { CategoryProvider } from "@/hooks/useCategoryFilter";
 
 const Index = () => {
   const { loading } = useAuth();
@@ -16,12 +17,14 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <CategoryNav />
-      <HeroSection />
-      <AdGrid />
-    </div>
+    <CategoryProvider>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <CategoryNav />
+        <HeroSection />
+        <AdGrid />
+      </div>
+    </CategoryProvider>
   );
 };
 
