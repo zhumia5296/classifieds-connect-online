@@ -1,4 +1,4 @@
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin, isModerator, userRole } = useAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -78,15 +80,39 @@ const Navbar = () => {
                         {user.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
+                    {(isAdmin || isModerator) && (
+                      <Badge 
+                        variant="secondary" 
+                        className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground"
+                      >
+                        {isAdmin ? <Crown className="h-2 w-2" /> : <Shield className="h-2 w-2" />}
+                      </Badge>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex items-center justify-between p-2">
                     <div className="flex flex-col space-y-1 leading-none">
                       <p className="font-medium">{user.email}</p>
                     </div>
+                    {userRole && (
+                      <Badge variant="outline" className="text-xs">
+                        {userRole}
+                      </Badge>
+                    )}
                   </div>
                   <DropdownMenuSeparator />
+                  
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
