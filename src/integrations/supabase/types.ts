@@ -283,6 +283,45 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          ad_expiring: boolean | null
+          ad_responses: boolean | null
+          created_at: string | null
+          featured_ad_updates: boolean | null
+          id: string
+          marketing: boolean | null
+          new_messages: boolean | null
+          price_changes: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ad_expiring?: boolean | null
+          ad_responses?: boolean | null
+          created_at?: string | null
+          featured_ad_updates?: boolean | null
+          id?: string
+          marketing?: boolean | null
+          new_messages?: boolean | null
+          price_changes?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ad_expiring?: boolean | null
+          ad_responses?: boolean | null
+          created_at?: string | null
+          featured_ad_updates?: boolean | null
+          id?: string
+          marketing?: boolean | null
+          new_messages?: boolean | null
+          price_changes?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -324,6 +363,42 @@ export type Database = {
           longitude?: number | null
           phone?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          is_active: boolean | null
+          p256dh_key: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key?: string
+          updated_at?: string | null
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []
