@@ -1,85 +1,295 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import AdCard from "./AdCard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
 
-// Mock data for demonstration
-const mockAds = [
-  {
-    id: "1",
-    title: "2018 Honda Civic - Excellent Condition",
-    price: "$18,500",
-    location: "San Francisco, CA",
-    timeAgo: "2 hours ago",
-    imageUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    isFeatured: true,
-    category: "Vehicles"
-  },
-  {
-    id: "2",
-    title: "Modern 2BR Apartment in SOMA",
-    price: "$3,200/mo",
-    location: "San Francisco, CA",
-    timeAgo: "4 hours ago",
-    imageUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Housing"
-  },
-  {
-    id: "3",
-    title: "iPhone 14 Pro Max - Like New",
-    price: "$899",
-    location: "Oakland, CA",
-    timeAgo: "6 hours ago",
-    imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Electronics",
-    isLiked: true
-  },
-  {
-    id: "4",
-    title: "Vintage Leather Sofa Set",
-    price: "$450",
-    location: "Berkeley, CA",
-    timeAgo: "8 hours ago",
-    imageUrl: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Furniture"
-  },
-  {
-    id: "5",
-    title: "Professional Photography Services",
-    price: "$200/session",
-    location: "San Jose, CA",
-    timeAgo: "12 hours ago",
-    imageUrl: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    isFeatured: true,
-    category: "Services"
-  },
-  {
-    id: "6",
-    title: "Gaming Setup - Complete Bundle",
-    price: "$1,200",
-    location: "Fremont, CA",
-    timeAgo: "1 day ago",
-    imageUrl: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Gaming"
-  },
-  {
-    id: "7",
-    title: "Designer Handbag Collection",
-    price: "$150-$800",
-    location: "Palo Alto, CA",
-    timeAgo: "1 day ago",
-    imageUrl: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Clothing"
-  },
-  {
-    id: "8",
-    title: "Mountain Bike - Trek 2022",
-    price: "$1,800",
-    location: "Santa Clara, CA",
-    timeAgo: "2 days ago",
-    imageUrl: "https://images.unsplash.com/photo-1544191696-15693072e0e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "Sports"
-  }
-];
+interface Ad {
+  id: string;
+  title: string;
+  price: number | null;
+  currency: string;
+  location: string;
+  condition: string;
+  created_at: string;
+  is_featured: boolean;
+  categories: {
+    name: string;
+  } | null;
+  ad_images: {
+    image_url: string;
+    is_primary: boolean;
+  }[];
+  saved_ads: {
+    id: string;
+  }[];
+}
 
 const AdGrid = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const ITEMS_PER_PAGE = 12;
+
+  const fetchAds = async (pageNum: number = 0, append: boolean = false) => {
+    try {
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
+      setError(null);
+
+      const from = pageNum * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let query = supabase
+        .from('ads')
+        .select(`
+          id,
+          title,
+          price,
+          currency,
+          location,
+          condition,
+          created_at,
+          is_featured,
+          categories(name),
+          ad_images(image_url, is_primary),
+          saved_ads(id)
+        `)
+        .eq('is_active', true)
+        .eq('status', 'active')
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      // Only fetch saved_ads for authenticated users
+      if (user) {
+        query = query.eq('saved_ads.user_id', user.id);
+      }
+
+      const { data, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
+
+      const newAds = data || [];
+      
+      if (append) {
+        setAds(prev => [...prev, ...newAds]);
+      } else {
+        setAds(newAds);
+      }
+
+      setHasMore(newAds.length === ITEMS_PER_PAGE);
+      
+    } catch (err) {
+      console.error('Error fetching ads:', err);
+      setError('Failed to load ads. Please try again.');
+      toast({
+        title: "Error loading ads",
+        description: "Something went wrong while fetching the latest listings.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAds();
+  }, [user]);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchAds(nextPage, true);
+  };
+
+  const handleRefresh = () => {
+    setPage(0);
+    fetchAds();
+  };
+
+  const handleToggleSave = async (adId: string) => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save ads.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const ad = ads.find(a => a.id === adId);
+      const isSaved = ad?.saved_ads.length > 0;
+
+      if (isSaved) {
+        // Remove from saved
+        const { error } = await supabase
+          .from('saved_ads')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('ad_id', adId);
+
+        if (error) throw error;
+
+        // Update local state
+        setAds(prev => prev.map(ad => 
+          ad.id === adId 
+            ? { ...ad, saved_ads: [] }
+            : ad
+        ));
+
+        toast({
+          title: "Removed from saved",
+          description: "Ad removed from your saved list.",
+        });
+      } else {
+        // Add to saved
+        const { error } = await supabase
+          .from('saved_ads')
+          .insert({
+            user_id: user.id,
+            ad_id: adId
+          });
+
+        if (error) throw error;
+
+        // Update local state
+        setAds(prev => prev.map(ad => 
+          ad.id === adId 
+            ? { ...ad, saved_ads: [{ id: 'temp' }] }
+            : ad
+        ));
+
+        toast({
+          title: "Added to saved",
+          description: "Ad added to your saved list.",
+        });
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
+      toast({
+        title: "Error",
+        description: "Failed to update saved status.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const formatPrice = (price: number | null, currency: string) => {
+    if (!price) return 'Contact for price';
+    
+    const currencySymbols: Record<string, string> = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      CAD: 'C$'
+    };
+
+    const symbol = currencySymbols[currency] || '$';
+    return `${symbol}${price.toLocaleString()}`;
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 30) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getImageUrl = (adImages: Ad['ad_images']) => {
+    const primaryImage = adImages.find(img => img.is_primary);
+    const fallbackImage = adImages[0];
+    const defaultImage = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop";
+    
+    return primaryImage?.image_url || fallbackImage?.image_url || defaultImage;
+  };
+
+  if (loading) {
+    return (
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Latest Listings</h2>
+              <p className="text-muted-foreground">Discover amazing deals from local sellers</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <CardContent className="p-4 space-y-3">
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-8 w-24" />
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error && ads.length === 0) {
+    return (
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="text-center py-12">
+            <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Failed to load ads</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={handleRefresh} variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (ads.length === 0) {
+    return (
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-semibold mb-2">No ads found</h3>
+            <p className="text-muted-foreground mb-4">
+              Be the first to post an ad in your area!
+            </p>
+            <Button onClick={() => window.location.href = '/post-ad'}>
+              Post the First Ad
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4 lg:px-6">
@@ -88,22 +298,58 @@ const AdGrid = () => {
             <h2 className="text-3xl font-bold mb-2">Latest Listings</h2>
             <p className="text-muted-foreground">Discover amazing deals from local sellers</p>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Showing {mockAds.length} of 25,000+ results
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {ads.length} listings
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mockAds.map((ad) => (
-            <AdCard key={ad.id} {...ad} />
+          {ads.map((ad) => (
+            <AdCard
+              key={ad.id}
+              id={ad.id}
+              title={ad.title}
+              price={formatPrice(ad.price, ad.currency)}
+              location={ad.location}
+              timeAgo={formatTimeAgo(ad.created_at)}
+              imageUrl={getImageUrl(ad.ad_images)}
+              isFeatured={ad.is_featured}
+              isLiked={ad.saved_ads.length > 0}
+              category={ad.categories?.name || 'Other'}
+              condition={ad.condition}
+              onToggleSave={() => handleToggleSave(ad.id)}
+            />
           ))}
         </div>
         
-        <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
-            Load More Listings
-          </button>
-        </div>
+        {hasMore && (
+          <div className="text-center mt-12">
+            <Button 
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="px-8 py-3"
+            >
+              {loadingMore ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Load More Listings'
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -13,9 +13,12 @@ interface AdCardProps {
   isFeatured?: boolean;
   isLiked?: boolean;
   category: string;
+  condition?: string;
+  onToggleSave?: () => void;
 }
 
 const AdCard = ({
+  id,
   title,
   price,
   location,
@@ -23,8 +26,22 @@ const AdCard = ({
   imageUrl,
   isFeatured = false,
   isLiked = false,
-  category
+  category,
+  condition,
+  onToggleSave
 }: AdCardProps) => {
+  
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleSave?.();
+  };
+
+  const formatCondition = (condition?: string) => {
+    if (!condition) return '';
+    return condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
     <Card className={`group hover:shadow-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden ${
       isFeatured ? "ring-2 ring-marketplace-featured/50 shadow-featured" : ""
@@ -58,6 +75,7 @@ const AdCard = ({
           className={`absolute top-3 right-3 h-8 w-8 bg-background/80 hover:bg-background transition-all duration-200 ${
             isLiked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
           }`}
+          onClick={handleSaveClick}
         >
           <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
         </Button>
@@ -71,17 +89,24 @@ const AdCard = ({
           </h3>
           
           {/* Price */}
-          <div className="text-2xl font-bold text-primary">
-            {price}
+          <div className="flex items-center justify-between">
+            <div className="text-2xl font-bold text-primary">
+              {price}
+            </div>
+            {condition && (
+              <Badge variant="outline" className="text-xs">
+                {formatCondition(condition)}
+              </Badge>
+            )}
           </div>
           
           {/* Location and time */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <MapPin className="h-3 w-3" />
-              <span>{location}</span>
+            <div className="flex items-center space-x-1 flex-1 min-w-0">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{location}</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
               <Clock className="h-3 w-3" />
               <span>{timeAgo}</span>
             </div>
