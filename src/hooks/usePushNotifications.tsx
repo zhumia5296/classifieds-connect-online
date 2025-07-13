@@ -13,7 +13,7 @@ import {
   serializePushSubscription,
   type NotificationPreferences,
   type PushSubscriptionData
-} from '@/lib/pushNotifications';
+} from '@/lib/notifications';
 
 export const usePushNotifications = () => {
   const { user } = useAuth();
