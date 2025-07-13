@@ -1,0 +1,28 @@
+{
+  "appId": "app.lovable.b91761246ffc4197917ede49c19111ed",
+  "appName": "classifieds-connect-online",
+  "webDir": "dist",
+  "server": {
+    "url": "https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#ffffff",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#999999"
+    },
+    "StatusBar": {
+      "style": "DARK"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark",
+      "resizeOnFullScreen": true
+    }
+  }
+}

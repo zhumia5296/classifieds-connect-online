@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { InstallPrompt } from "@/hooks/usePWA";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -12,6 +13,7 @@ import AdDetail from "./pages/AdDetail";
 import Messages from "./pages/Messages";
 import RealtimeDemo from "./pages/RealtimeDemo";
 import Analytics from "./pages/Analytics";
+import MobileOptimization from "./pages/MobileOptimization";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -33,10 +35,12 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/realtime-demo" element={<RealtimeDemo />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/mobile" element={<MobileOptimization />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <InstallPrompt />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

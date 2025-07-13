@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3 } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -178,6 +178,10 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate('/realtime-demo')}>
                     <Zap className="mr-2 h-4 w-4" />
                     Real-time Demo
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/mobile')}>
+                    <Smartphone className="mr-2 h-4 w-4" />
+                    Mobile Features
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/saved')}>
                     <Heart className="mr-2 h-4 w-4" />
