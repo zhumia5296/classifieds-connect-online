@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import RealtimeStatus from '@/components/RealtimeStatus';
+import RealTimeAnalytics from '@/components/analytics/RealTimeAnalytics';
 import { 
   MessageCircle, 
   Zap, 
@@ -292,6 +293,9 @@ const RealtimeDemo = () => {
         </CardContent>
       </Card>
 
+      {/* Real-time Analytics */}
+      <RealTimeAnalytics />
+
       {/* Features */}
       <Card>
         <CardHeader>
@@ -332,9 +336,29 @@ const RealtimeDemo = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
               <div>
+                <h4 className="font-medium">Live Analytics</h4>
+                <p className="text-sm text-muted-foreground">
+                  Real-time insights and metrics with automatic updates
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
                 <h4 className="font-medium">Read Receipts</h4>
                 <p className="text-sm text-muted-foreground">
                   Know when your messages have been read by recipients
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
+                <h4 className="font-medium">Push Notifications</h4>
+                <p className="text-sm text-muted-foreground">
+                  Instant browser notifications for new messages and updates
                 </p>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -153,6 +153,10 @@ const Navbar = () => {
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
                         <Shield className="mr-2 h-4 w-4" />
                         Admin Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/analytics')}>
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        Analytics
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
