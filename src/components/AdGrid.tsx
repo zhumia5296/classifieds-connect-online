@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
+import SearchFilter, { FilterOptions } from './SearchFilter';
 
 interface Ad {
   id: string;
@@ -32,7 +33,7 @@ interface Ad {
 
 const AdGrid = () => {
   const { user } = useAuth();
-  const { selectedCategory } = useCategoryFilter();
+  const { selectedCategory, searchQuery } = useCategoryFilter();
   const { toast } = useToast();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,12 @@ const AdGrid = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    priceRange: { min: null, max: null },
+    location: '',
+    condition: '',
+    sortBy: 'newest'
+  });
 
   const ITEMS_PER_PAGE = 12;
 
@@ -57,6 +64,7 @@ const AdGrid = () => {
         .select(`
           id,
           title,
+          description,
           price,
           currency,
           location,
@@ -70,6 +78,11 @@ const AdGrid = () => {
         `)
         .eq('is_active', true)
         .eq('status', 'active');
+
+      // Apply search filter
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+      }
 
       // Apply category filter if selected
       if (selectedCategory) {
@@ -89,10 +102,41 @@ const AdGrid = () => {
         }
       }
 
-      query = query
-        .order('is_featured', { ascending: false })
-        .order('created_at', { ascending: false })
-        .range(from, to);
+      // Apply additional filters
+      if (filters.priceRange.min !== null) {
+        query = query.gte('price', filters.priceRange.min);
+      }
+      if (filters.priceRange.max !== null) {
+        query = query.lte('price', filters.priceRange.max);
+      }
+      if (filters.location.trim()) {
+        query = query.ilike('location', `%${filters.location}%`);
+      }
+      if (filters.condition) {
+        query = query.eq('condition', filters.condition);
+      }
+
+      // Apply sorting
+      query = query.order('is_featured', { ascending: false });
+      
+      switch (filters.sortBy) {
+        case 'oldest':
+          query = query.order('created_at', { ascending: true });
+          break;
+        case 'price-low':
+          query = query.order('price', { ascending: true });
+          break;
+        case 'price-high':
+          query = query.order('price', { ascending: false });
+          break;
+        case 'title':
+          query = query.order('title', { ascending: true });
+          break;
+        default: // newest
+          query = query.order('created_at', { ascending: false });
+      }
+
+      query = query.range(from, to);
 
       // Only fetch saved_ads for authenticated users
       if (user) {
@@ -128,8 +172,10 @@ const AdGrid = () => {
   };
 
   useEffect(() => {
+    setPage(0);
+    setAds([]);
     fetchAds();
-  }, [user, selectedCategory]); // Add selectedCategory as dependency
+  }, [user, selectedCategory, searchQuery, filters]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -141,6 +187,12 @@ const AdGrid = () => {
     setPage(0);
     setAds([]); // Clear existing ads when refreshing
     fetchAds();
+  };
+
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    setPage(0);
+    setAds([]);
   };
 
   const handleToggleSave = async (adId: string) => {
@@ -315,27 +367,29 @@ const AdGrid = () => {
   }
 
   return (
-    <section className="py-12 bg-muted/30">
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold mb-2">Latest Listings</h2>
-            <p className="text-muted-foreground">Discover amazing deals from local sellers</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {ads.length} listings
+    <>
+      <SearchFilter onFiltersChange={handleFiltersChange} />
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Latest Listings</h2>
+              <p className="text-muted-foreground">Discover amazing deals from local sellers</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={loading}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {ads.length} listings
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={loading}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {ads.map((ad) => (
@@ -374,8 +428,9 @@ const AdGrid = () => {
             </Button>
           </div>
         )}
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 };
 
