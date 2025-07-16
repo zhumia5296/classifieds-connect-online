@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
-import { Heart, MapPin, Clock, Star, MessageCircle, Navigation } from "lucide-react";
+import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { calculateDistance, formatDistance } from '@/lib/location';
 import ChatWindow from './ChatWindow';
 import QuickFeatureButton from './QuickFeatureButton';
+import SocialShare from './SocialShare';
 
 interface AdCardProps {
   id: string;
@@ -127,19 +128,33 @@ const AdCard = ({
           </Badge>
         </div>
         
-        {/* Heart Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`absolute bottom-3 right-3 backdrop-blur-sm transition-colors hover-scale ${
-            isLiked 
-              ? 'text-red-500 bg-background/90 hover:bg-background hover:text-red-600' 
-              : 'text-foreground/70 bg-background/80 hover:bg-background hover:text-red-500'
-          }`}
-          onClick={handleSaveClick}
-        >
-          <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-        </Button>
+        {/* Action Buttons */}
+        <div className="absolute bottom-3 right-3 flex gap-2">
+          <div className="backdrop-blur-sm bg-background/80 rounded-md">
+            <SocialShare
+              url={`${window.location.origin}/ad/${id}`}
+              title={title}
+              price={price}
+              location={location}
+              description=""
+              image={imageUrl}
+              variant="ghost"
+              size="icon"
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`backdrop-blur-sm transition-colors hover-scale ${
+              isLiked 
+                ? 'text-red-500 bg-background/90 hover:bg-background hover:text-red-600' 
+                : 'text-foreground/70 bg-background/80 hover:bg-background hover:text-red-500'
+            }`}
+            onClick={handleSaveClick}
+          >
+            <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+          </Button>
+        </div>
       </div>
       
       <CardContent className="p-4">

@@ -14,6 +14,7 @@ import ChatWindow from '@/components/ChatWindow';
 import MessageStarter from '@/components/MessageStarter';
 import FeatureAdButton from '@/components/FeatureAdButton';
 import FeaturedAdStatus from '@/components/FeaturedAdStatus';
+import SocialShare from '@/components/SocialShare';
 import { 
   ArrowLeft, 
   Heart, 
@@ -457,9 +458,16 @@ const AdDetailPage = () => {
                   >
                     <Heart className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={handleShare}>
-                    <Share2 className="h-4 w-4" />
-                  </Button>
+                  <SocialShare
+                    url={window.location.href}
+                    title={ad.title}
+                    description={ad.description}
+                    price={formatPrice(ad.price, ad.currency)}
+                    location={ad.location}
+                    image={images[0]}
+                    variant="ghost"
+                    size="icon"
+                  />
                   <Button variant="ghost" size="icon">
                     <Flag className="h-4 w-4" />
                   </Button>
