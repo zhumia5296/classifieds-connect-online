@@ -6,12 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { User, MapPin, Phone, Mail, Save, Camera, Bell } from "lucide-react";
+import { User, MapPin, Phone, Mail, Save, Bell, Shield, Calendar, Clock, CheckCircle2 } from "lucide-react";
 import NotificationSettings from './NotificationSettings';
+import SecuritySettings from './SecuritySettings';
+import AvatarUpload from './AvatarUpload';
 import LocationInput from './LocationInput';
 
 interface UserProfile {
@@ -39,7 +42,8 @@ const ProfileSettings = () => {
     display_name: '',
     bio: '',
     location: '',
-    phone: ''
+    phone: '',
+    avatar_url: null as string | null
   });
 
   useEffect(() => {
@@ -66,7 +70,8 @@ const ProfileSettings = () => {
           display_name: data.display_name || '',
           bio: data.bio || '',
           location: data.location || '',
-          phone: data.phone || ''
+          phone: data.phone || '',
+          avatar_url: data.avatar_url || null
         });
       } else {
         // Create a new profile if none exists
@@ -104,7 +109,8 @@ const ProfileSettings = () => {
         display_name: data.display_name || '',
         bio: data.bio || '',
         location: data.location || '',
-        phone: data.phone || ''
+        phone: data.phone || '',
+        avatar_url: data.avatar_url || null
       });
     } catch (err) {
       console.error('Error creating profile:', err);
@@ -206,7 +212,7 @@ const ProfileSettings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -215,58 +221,98 @@ const ProfileSettings = () => {
               <Bell className="h-4 w-4" />
               Notifications
             </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Security
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Profile Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Avatar Section */}
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <Avatar className="h-16 w-16">
-                      <AvatarFallback className="bg-primary/10 text-primary text-lg">
-                        {formData.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full"
-                      disabled
-                    >
-                      <Camera className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">
-                      {formData.display_name || 'User'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
-                      {user.email}
-                    </p>
-                    {profile?.is_verified && (
-                      <p className="text-xs text-primary">✓ Verified Account</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Form Fields */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="display_name">Display Name</Label>
-                    <Input
-                      id="display_name"
-                      placeholder="Enter your display name"
-                      value={formData.display_name}
-                      onChange={(e) => handleInputChange('display_name', e.target.value)}
+            <div className="space-y-6">
+              {/* Header Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Profile Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Profile Header */}
+                  <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-gradient-subtle rounded-lg border">
+                    <AvatarUpload
+                      userId={user.id}
+                      currentAvatar={formData.avatar_url}
+                      onAvatarUpdate={(avatarUrl) => {
+                        setFormData(prev => ({ ...prev, avatar_url: avatarUrl }));
+                        if (profile) {
+                          setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
+                        }
+                      }}
+                      displayName={formData.display_name}
+                      userEmail={user.email}
                     />
+                    
+                    <div className="flex-1 text-center sm:text-left space-y-2">
+                      <h2 className="text-2xl font-bold">
+                        {formData.display_name || 'User'}
+                      </h2>
+                      <p className="text-muted-foreground flex items-center justify-center sm:justify-start gap-2">
+                        <Mail className="h-4 w-4" />
+                        {user.email}
+                      </p>
+                      {profile?.is_verified && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Verified Account
+                        </Badge>
+                      )}
+                      <div className="flex items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Joined {profile ? new Date(profile.created_at).toLocaleDateString() : 'Recently'}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Updated {profile ? new Date(profile.updated_at).toLocaleDateString() : 'Never'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Details Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="display_name">Display Name</Label>
+                      <Input
+                        id="display_name"
+                        placeholder="Enter your display name"
+                        value={formData.display_name}
+                        onChange={(e) => handleInputChange('display_name', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="(555) 123-4567"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -276,68 +322,54 @@ const ProfileSettings = () => {
                       placeholder="Tell others about yourself..."
                       value={formData.bio}
                       onChange={(e) => handleInputChange('bio', e.target.value)}
-                      rows={3}
+                      rows={4}
+                      className="resize-none"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {formData.bio.length}/500 characters
+                    </p>
                   </div>
 
                   <LocationInput
                     value={formData.location}
                     onChange={(location, coords) => {
                       handleInputChange('location', location);
-                      // You could store coordinates in profile if needed
+                      // Store coordinates if needed
                     }}
                     label="Location"
                     placeholder="Enter your city or location"
                   />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(555) 123-4567"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
+                  <Separator />
 
-                {/* Account Information */}
-                <div className="border-t pt-6">
-                  <h4 className="font-medium mb-3">Account Information</h4>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Member since: {profile ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}</p>
-                    <p>Last updated: {profile ? new Date(profile.updated_at).toLocaleDateString() : 'Never'}</p>
+                  {/* Save Button */}
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={saving}
+                      className="min-w-32"
+                    >
+                      {saving ? (
+                        'Saving...'
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
                   </div>
-                </div>
-
-                {/* Save Button */}
-                <div className="flex justify-end pt-4">
-                  <Button 
-                    onClick={handleSave} 
-                    disabled={saving}
-                    className="min-w-32"
-                  >
-                    {saving ? (
-                      <>Saving...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="notifications">
             <NotificationSettings />
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecuritySettings onAccountDeleted={() => window.location.href = '/'} />
           </TabsContent>
         </Tabs>
       </div>
