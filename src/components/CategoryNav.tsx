@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +52,7 @@ const iconMap: Record<string, any> = {
 
 const CategoryNav = () => {
   const { selectedCategory, setSelectedCategory } = useCategoryFilter();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -212,7 +214,10 @@ const CategoryNav = () => {
                 className={`flex items-center space-x-2 whitespace-nowrap transition-all duration-200 ${
                   isActive ? "shadow-card bg-primary text-primary-foreground" : "hover:bg-muted/50"
                 }`}
-                onClick={() => handleCategoryClick(category.id)}
+                onClick={() => {
+                  handleCategoryClick(category.id);
+                  navigate(`/category/${category.slug}`);
+                }}
               >
                 <IconComponent className="h-4 w-4" />
                 <span className="font-medium">{category.name}</span>

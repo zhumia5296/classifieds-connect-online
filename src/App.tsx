@@ -19,6 +19,7 @@ import MobileOptimization from "./pages/MobileOptimization";
 import Admin from "./pages/Admin";
 import Watchlists from "./pages/Watchlists";
 import BulkAdManagement from "./pages/BulkAdManagement";
+import CategoryPage from "./pages/CategoryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/watchlists" element={<Watchlists />} />
               <Route path="/bulk-management" element={<BulkAdManagement />} />
+              <Route path="/category/:slug" element={<CategoryPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
