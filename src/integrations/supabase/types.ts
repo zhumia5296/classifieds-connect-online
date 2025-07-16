@@ -88,6 +88,41 @@ export type Database = {
           },
         ]
       }
+      ad_embeddings: {
+        Row: {
+          ad_id: string
+          content_hash: string
+          created_at: string
+          embedding: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ad_id: string
+          content_hash: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string
+          content_hash?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_embeddings_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: true
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ad_images: {
         Row: {
           ad_id: string
@@ -897,6 +932,41 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "ab_test_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_interactions: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          interaction_type: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          interaction_type: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
             referencedColumns: ["id"]
           },
         ]
