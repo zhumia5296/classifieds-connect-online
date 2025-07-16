@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import ProfileSettings from '@/components/ProfileSettings';
-import NotificationSettings from '@/components/NotificationSettings';
+import { NotificationSettings } from '@/components/NotificationSettings';
 import VerificationForm from '@/components/VerificationForm';
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';

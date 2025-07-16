@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
 import { User, MapPin, Phone, Mail, Save, Bell, Shield, Calendar, Clock, CheckCircle2 } from "lucide-react";
-import NotificationSettings from './NotificationSettings';
+import { NotificationSettings } from './NotificationSettings';
 import SecuritySettings from './SecuritySettings';
 import AvatarUpload from './AvatarUpload';
 import LocationInput from './LocationInput';

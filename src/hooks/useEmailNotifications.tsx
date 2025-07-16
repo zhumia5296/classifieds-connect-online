@@ -1,20 +1,33 @@
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
-interface EmailNotificationData {
-  to: string;
-  subject?: string;
-  template: 'new_message' | 'ad_featured' | 'payment_confirmed' | 'ad_expired' | 'report_received';
-  data: Record<string, any>;
+export interface EmailNotificationData {
+  notification_type: 'new_messages' | 'ad_responses' | 'price_changes' | 'ad_expiring' | 'featured_ad_updates' | 'watchlist_match' | 'similar_ads';
+  subject: string;
+  title: string;
+  message: string;
+  data?: Record<string, any>;
+  action_url?: string;
+  action_label?: string;
 }
 
 export const useEmailNotifications = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
 
-  const sendEmailNotification = async (notificationData: EmailNotificationData) => {
+  const sendEmailNotification = useCallback(async (notificationData: EmailNotificationData) => {
+    if (!user) {
+      throw new Error('User must be authenticated');
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('send-email-notification', {
-        body: notificationData
+        body: {
+          user_id: user.id,
+          ...notificationData
+        }
       });
 
       if (error) {
@@ -22,85 +35,100 @@ export const useEmailNotifications = () => {
         throw error;
       }
 
-      console.log('Email notification sent successfully:', data);
       return data;
     } catch (error) {
       console.error('Failed to send email notification:', error);
-      toast({
-        title: "Email notification failed",
-        description: "Failed to send email notification. Please try again.",
-        variant: "destructive",
-      });
       throw error;
     }
-  };
+  }, [user]);
 
-  const sendNewMessageNotification = async (recipientEmail: string, senderName: string, adTitle: string, message: string, messageUrl: string) => {
+  // Send new message notification
+  const sendNewMessageNotification = useCallback(async (adTitle: string, senderName: string, adId: string) => {
     return sendEmailNotification({
-      to: recipientEmail,
-      template: 'new_message',
-      data: {
-        senderName,
-        adTitle,
-        message: message.substring(0, 200) + (message.length > 200 ? '...' : ''),
-        messageUrl
-      }
+      notification_type: 'new_messages',
+      subject: `New message about: ${adTitle}`,
+      title: 'New Message Received',
+      message: `You have received a new message from ${senderName} about your listing "${adTitle}".`,
+      action_url: `/messages?ad=${adId}`,
+      action_label: 'View Message',
+      data: { ad_id: adId, sender_name: senderName }
     });
-  };
+  }, [sendEmailNotification]);
 
-  const sendAdFeaturedNotification = async (userEmail: string, adTitle: string, featuredUntil: string, durationDays: number, adUrl: string) => {
+  // Send price change notification
+  const sendPriceChangeNotification = useCallback(async (adTitle: string, oldPrice: number, newPrice: number, currency: string, adId: string) => {
     return sendEmailNotification({
-      to: userEmail,
-      template: 'ad_featured',
-      data: {
-        adTitle,
-        featuredUntil,
-        durationDays,
-        adUrl
-      }
+      notification_type: 'price_changes',
+      subject: `Price Drop Alert: ${adTitle}`,
+      title: 'Price Drop Alert!',
+      message: `Great news! The price for "${adTitle}" has dropped from ${currency}${oldPrice} to ${currency}${newPrice}.`,
+      action_url: `/ad/${adId}`,
+      action_label: 'View Listing',
+      data: { ad_id: adId, old_price: oldPrice, new_price: newPrice, currency }
     });
-  };
+  }, [sendEmailNotification]);
 
-  const sendPaymentConfirmedNotification = async (userEmail: string, adTitle: string, amount: number, durationDays: number) => {
+  // Send ad expiring notification
+  const sendAdExpiringNotification = useCallback(async (adTitle: string, expiresAt: string, adId: string) => {
+    const daysLeft = Math.ceil((new Date(expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    
     return sendEmailNotification({
-      to: userEmail,
-      template: 'payment_confirmed',
-      data: {
-        adTitle,
-        amount,
-        durationDays
-      }
+      notification_type: 'ad_expiring',
+      subject: `Your listing expires in ${daysLeft} days`,
+      title: 'Listing Expiring Soon',
+      message: `Your listing "${adTitle}" will expire in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Consider renewing it to keep it active.`,
+      action_url: `/dashboard?highlight=${adId}`,
+      action_label: 'Manage Listing',
+      data: { ad_id: adId, expires_at: expiresAt, days_left: daysLeft }
     });
-  };
+  }, [sendEmailNotification]);
 
-  const sendAdExpiredNotification = async (userEmail: string, adTitle: string, featureUrl: string) => {
+  // Send watchlist match notification
+  const sendWatchlistMatchNotification = useCallback(async (adTitle: string, watchlistName: string, adId: string, watchlistId: string) => {
     return sendEmailNotification({
-      to: userEmail,
-      template: 'ad_expired',
-      data: {
-        adTitle,
-        featureUrl
-      }
+      notification_type: 'watchlist_match',
+      subject: `Watchlist Match: ${adTitle}`,
+      title: 'Watchlist Match Found!',
+      message: `A new listing "${adTitle}" matches your watchlist "${watchlistName}". Check it out before it's gone!`,
+      action_url: `/ad/${adId}`,
+      action_label: 'View Listing',
+      data: { ad_id: adId, watchlist_id: watchlistId, watchlist_name: watchlistName }
     });
-  };
+  }, [sendEmailNotification]);
 
-  const sendReportReceivedNotification = async (userEmail: string, reportId: string, reason: string) => {
+  // Send featured ad confirmation
+  const sendFeaturedAdNotification = useCallback(async (adTitle: string, duration: number, adId: string) => {
     return sendEmailNotification({
-      to: userEmail,
-      template: 'report_received',
-      data: {
-        reportId,
-        reason
-      }
+      notification_type: 'featured_ad_updates',
+      subject: `Your listing is now featured!`,
+      title: 'Listing Featured Successfully',
+      message: `Your listing "${adTitle}" is now featured for ${duration} days and will get priority placement in search results.`,
+      action_url: `/ad/${adId}`,
+      action_label: 'View Featured Listing',
+      data: { ad_id: adId, duration }
     });
-  };
+  }, [sendEmailNotification]);
+
+  // Send similar ads notification
+  const sendSimilarAdsNotification = useCallback(async (adTitle: string, categoryName: string, adId: string) => {
+    return sendEmailNotification({
+      notification_type: 'similar_ads',
+      subject: `New listing in ${categoryName}`,
+      title: 'Similar Listing Available',
+      message: `A new listing "${adTitle}" has been posted in ${categoryName}, similar to items you've saved.`,
+      action_url: `/ad/${adId}`,
+      action_label: 'View Listing',
+      data: { ad_id: adId, category_name: categoryName }
+    });
+  }, [sendEmailNotification]);
 
   return {
     sendEmailNotification,
     sendNewMessageNotification,
-    sendAdFeaturedNotification,
-    sendPaymentConfirmedNotification,
-    sendAdExpiredNotification,
-    sendReportReceivedNotification
+    sendPriceChangeNotification,
+    sendAdExpiringNotification,
+    sendWatchlistMatchNotification,
+    sendFeaturedAdNotification,
+    sendSimilarAdsNotification
   };
 };
