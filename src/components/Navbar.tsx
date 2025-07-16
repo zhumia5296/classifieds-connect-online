@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List, ShoppingCart } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List, ShoppingCart, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -175,15 +175,19 @@ const Navbar = () => {
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/messages')}>
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    <span>Messages</span>
-                    {unreadCount > 0 && (
-                      <Badge variant="secondary" className="ml-auto bg-red-500 text-white text-xs">
-                        {unreadCount}
-                      </Badge>
-                    )}
-                  </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/messages')}>
+                     <MessageCircle className="mr-2 h-4 w-4" />
+                     <span>Messages</span>
+                     {unreadCount > 0 && (
+                       <Badge variant="secondary" className="ml-auto bg-red-500 text-white text-xs">
+                         {unreadCount}
+                       </Badge>
+                     )}
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/orders')}>
+                     <Package className="mr-2 h-4 w-4" />
+                     <span>Orders</span>
+                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/realtime-demo')}>
                     <Zap className="mr-2 h-4 w-4" />
                     Real-time Demo
