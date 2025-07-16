@@ -1,0 +1,64 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "close": "Fermer",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "select": "Sélectionner",
+    "clear": "Effacer",
+    "home": "Accueil",
+    "login": "Se Connecter",
+    "logout": "Se Déconnecter",
+    "signup": "S'inscrire",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "notifications": "Notifications",
+    "messages": "Messages"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "categories": "Catégories",
+    "post_ad": "Publier Annonce",
+    "favorites": "Favoris",
+    "activity_feed": "Fil d'Activité",
+    "profile": "Profil",
+    "dashboard": "Tableau de Bord",
+    "admin": "Administrateur",
+    "analytics": "Analytiques",
+    "watchlists": "Listes de Surveillance",
+    "compare": "Comparer"
+  },
+  "hero": {
+    "title": "Trouvez ce dont Vous Avez Besoin",
+    "subtitle": "Découvrez des offres incroyables dans votre région",
+    "search_placeholder": "Que cherchez-vous?",
+    "location_placeholder": "Localisation",
+    "search_button": "Rechercher Maintenant",
+    "featured_ads": "Annonces en Vedette",
+    "recent_ads": "Annonces Récentes",
+    "stats": {
+      "total_ads": "Total des Annonces",
+      "active_users": "Utilisateurs Actifs",
+      "categories": "Catégories"
+    }
+  },
+  "language": {
+    "select_language": "Sélectionner la Langue",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "chinese": "中文"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "search": "Suchen",
+    "filter": "Filter",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "close": "Schließen",
+    "submit": "Absenden",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "select": "Auswählen",
+    "clear": "Löschen",
+    "home": "Startseite",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "signup": "Registrieren",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "notifications": "Benachrichtigungen",
+    "messages": "Nachrichten"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "categories": "Kategorien",
+    "post_ad": "Anzeige Schalten",
+    "favorites": "Favoriten",
+    "activity_feed": "Aktivitäts-Feed",
+    "profile": "Profil",
+    "dashboard": "Dashboard",
+    "admin": "Administrator",
+    "analytics": "Analytics",
+    "watchlists": "Beobachtungslisten",
+    "compare": "Vergleichen"
+  },
+  "hero": {
+    "title": "Finden Sie was Sie Brauchen",
+    "subtitle": "Entdecken Sie tolle Angebote in Ihrer Nähe",
+    "search_placeholder": "Wonach suchen Sie?",
+    "location_placeholder": "Standort",
+    "search_button": "Jetzt Suchen",
+    "featured_ads": "Empfohlene Anzeigen",
+    "recent_ads": "Neueste Anzeigen",
+    "stats": {
+      "total_ads": "Gesamt Anzeigen",
+      "active_users": "Aktive Benutzer",
+      "categories": "Kategorien"
+    }
+  },
+  "language": {
+    "select_language": "Sprache Auswählen",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "chinese": "中文"
+  }
+}

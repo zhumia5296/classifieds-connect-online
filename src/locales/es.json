@@ -1,0 +1,101 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "close": "Cerrar",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "select": "Seleccionar",
+    "clear": "Limpiar",
+    "home": "Inicio",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "signup": "Registrarse",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "notifications": "Notificaciones",
+    "messages": "Mensajes"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "categories": "Categorías",
+    "post_ad": "Publicar Anuncio",
+    "favorites": "Favoritos",
+    "activity_feed": "Feed de Actividad",
+    "profile": "Perfil",
+    "dashboard": "Panel",
+    "admin": "Administrador",
+    "analytics": "Analíticas",
+    "watchlists": "Listas de Seguimiento",
+    "compare": "Comparar"
+  },
+  "hero": {
+    "title": "Encuentra lo que Necesitas",
+    "subtitle": "Descubre ofertas increíbles en tu área local",
+    "search_placeholder": "¿Qué estás buscando?",
+    "location_placeholder": "Ubicación",
+    "search_button": "Buscar Ahora",
+    "featured_ads": "Anuncios Destacados",
+    "recent_ads": "Anuncios Recientes",
+    "stats": {
+      "total_ads": "Total de Anuncios",
+      "active_users": "Usuarios Activos",
+      "categories": "Categorías"
+    }
+  },
+  "ads": {
+    "title": "Anuncios",
+    "post_new": "Publicar Nuevo Anuncio",
+    "featured": "Destacado",
+    "condition": "Condición",
+    "price": "Precio",
+    "location": "Ubicación",
+    "posted": "Publicado",
+    "category": "Categoría",
+    "description": "Descripción",
+    "contact": "Contacto",
+    "phone": "Teléfono",
+    "email": "Correo",
+    "view_details": "Ver Detalles",
+    "save_ad": "Guardar Anuncio",
+    "share": "Compartir",
+    "report": "Reportar",
+    "similar_ads": "Anuncios Similares",
+    "seller_info": "Información del Vendedor",
+    "ad_details": "Detalles del Anuncio",
+    "contact_seller": "Contactar Vendedor",
+    "price_on_request": "Precio bajo consulta",
+    "conditions": {
+      "new": "Nuevo",
+      "like_new": "Como Nuevo",
+      "excellent": "Excelente",
+      "good": "Bueno",
+      "fair": "Regular",
+      "poor": "Malo"
+    },
+    "status": {
+      "active": "Activo",
+      "sold": "Vendido",
+      "expired": "Expirado",
+      "pending": "Pendiente"
+    }
+  },
+  "language": {
+    "select_language": "Seleccionar Idioma",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "chinese": "中文"
+  }
+}

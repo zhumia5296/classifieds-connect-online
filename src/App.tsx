@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import "./lib/i18n"; // Initialize i18n
 import { CategoryProvider } from "@/hooks/useCategoryFilter";
 import { ComparisonProvider } from "@/hooks/useComparison";
 import { InstallPrompt } from "@/hooks/usePWA";

@@ -2,12 +2,15 @@ import { Search, MapPin, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const HeroSection = () => {
+  const { t } = useLanguage();
+  
   const stats = [
-    { label: "Active Listings", value: "25,000+" },
-    { label: "Happy Users", value: "50,000+" },
-    { label: "Cities Covered", value: "500+" },
+    { label: t('hero.stats.total_ads'), value: "25,000+" },
+    { label: t('hero.stats.active_users'), value: "50,000+" },
+    { label: t('hero.stats.categories'), value: "500+" },
   ];
 
   return (
@@ -26,14 +29,13 @@ const HeroSection = () => {
           
           {/* Headline */}
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Find Everything You Need
+            {t('hero.title')}
             <span className="block text-primary-glow">Right in Your Neighborhood</span>
           </h1>
           
           {/* Subtitle */}
           <p className="text-xl md:text-2xl mb-12 text-primary-foreground/80 max-w-2xl mx-auto">
-            Buy, sell, and discover amazing deals from trusted local sellers. 
-            Your perfect find is just a search away.
+            {t('hero.subtitle')}
           </p>
           
           {/* Search Bar */}
@@ -42,19 +44,19 @@ const HeroSection = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
-                  placeholder="What are you looking for?"
+                  placeholder={t('hero.search_placeholder')}
                   className="pl-12 h-12 bg-background text-foreground border-0 text-lg"
                 />
               </div>
               <div className="relative md:w-48">
                 <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
-                  placeholder="Location"
+                  placeholder={t('hero.location_placeholder')}
                   className="pl-12 h-12 bg-background text-foreground border-0"
                 />
               </div>
               <Button variant="hero" size="xl" className="h-12 bg-white text-primary hover:bg-white/90">
-                Search Now
+                {t('hero.search_button')}
               </Button>
             </div>
           </div>
