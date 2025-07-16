@@ -4,9 +4,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/hooks/use-toast';
+import QRCodeGenerator from './QRCodeGenerator';
 import { 
   Share2, 
   Facebook, 
@@ -15,7 +17,8 @@ import {
   MessageCircle,
   Mail,
   Copy,
-  ExternalLink
+  ExternalLink,
+  QrCode
 } from "lucide-react";
 
 interface SocialShareProps {
@@ -96,55 +99,85 @@ const SocialShare = ({
   };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant={variant} size={size}>
-          <Share2 className={`h-4 w-4 ${showLabel ? 'mr-2' : ''}`} />
-          {showLabel && 'Share'}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        {/* Native Share (if supported) */}
-        {navigator.share && (
-          <DropdownMenuItem onClick={handleNativeShare}>
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Share
+    <div className="flex items-center gap-1">
+      {/* QR Code Generator */}
+      <QRCodeGenerator
+        url={url}
+        title={title}
+        description={fullDescription}
+        variant="ghost"
+        buttonSize="icon"
+      />
+      
+      {/* Social Share Dropdown */}
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant={variant} size={size}>
+            <Share2 className={`h-4 w-4 ${showLabel ? 'mr-2' : ''}`} />
+            {showLabel && 'Share'}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          {/* QR Code Option */}
+          <QRCodeGenerator
+            url={url}
+            title={title}
+            description={fullDescription}
+            trigger={
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <QrCode className="h-4 w-4 mr-2" />
+                QR Code
+              </DropdownMenuItem>
+            }
+          />
+          
+          <DropdownMenuSeparator />
+          
+          {/* Native Share (if supported) */}
+          {navigator.share && (
+            <>
+              <DropdownMenuItem onClick={handleNativeShare}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Share
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          
+          {/* Social Media Platforms */}
+          <DropdownMenuItem onClick={() => openShareWindow(shareUrls.facebook)}>
+            <Facebook className="h-4 w-4 mr-2" />
+            Facebook
           </DropdownMenuItem>
-        )}
-        
-        {/* Social Media Platforms */}
-        <DropdownMenuItem onClick={() => openShareWindow(shareUrls.facebook)}>
-          <Facebook className="h-4 w-4 mr-2" />
-          Facebook
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={() => openShareWindow(shareUrls.twitter)}>
-          <Twitter className="h-4 w-4 mr-2" />
-          Twitter
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={() => openShareWindow(shareUrls.linkedin)}>
-          <Linkedin className="h-4 w-4 mr-2" />
-          LinkedIn
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={() => openShareWindow(shareUrls.whatsapp)}>
-          <MessageCircle className="h-4 w-4 mr-2" />
-          WhatsApp
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={() => openShareWindow(shareUrls.email)}>
-          <Mail className="h-4 w-4 mr-2" />
-          Email
-        </DropdownMenuItem>
-        
-        {/* Copy Link */}
-        <DropdownMenuItem onClick={handleCopyLink}>
-          <Copy className="h-4 w-4 mr-2" />
-          Copy Link
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          
+          <DropdownMenuItem onClick={() => openShareWindow(shareUrls.twitter)}>
+            <Twitter className="h-4 w-4 mr-2" />
+            Twitter
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem onClick={() => openShareWindow(shareUrls.linkedin)}>
+            <Linkedin className="h-4 w-4 mr-2" />
+            LinkedIn
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem onClick={() => openShareWindow(shareUrls.whatsapp)}>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            WhatsApp
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem onClick={() => openShareWindow(shareUrls.email)}>
+            <Mail className="h-4 w-4 mr-2" />
+            Email
+          </DropdownMenuItem>
+          
+          {/* Copy Link */}
+          <DropdownMenuItem onClick={handleCopyLink}>
+            <Copy className="h-4 w-4 mr-2" />
+            Copy Link
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

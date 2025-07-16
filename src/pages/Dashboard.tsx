@@ -23,8 +23,10 @@ import {
   Calendar,
   Star,
   Crown,
-  Award
+  Award,
+  QrCode
 } from 'lucide-react';
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -306,6 +308,18 @@ const Dashboard = () => {
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">Edit</Button>
                             <Button variant="outline" size="sm">View</Button>
+                            <QRCodeGenerator
+                              url={`${window.location.origin}/ad/${ad.id}`}
+                              title={ad.title}
+                              description={`${ad.price} - View this listing`}
+                              variant="outline"
+                              buttonSize="sm"
+                              trigger={
+                                <Button variant="outline" size="sm">
+                                  <QrCode className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
                           </div>
                           <QuickFeatureButton
                             adId={ad.id}

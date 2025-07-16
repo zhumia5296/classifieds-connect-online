@@ -15,6 +15,7 @@ import MessageStarter from '@/components/MessageStarter';
 import FeatureAdButton from '@/components/FeatureAdButton';
 import FeaturedAdStatus from '@/components/FeaturedAdStatus';
 import SocialShare from '@/components/SocialShare';
+import QRCodeCard from '@/components/QRCodeCard';
 import { FullscreenImageGallery } from '@/components/ImageGallery';
 import { 
   ArrowLeft, 
@@ -549,45 +550,58 @@ const AdDetailPage = () => {
           </div>
         </div>
 
-        {/* Seller Information */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Seller Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback>
-                  {ad.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold">
-                    {ad.profiles?.display_name || 'Anonymous User'}
-                  </h4>
-                  {ad.profiles?.is_verified && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Shield className="h-3 w-3 mr-1" />
-                      Verified
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  {ad.profiles?.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      <span>{ad.profiles.location}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Seller Information */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Seller Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback>
+                      {ad.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold">
+                        {ad.profiles?.display_name || 'Anonymous User'}
+                      </h4>
+                      {ad.profiles?.is_verified && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Shield className="h-3 w-3 mr-1" />
+                          Verified
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                  <div>
-                    Member since {ad.profiles ? formatDistance(new Date(ad.profiles.created_at), new Date(), { addSuffix: true }) : 'recently'}
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      {ad.profiles?.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{ad.profiles.location}</span>
+                        </div>
+                      )}
+                      <div>
+                        Member since {ad.profiles ? formatDistance(new Date(ad.profiles.created_at), new Date(), { addSuffix: true }) : 'recently'}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* QR Code Sharing */}
+          <div>
+            <QRCodeCard
+              url={window.location.href}
+              title={ad.title}
+              description={`${formatPrice(ad.price, ad.currency)} - ${ad.location}`}
+            />
+          </div>
+        </div>
 
         {/* Enhanced Image Gallery */}
         <FullscreenImageGallery
