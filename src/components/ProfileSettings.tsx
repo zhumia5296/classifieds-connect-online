@@ -8,14 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { User, MapPin, Phone, Mail, Save, Bell, Shield, Calendar, Clock, CheckCircle2 } from "lucide-react";
+import { User, MapPin, Phone, Mail, Save, Bell, Shield, Calendar, Clock, CheckCircle2, Building2, Users } from "lucide-react";
 import { NotificationSettings } from './NotificationSettings';
 import SecuritySettings from './SecuritySettings';
 import AvatarUpload from './AvatarUpload';
 import LocationInput from './LocationInput';
+import BusinessProfileForm from './BusinessProfileForm';
 
 interface UserProfile {
   id: string;
@@ -30,6 +32,18 @@ interface UserProfile {
   is_verified: boolean;
   created_at: string;
   updated_at: string;
+  account_type: 'individual' | 'business';
+  business_name?: string | null;
+  business_type?: string | null;
+  business_registration?: string | null;
+  business_address?: string | null;
+  business_phone?: string | null;
+  business_email?: string | null;
+  business_website?: string | null;
+  tax_id?: string | null;
+  business_hours?: any;
+  business_description?: string | null;
+  business_license_url?: string | null;
 }
 
 const ProfileSettings = () => {
@@ -43,7 +57,19 @@ const ProfileSettings = () => {
     bio: '',
     location: '',
     phone: '',
-    avatar_url: null as string | null
+    avatar_url: null as string | null,
+    account_type: 'individual' as 'individual' | 'business',
+    business_name: '',
+    business_type: '',
+    business_registration: '',
+    business_address: '',
+    business_phone: '',
+    business_email: '',
+    business_website: '',
+    tax_id: '',
+    business_hours: null as any,
+    business_description: '',
+    business_license_url: null as string | null
   });
 
   useEffect(() => {
@@ -65,13 +91,25 @@ const ProfileSettings = () => {
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
-        setProfile(data);
+        setProfile(data as UserProfile);
         setFormData({
           display_name: data.display_name || '',
           bio: data.bio || '',
           location: data.location || '',
           phone: data.phone || '',
-          avatar_url: data.avatar_url || null
+          avatar_url: data.avatar_url || null,
+          account_type: (data.account_type as 'individual' | 'business') || 'individual',
+          business_name: data.business_name || '',
+          business_type: data.business_type || '',
+          business_registration: data.business_registration || '',
+          business_address: data.business_address || '',
+          business_phone: data.business_phone || '',
+          business_email: data.business_email || '',
+          business_website: data.business_website || '',
+          tax_id: data.tax_id || '',
+          business_hours: data.business_hours || null,
+          business_description: data.business_description || '',
+          business_license_url: data.business_license_url || null
         });
       } else {
         // Create a new profile if none exists
@@ -97,20 +135,33 @@ const ProfileSettings = () => {
         .from('profiles')
         .insert({
           user_id: user.id,
-          display_name: user.email?.split('@')[0] || 'User'
+          display_name: user.email?.split('@')[0] || 'User',
+          account_type: 'individual'
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setProfile(data);
+      setProfile(data as UserProfile);
       setFormData({
         display_name: data.display_name || '',
         bio: data.bio || '',
         location: data.location || '',
         phone: data.phone || '',
-        avatar_url: data.avatar_url || null
+        avatar_url: data.avatar_url || null,
+        account_type: (data.account_type as 'individual' | 'business') || 'individual',
+        business_name: data.business_name || '',
+        business_type: data.business_type || '',
+        business_registration: data.business_registration || '',
+        business_address: data.business_address || '',
+        business_phone: data.business_phone || '',
+        business_email: data.business_email || '',
+        business_website: data.business_website || '',
+        tax_id: data.tax_id || '',
+        business_hours: data.business_hours || null,
+        business_description: data.business_description || '',
+        business_license_url: data.business_license_url || null
       });
     } catch (err) {
       console.error('Error creating profile:', err);
@@ -129,15 +180,35 @@ const ProfileSettings = () => {
 
     setSaving(true);
     try {
+      const updateData = {
+        display_name: formData.display_name.trim() || null,
+        bio: formData.bio.trim() || null,
+        location: formData.location.trim() || null,
+        phone: formData.phone.trim() || null,
+        account_type: formData.account_type,
+        updated_at: new Date().toISOString()
+      };
+
+      // Add business fields if account type is business
+      if (formData.account_type === 'business') {
+        Object.assign(updateData, {
+          business_name: formData.business_name.trim() || null,
+          business_type: formData.business_type.trim() || null,
+          business_registration: formData.business_registration.trim() || null,
+          business_address: formData.business_address.trim() || null,
+          business_phone: formData.business_phone.trim() || null,
+          business_email: formData.business_email.trim() || null,
+          business_website: formData.business_website.trim() || null,
+          tax_id: formData.tax_id.trim() || null,
+          business_hours: formData.business_hours,
+          business_description: formData.business_description.trim() || null,
+          business_license_url: formData.business_license_url
+        });
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          display_name: formData.display_name.trim() || null,
-          bio: formData.bio.trim() || null,
-          location: formData.location.trim() || null,
-          phone: formData.phone.trim() || null,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -147,7 +218,7 @@ const ProfileSettings = () => {
 
       toast({
         title: "Profile updated",
-        description: "Your profile has been saved successfully.",
+        description: `Your ${formData.account_type} profile has been saved successfully.`,
       });
     } catch (err) {
       console.error('Error updating profile:', err);
@@ -282,25 +353,74 @@ const ProfileSettings = () => {
                 </CardContent>
               </Card>
 
+              {/* Account Type Selection Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Account Type
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="account_type">Account Type</Label>
+                    <Select
+                      value={formData.account_type}
+                      onValueChange={(value: 'individual' | 'business') => handleInputChange('account_type', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="individual">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            Individual Account
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="business">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Business Account
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {formData.account_type === 'business' 
+                        ? 'Business accounts get enhanced features like verification badges, business hours, and detailed contact information.'
+                        : 'Individual accounts for personal sellers and buyers.'
+                      }
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Details Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal Details</CardTitle>
+                  <CardTitle>
+                    {formData.account_type === 'business' ? 'Personal Contact Details' : 'Personal Details'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="display_name">Display Name</Label>
+                      <Label htmlFor="display_name">
+                        {formData.account_type === 'business' ? 'Contact Name' : 'Display Name'}
+                      </Label>
                       <Input
                         id="display_name"
-                        placeholder="Enter your display name"
+                        placeholder={formData.account_type === 'business' ? 'Your name as contact person' : 'Enter your display name'}
                         value={formData.display_name}
                         onChange={(e) => handleInputChange('display_name', e.target.value)}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">
+                        {formData.account_type === 'business' ? 'Personal Phone' : 'Phone Number'}
+                      </Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
@@ -316,10 +436,12 @@ const ProfileSettings = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio">
+                      {formData.account_type === 'business' ? 'Personal Bio' : 'Bio'}
+                    </Label>
                     <Textarea
                       id="bio"
-                      placeholder="Tell others about yourself..."
+                      placeholder={formData.account_type === 'business' ? 'Tell about yourself as the contact person...' : 'Tell others about yourself...'}
                       value={formData.bio}
                       onChange={(e) => handleInputChange('bio', e.target.value)}
                       rows={4}
@@ -336,31 +458,52 @@ const ProfileSettings = () => {
                       handleInputChange('location', location);
                       // Store coordinates if needed
                     }}
-                    label="Location"
+                    label={formData.account_type === 'business' ? 'Personal Location' : 'Location'}
                     placeholder="Enter your city or location"
                   />
-
-                  <Separator />
-
-                  {/* Save Button */}
-                  <div className="flex justify-end">
-                    <Button 
-                      onClick={handleSave} 
-                      disabled={saving}
-                      className="min-w-32"
-                    >
-                      {saving ? (
-                        'Saving...'
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
+
+              {/* Business Profile Form - Only shown for business accounts */}
+              {formData.account_type === 'business' && (
+                <BusinessProfileForm
+                  formData={{
+                    business_name: formData.business_name,
+                    business_type: formData.business_type,
+                    business_registration: formData.business_registration,
+                    business_address: formData.business_address,
+                    business_phone: formData.business_phone,
+                    business_email: formData.business_email,
+                    business_website: formData.business_website,
+                    tax_id: formData.tax_id,
+                    business_hours: formData.business_hours,
+                    business_description: formData.business_description,
+                    business_license_url: formData.business_license_url
+                  }}
+                  onInputChange={handleInputChange}
+                  isVerified={profile?.is_verified}
+                />
+              )}
+
+              <Separator />
+
+              {/* Save Button */}
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={saving}
+                  className="min-w-32"
+                >
+                  {saving ? (
+                    'Saving...'
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save {formData.account_type === 'business' ? 'Business ' : ''}Profile
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </TabsContent>
 

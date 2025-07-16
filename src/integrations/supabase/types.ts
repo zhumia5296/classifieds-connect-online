@@ -690,8 +690,19 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string | null
           avatar_url: string | null
           bio: string | null
+          business_address: string | null
+          business_description: string | null
+          business_email: string | null
+          business_hours: Json | null
+          business_license_url: string | null
+          business_name: string | null
+          business_phone: string | null
+          business_registration: string | null
+          business_type: string | null
+          business_website: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -700,12 +711,24 @@ export type Database = {
           location: string | null
           longitude: number | null
           phone: string | null
+          tax_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          account_type?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_email?: string | null
+          business_hours?: Json | null
+          business_license_url?: string | null
+          business_name?: string | null
+          business_phone?: string | null
+          business_registration?: string | null
+          business_type?: string | null
+          business_website?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -714,12 +737,24 @@ export type Database = {
           location?: string | null
           longitude?: number | null
           phone?: string | null
+          tax_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          account_type?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_email?: string | null
+          business_hours?: Json | null
+          business_license_url?: string | null
+          business_name?: string | null
+          business_phone?: string | null
+          business_registration?: string | null
+          business_type?: string | null
+          business_website?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -728,6 +763,7 @@ export type Database = {
           location?: string | null
           longitude?: number | null
           phone?: string | null
+          tax_id?: string | null
           updated_at?: string
           user_id?: string
         }
