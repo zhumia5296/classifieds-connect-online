@@ -63,6 +63,45 @@ export const updatePageSEO = (seoData: Partial<SEOData>) => {
   if (data.type) {
     updateMetaTag('og:type', data.type);
   }
+  
+  // Microsoft/Bing specific updates
+  updateBingMeta(data);
+};
+
+// Microsoft/Bing specific meta tag updates
+const updateBingMeta = (data: Partial<SEOData>) => {
+  // Bing prefers specific meta tags for better indexing
+  if (data.title) {
+    updateMetaTag('msapplication-TileColor', '#3b82f6');
+    updateMetaTag('application-name', data.title);
+  }
+  
+  if (data.description) {
+    updateMetaTag('msapplication-tooltip', data.description.substring(0, 100));
+  }
+  
+  // Add Microsoft Clarity if needed (placeholder for user to add their ID)
+  if (!document.querySelector('script[src*="clarity.ms"]')) {
+    addMicrosoftClarity();
+  }
+};
+
+// Add Microsoft Clarity tracking (placeholder)
+const addMicrosoftClarity = () => {
+  // Placeholder for Microsoft Clarity - user needs to add their tracking ID
+  const script = document.createElement('script');
+  script.innerHTML = `
+    // Microsoft Clarity tracking code placeholder
+    // Replace 'YOUR_CLARITY_ID' with your actual Clarity tracking ID
+    /*
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "YOUR_CLARITY_ID");
+    */
+  `;
+  document.head.appendChild(script);
 };
 
 const updateMetaTag = (name: string, content: string) => {
@@ -193,17 +232,96 @@ export const generateSitemapUrls = (ads: Array<{ id: string; updated_at: string 
   const baseUrl = "https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com";
   
   const staticUrls = [
-    { url: baseUrl, lastmod: new Date().toISOString(), priority: '1.0' },
-    { url: `${baseUrl}/dashboard`, lastmod: new Date().toISOString(), priority: '0.8' },
-    { url: `${baseUrl}/post-ad`, lastmod: new Date().toISOString(), priority: '0.8' },
-    { url: `${baseUrl}/auth`, lastmod: new Date().toISOString(), priority: '0.6' }
+    { url: baseUrl, lastmod: new Date().toISOString(), priority: '1.0', changefreq: 'daily' },
+    { url: `${baseUrl}/dashboard`, lastmod: new Date().toISOString(), priority: '0.8', changefreq: 'weekly' },
+    { url: `${baseUrl}/post-ad`, lastmod: new Date().toISOString(), priority: '0.8', changefreq: 'weekly' },
+    { url: `${baseUrl}/auth`, lastmod: new Date().toISOString(), priority: '0.6', changefreq: 'monthly' },
+    { url: `${baseUrl}/pricing`, lastmod: new Date().toISOString(), priority: '0.7', changefreq: 'monthly' },
+    { url: `${baseUrl}/promotions`, lastmod: new Date().toISOString(), priority: '0.7', changefreq: 'weekly' }
   ];
   
   const adUrls = ads.map(ad => ({
     url: `${baseUrl}/ad/${ad.id}`,
     lastmod: ad.updated_at,
-    priority: '0.9'
+    priority: '0.9',
+    changefreq: 'weekly'
   }));
   
   return [...staticUrls, ...adUrls];
+};
+
+// Generate XML sitemap with Microsoft/Bing optimizations
+export const generateXMLSitemap = (urls: Array<{ 
+  url: string; 
+  lastmod: string; 
+  priority: string; 
+  changefreq?: string 
+}>) => {
+  const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>';
+  const urlsetOpen = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">';
+  
+  const urlElements = urls.map(urlData => {
+    return `  <url>
+    <loc>${urlData.url}</loc>
+    <lastmod>${urlData.lastmod}</lastmod>
+    <changefreq>${urlData.changefreq || 'weekly'}</changefreq>
+    <priority>${urlData.priority}</priority>
+  </url>`;
+  }).join('\n');
+  
+  const urlsetClose = '</urlset>';
+  
+  return `${xmlDeclaration}\n${urlsetOpen}\n${urlElements}\n${urlsetClose}`;
+};
+
+// Bing-specific meta validation
+export const validateBingMeta = () => {
+  const requiredMeta = [
+    'msvalidate.01',
+    'description',
+    'keywords',
+    'og:title',
+    'og:description',
+    'og:image'
+  ];
+  
+  const missingMeta: string[] = [];
+  
+  requiredMeta.forEach(metaName => {
+    const isProperty = metaName.startsWith('og:');
+    const selector = isProperty ? `meta[property="${metaName}"]` : `meta[name="${metaName}"]`;
+    
+    if (!document.querySelector(selector)) {
+      missingMeta.push(metaName);
+    }
+  });
+  
+  return {
+    isValid: missingMeta.length === 0,
+    missingMeta,
+    recommendations: generateBingRecommendations(missingMeta)
+  };
+};
+
+// Generate Bing SEO recommendations
+const generateBingRecommendations = (missingMeta: string[]) => {
+  const recommendations: string[] = [];
+  
+  if (missingMeta.includes('msvalidate.01')) {
+    recommendations.push('Add Bing Webmaster Tools verification meta tag');
+  }
+  
+  if (missingMeta.includes('description')) {
+    recommendations.push('Add meta description (150-160 characters recommended)');
+  }
+  
+  if (missingMeta.includes('keywords')) {
+    recommendations.push('Add relevant keywords meta tag');
+  }
+  
+  if (missingMeta.includes('og:title') || missingMeta.includes('og:description')) {
+    recommendations.push('Add Open Graph meta tags for better social sharing');
+  }
+  
+  return recommendations;
 };
