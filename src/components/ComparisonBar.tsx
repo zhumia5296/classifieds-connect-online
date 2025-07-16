@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Scale, ArrowRight, Save, FolderOpen } from 'lucide-react';
+import { X, Scale, ArrowRight, Save, FolderOpen, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useComparison } from '@/hooks/useComparison';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import ComparisonModal from '@/components/ComparisonModal';
 
 const ComparisonBar = () => {
   const { 
@@ -23,6 +24,7 @@ const ComparisonBar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
+  const [showQuickPreview, setShowQuickPreview] = useState(false);
   const [comparisonName, setComparisonName] = useState('');
   const navigate = useNavigate();
 
@@ -201,17 +203,37 @@ const ComparisonBar = () => {
               )}
             </div>
             
-            <Button 
-              onClick={handleCompare}
-              disabled={comparisonAds.length < 2}
-              className="gap-2"
-            >
-              Compare Now
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              {comparisonAds.length >= 2 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowQuickPreview(true)}
+                  className="gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  Quick Preview
+                </Button>
+              )}
+              
+              <Button 
+                onClick={handleCompare}
+                disabled={comparisonAds.length < 2}
+                className="gap-2"
+              >
+                Compare Now
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Quick Preview Modal */}
+      <ComparisonModal 
+        isOpen={showQuickPreview} 
+        onOpenChange={setShowQuickPreview} 
+      />
     </div>
   );
 };

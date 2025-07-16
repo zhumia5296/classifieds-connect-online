@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { useComparison } from '@/hooks/useComparison';
 import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance, formatDistance } from '@/lib/location';
+import { getComparisonFieldsForCategory, formatFieldValue } from '@/lib/categoryComparison';
 import SocialShare from '@/components/SocialShare';
 
 const Compare = () => {
@@ -44,6 +45,9 @@ const Compare = () => {
   const prices = comparisonAds.map(ad => extractPrice(ad.price));
   const minPrice = Math.min(...prices.filter(p => p > 0));
   const maxPrice = Math.max(...prices.filter(p => p > 0));
+
+  // Get category-specific fields (use the first ad's category as reference)
+  const comparisonFields = getComparisonFieldsForCategory(comparisonAds[0]?.category || '');
 
   if (comparisonAds.length === 0) {
     return null;
@@ -175,6 +179,24 @@ const Compare = () => {
                       <span>{ad.timeAgo}</span>
                     </div>
                   </div>
+
+                  {/* Category-Specific Fields */}
+                  {comparisonFields.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="text-sm font-medium text-muted-foreground">Specifications</div>
+                        {comparisonFields.map((field) => (
+                          <div key={field.key} className="space-y-1">
+                            <div className="text-sm font-medium text-muted-foreground">{field.label}</div>
+                            <div className={`text-sm ${field.important ? 'font-medium text-foreground' : ''}`}>
+                              {formatFieldValue('Not specified', field)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
 
                   <Separator />
 
