@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useAdvancedAnalytics } from '@/hooks/useAdvancedAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import AnalyticsChart from '@/components/analytics/AnalyticsChart';
 import MetricCard from '@/components/analytics/MetricCard';
+import RealTimeAnalytics from '@/components/analytics/RealTimeAnalytics';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   BarChart3, 
   Users, 
@@ -25,20 +33,51 @@ import {
   RefreshCw,
   Zap,
   Star,
-  Activity
+  Activity,
+  Filter,
+  Search,
+  Globe,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Clock,
+  Target,
+  Layers,
+  PieChart,
+  BarChart,
+  LineChart,
+  MousePointer,
+  Navigation,
+  MapPin,
+  UserCheck,
+  AlertCircle,
+  TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const Analytics = () => {
   const { user } = useAuth();
   const { isAdmin, isModerator } = useAdmin();
   const { toast } = useToast();
+  const { trackEvent } = useAdvancedAnalytics();
 
   const [dateRange, setDateRange] = useState({
     from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
     to: new Date()
   });
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDeviceType, setSelectedDeviceType] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(false);
+  const [advancedMetrics, setAdvancedMetrics] = useState<any>(null);
+  const [userBehaviorData, setUserBehaviorData] = useState<any>(null);
+  const [cohortData, setCohortData] = useState<any>(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
 
   const { data, loading, error, refetch } = useAnalytics(dateRange);
 
@@ -217,12 +256,94 @@ const Analytics = () => {
           ))}
         </div>
       ) : data ? (
+        <>
+          {/* Advanced Filters */}
+          <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Advanced Filters & Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center">
+              <div>
+                <Label htmlFor="category-filter">Category</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger id="category-filter">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {data?.topCategories.map((cat) => (
+                      <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="device-filter">Device Type</Label>
+                <Select value={selectedDeviceType} onValueChange={setSelectedDeviceType}>
+                  <SelectTrigger id="device-filter">
+                    <SelectValue placeholder="All Devices" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Devices</SelectItem>
+                    <SelectItem value="desktop">Desktop</SelectItem>
+                    <SelectItem value="mobile">Mobile</SelectItem>
+                    <SelectItem value="tablet">Tablet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="search-filter">Search</Label>
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="search-filter"
+                    placeholder="Search metrics..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="realtime-mode"
+                  checked={realTimeEnabled}
+                  onCheckedChange={setRealTimeEnabled}
+                />
+                <Label htmlFor="realtime-mode" className="text-sm">Real-time</Label>
+              </div>
+              
+              <Button 
+                onClick={() => trackEvent('analytics_filter_applied', { 
+                  category: selectedCategory, 
+                  device: selectedDeviceType, 
+                  search: searchQuery 
+                })}
+                variant="outline"
+                size="sm"
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="behavior">User Behavior</TabsTrigger>
+            <TabsTrigger value="geographic">Geographic</TabsTrigger>
+            <TabsTrigger value="realtime">Real-time</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -544,7 +665,389 @@ const Analytics = () => {
               </Card>
             </div>
           </TabsContent>
+
+          {/* User Behavior Tab */}
+          <TabsContent value="behavior" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <MetricCard
+                title="Avg Session Duration"
+                value="3m 24s"
+                icon={Clock}
+                description="Time spent per session"
+                variant="default"
+              />
+              
+              <MetricCard
+                title="Bounce Rate"
+                value="32.4%"
+                icon={ArrowUpRight}
+                description="Single page sessions"
+                variant="warning"
+              />
+              
+              <MetricCard
+                title="Pages per Session"
+                value="2.8"
+                icon={Navigation}
+                description="Average page views"
+                variant="default"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Monitor className="h-5 w-5" />
+                    Device Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="h-4 w-4" />
+                        <span>Desktop</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">45%</span>
+                        <Progress value={45} className="w-20" />
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4" />
+                        <span>Mobile</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">42%</span>
+                        <Progress value={42} className="w-20" />
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Tablet className="h-4 w-4" />
+                        <span>Tablet</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">13%</span>
+                        <Progress value={13} className="w-20" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MousePointer className="h-5 w-5" />
+                    User Journey Flow
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <span className="text-sm">Homepage → Browse Ads</span>
+                      <Badge variant="outline">67%</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <span className="text-sm">Browse → Ad Detail</span>
+                      <Badge variant="outline">45%</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <span className="text-sm">Detail → Contact</span>
+                      <Badge variant="outline">23%</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <span className="text-sm">Homepage → Post Ad</span>
+                      <Badge variant="outline">12%</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Geographic Tab */}
+          <TabsContent value="geographic" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MetricCard
+                title="Top Location"
+                value="California"
+                icon={MapPin}
+                description="Most active region"
+                variant="default"
+              />
+              
+              <MetricCard
+                title="Global Reach"
+                value="24 Countries"
+                icon={Globe}
+                description="Users worldwide"
+                variant="success"
+              />
+              
+              <MetricCard
+                title="City Coverage"
+                value="156 Cities"
+                icon={Navigation}
+                description="Active locations"
+                variant="default"
+              />
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  Geographic Distribution
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  User activity by location
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Top Countries</h4>
+                    {[
+                      { country: 'United States', users: 2847, percentage: 68 },
+                      { country: 'Canada', users: 423, percentage: 10 },
+                      { country: 'United Kingdom', users: 312, percentage: 7 },
+                      { country: 'Australia', users: 198, percentage: 5 },
+                      { country: 'Germany', users: 156, percentage: 4 }
+                    ].map((location, index) => (
+                      <div key={location.country} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline">#{index + 1}</Badge>
+                          <span className="font-medium">{location.country}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            {location.users} users
+                          </span>
+                          <Progress value={location.percentage} className="w-16" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Top Cities</h4>
+                    {[
+                      { city: 'New York', users: 892 },
+                      { city: 'Los Angeles', users: 654 },
+                      { city: 'Toronto', users: 432 },
+                      { city: 'London', users: 312 },
+                      { city: 'Sydney', users: 198 }
+                    ].map((city, index) => (
+                      <div key={city.city} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline">#{index + 1}</Badge>
+                          <span className="font-medium">{city.city}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {city.users} users
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Real-time Tab */}
+          <TabsContent value="realtime" className="space-y-6">
+            {realTimeEnabled ? (
+              <RealTimeAnalytics />
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="p-6 text-center">
+                      <div className="text-2xl font-bold text-green-600 mb-2">
+                        24 <span className="text-xs text-muted-foreground">LIVE</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">Active Users Right Now</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6 text-center">
+                      <div className="text-2xl font-bold text-blue-600 mb-2">156</div>
+                      <div className="text-sm text-muted-foreground">Page Views (Last Hour)</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6 text-center">
+                      <div className="text-2xl font-bold text-purple-600 mb-2">8</div>
+                      <div className="text-sm text-muted-foreground">Conversions Today</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      Recent Activity Feed
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {[
+                        { time: '2 minutes ago', action: 'New user registered', type: 'user' },
+                        { time: '4 minutes ago', action: 'Ad posted in Electronics', type: 'ad' },
+                        { time: '7 minutes ago', action: 'Message sent', type: 'message' },
+                        { time: '12 minutes ago', action: 'Featured ad purchased', type: 'revenue' },
+                        { time: '15 minutes ago', action: 'User logged in from mobile', type: 'user' }
+                      ].map((activity, index) => (
+                        <div key={index} className="flex items-center gap-3 p-2 rounded hover:bg-muted/50">
+                          <div className={cn(
+                            "w-2 h-2 rounded-full",
+                            activity.type === 'user' && "bg-blue-500",
+                            activity.type === 'ad' && "bg-green-500",
+                            activity.type === 'message' && "bg-yellow-500",
+                            activity.type === 'revenue' && "bg-purple-500"
+                          )} />
+                          <div className="flex-1">
+                            <span className="text-sm">{activity.action}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{activity.time}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart className="h-5 w-5" />
+                  Custom Reports & Exports
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Generate detailed reports for specific metrics and time periods
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'user_acquisition' })}
+                  >
+                    <Users className="h-6 w-6" />
+                    <span className="text-sm">User Acquisition Report</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'conversion' })}
+                  >
+                    <Target className="h-6 w-6" />
+                    <span className="text-sm">Conversion Analysis</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'revenue' })}
+                  >
+                    <DollarSign className="h-6 w-6" />
+                    <span className="text-sm">Revenue Report</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'engagement' })}
+                  >
+                    <Activity className="h-6 w-6" />
+                    <span className="text-sm">Engagement Metrics</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'geographic' })}
+                  >
+                    <Globe className="h-6 w-6" />
+                    <span className="text-sm">Geographic Report</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => trackEvent('custom_report_requested', { type: 'performance' })}
+                  >
+                    <TrendingUp className="h-6 w-6" />
+                    <span className="text-sm">Performance Report</span>
+                  </Button>
+                </div>
+
+                <Separator className="my-6" />
+
+                <div>
+                  <h4 className="font-medium mb-4">Advanced Analytics Features</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Layers className="h-5 w-5 text-purple-600" />
+                        <span className="font-medium">Cohort Analysis</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Track user retention and behavior patterns over time
+                      </p>
+                    </Card>
+                    
+                    <Card className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Target className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium">Funnel Analysis</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Identify conversion bottlenecks and optimization opportunities
+                      </p>
+                    </Card>
+                    
+                    <Card className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <UserCheck className="h-5 w-5 text-green-600" />
+                        <span className="font-medium">User Segmentation</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Analyze behavior patterns across different user groups
+                      </p>
+                    </Card>
+                    
+                    <Card className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <AlertCircle className="h-5 w-5 text-orange-600" />
+                        <span className="font-medium">Anomaly Detection</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Automatically detect unusual patterns in your data
+                      </p>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
+        </>
       ) : null}
     </div>
   );
