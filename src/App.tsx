@@ -30,6 +30,8 @@ import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
 import SearchResults from "./pages/SearchResults";
 import { ActivityFeed } from "./pages/ActivityFeed";
+import Pricing from "./pages/Pricing";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +74,8 @@ const App = () => (
           <Route path="/activity-feed" element={<ActivityFeed />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

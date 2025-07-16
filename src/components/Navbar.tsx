@@ -202,14 +202,18 @@ const Navbar = () => {
                     <Heart className="mr-2 h-4 w-4" />
                     Saved Ads
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    <User className="mr-2 h-4 w-4" />
-                    My Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/settings')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/pricing')}>
+                     <Crown className="mr-2 h-4 w-4" />
+                     Subscription Plans
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/profile')}>
+                     <User className="mr-2 h-4 w-4" />
+                     My Profile
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/settings')}>
+                     <Settings className="mr-2 h-4 w-4" />
+                     Settings
+                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />

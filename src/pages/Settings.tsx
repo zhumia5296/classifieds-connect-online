@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import ProfileSettings from '@/components/ProfileSettings';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import VerificationForm from '@/components/VerificationForm';
+import SubscriptionManagement from '@/components/SubscriptionManagement';
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';
 import { useNavigate } from 'react-router-dom';
@@ -63,14 +64,19 @@ const Settings = () => {
           </div>
 
           <Tabs defaultValue="general" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="subscription">Subscription</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
               <TabsTrigger value="verification">Verification</TabsTrigger>
             </TabsList>
 
             <TabsContent value="general">
               <ProfileSettings />
+            </TabsContent>
+
+            <TabsContent value="subscription">
+              <SubscriptionManagement />
             </TabsContent>
 
             <TabsContent value="notifications">
