@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List, Map } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -102,16 +102,6 @@ const Navbar = () => {
             <Button variant="ghost" size="sm" className="hidden lg:flex">
               <MapPin className="h-4 w-4 mr-2" />
               San Francisco
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="hidden md:flex"
-              onClick={() => navigate('/map')}
-            >
-              <Map className="h-4 w-4 mr-2" />
-              Map View
             </Button>
             
             <Button 
