@@ -15,6 +15,7 @@ import RealtimeDemo from "./pages/RealtimeDemo";
 import Analytics from "./pages/Analytics";
 import MobileOptimization from "./pages/MobileOptimization";
 import Admin from "./pages/Admin";
+import Watchlists from "./pages/Watchlists";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/mobile" element={<MobileOptimization />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/watchlists" element={<Watchlists />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

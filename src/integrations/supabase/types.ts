@@ -1045,6 +1045,78 @@ export type Database = {
         }
         Relationships: []
       }
+      watchlist_notifications: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          user_id: string
+          watchlist_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          user_id: string
+          watchlist_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          user_id?: string
+          watchlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_notifications_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchlist_notifications_watchlist_id_fkey"
+            columns: ["watchlist_id"]
+            isOneToOne: false
+            referencedRelation: "watchlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      watchlists: {
+        Row: {
+          created_at: string
+          criteria: Json
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          criteria?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

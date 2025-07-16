@@ -11,13 +11,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, MessageCircle, X } from 'lucide-react';
+import { Bell, MessageCircle, X, AlertCircle } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
 interface Notification {
   id: string;
-  type: 'message' | 'system';
+  type: 'message' | 'watchlist' | 'system';
   title: string;
   message: string;
   created_at: string;
@@ -25,6 +25,7 @@ interface Notification {
   sender_name?: string;
   ad_title?: string;
   ad_id?: string;
+  watchlist_name?: string;
 }
 
 const NotificationBell = () => {
@@ -38,8 +39,8 @@ const NotificationBell = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Subscribe to new messages for notifications
-    const channel = supabase
+    // Subscribe to new messages and watchlist notifications
+    const messageChannel = supabase
       .channel('message-notifications')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -78,7 +79,7 @@ const NotificationBell = () => {
           ad_id: newMessage.ad_id
         };
 
-        setNotifications(prev => [notification, ...prev.slice(0, 19)]); // Keep latest 20
+        setNotifications(prev => [notification, ...prev.slice(0, 19)]);
         setUnreadCount(prev => prev + 1);
 
         // Show toast notification
@@ -100,8 +101,71 @@ const NotificationBell = () => {
       })
       .subscribe();
 
+    // Subscribe to watchlist notifications
+    const watchlistChannel = supabase
+      .channel('watchlist-notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'watchlist_notifications',
+        filter: `user_id=eq.${user.id}`
+      }, async (payload) => {
+        const newWatchlistNotification = payload.new;
+        
+        // Fetch watchlist and ad details
+        const [watchlistResult, adResult] = await Promise.all([
+          supabase
+            .from('watchlists')
+            .select('name')
+            .eq('id', newWatchlistNotification.watchlist_id)
+            .single(),
+          supabase
+            .from('ads')
+            .select('title, price, currency')
+            .eq('id', newWatchlistNotification.ad_id)
+            .single()
+        ]);
+
+        const watchlistName = watchlistResult.data?.name || 'Your watchlist';
+        const ad = adResult.data;
+
+        const notification: Notification = {
+          id: newWatchlistNotification.id,
+          type: 'watchlist',
+          title: `New ad matches "${watchlistName}"`,
+          message: ad ? `${ad.title} - ${ad.currency} ${ad.price}` : 'A new ad matches your criteria',
+          created_at: newWatchlistNotification.created_at,
+          read: false,
+          watchlist_name: watchlistName,
+          ad_title: ad?.title,
+          ad_id: newWatchlistNotification.ad_id
+        };
+
+        setNotifications(prev => [notification, ...prev.slice(0, 19)]);
+        setUnreadCount(prev => prev + 1);
+
+        // Show toast notification
+        toast({
+          title: notification.title,
+          description: notification.message,
+          action: (
+            <Button
+              size="sm"
+              onClick={() => {
+                navigate(`/ad/${newWatchlistNotification.ad_id}`);
+                setIsOpen(false);
+              }}
+            >
+              View Ad
+            </Button>
+          )
+        });
+      })
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messageChannel);
+      supabase.removeChannel(watchlistChannel);
     };
   }, [user, toast, navigate]);
 
@@ -142,6 +206,9 @@ const NotificationBell = () => {
   const handleNotificationClick = (notification: Notification) => {
     if (notification.type === 'message') {
       navigate('/messages');
+      setIsOpen(false);
+    } else if (notification.type === 'watchlist' && notification.ad_id) {
+      navigate(`/ad/${notification.ad_id}`);
       setIsOpen(false);
     }
   };
@@ -211,7 +278,13 @@ const NotificationBell = () => {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-0.5">
-                          <MessageCircle className="h-4 w-4 text-primary" />
+                          {notification.type === 'message' ? (
+                            <MessageCircle className="h-4 w-4 text-primary" />
+                          ) : notification.type === 'watchlist' ? (
+                            <Bell className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-orange-600" />
+                          )}
                         </div>
                         
                         <div className="flex-1 min-w-0">
