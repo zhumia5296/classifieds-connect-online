@@ -946,11 +946,114 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_badges: {
+        Row: {
+          badge_type: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          issued_at: string
+          issued_by: string | null
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_type: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          issued_at?: string
+          issued_by?: string | null
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          issued_at?: string
+          issued_by?: string | null
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verification_requests: {
+        Row: {
+          additional_info: string | null
+          admin_notes: string | null
+          business_document_url: string | null
+          business_name: string | null
+          business_registration: string | null
+          created_at: string
+          id: string
+          identity_document_url: string | null
+          rejection_reason: string | null
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          social_media_urls: Json | null
+          status: string
+          submitted_at: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          admin_notes?: string | null
+          business_document_url?: string | null
+          business_name?: string | null
+          business_registration?: string | null
+          created_at?: string
+          id?: string
+          identity_document_url?: string | null
+          rejection_reason?: string | null
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_media_urls?: Json | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          admin_notes?: string | null
+          business_document_url?: string | null
+          business_name?: string | null
+          business_registration?: string | null
+          created_at?: string
+          id?: string
+          identity_document_url?: string | null
+          rejection_reason?: string | null
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_media_urls?: Json | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      approve_verification: {
+        Args: { request_id: string; reviewer_id: string; admin_notes?: string }
+        Returns: undefined
+      }
       calculate_distance: {
         Args: { lat1: number; lng1: number; lat2: number; lng2: number }
         Returns: number
@@ -1008,6 +1111,15 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      reject_verification: {
+        Args: {
+          request_id: string
+          reviewer_id: string
+          rejection_reason: string
+          admin_notes?: string
+        }
+        Returns: undefined
       }
       update_user_reputation: {
         Args: { target_user_id: string }

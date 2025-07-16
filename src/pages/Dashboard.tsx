@@ -11,6 +11,7 @@ import QuickFeatureButton from '@/components/QuickFeatureButton';
 import AdCard from '@/components/AdCard';
 import { UserReputationCard } from '@/components/UserReputationCard';
 import { ReviewsList } from '@/components/ReviewsList';
+import VerificationForm from '@/components/VerificationForm';
 import { useState, useEffect } from 'react';
 import { 
   User, 
@@ -24,7 +25,8 @@ import {
   Star,
   Crown,
   Award,
-  QrCode
+  QrCode,
+  Shield
 } from 'lucide-react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 
@@ -144,7 +146,7 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -160,6 +162,10 @@ const Dashboard = () => {
             <TabsTrigger value="reviews" className="flex items-center gap-2">
               <Award className="h-4 w-4" />
               <span className="hidden sm:inline">Reviews</span>
+            </TabsTrigger>
+            <TabsTrigger value="verification" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Verification</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -411,6 +417,10 @@ const Dashboard = () => {
                 </Card>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="verification">
+            <VerificationForm />
           </TabsContent>
 
           <TabsContent value="profile">
