@@ -26,6 +26,7 @@ import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
 import SavedAds from "./pages/SavedAds";
 import Notifications from "./pages/Notifications";
+import SearchResults from "./pages/SearchResults";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/saved" element={<SavedAds />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/search" element={<SearchResults />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
