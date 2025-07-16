@@ -13,10 +13,29 @@ serve(async (req) => {
   }
 
   try {
-    const { ad_id, duration_days } = await req.json();
+    const { ad_id, duration_days, package_type, amount } = await req.json();
     
-    if (!ad_id || !duration_days || ![7, 30].includes(duration_days)) {
-      throw new Error("Invalid ad_id or duration_days. Must be 7 or 30 days.");
+    if (!ad_id || !duration_days || duration_days < 1) {
+      throw new Error("Invalid ad_id or duration_days.");
+    }
+    
+    // Define package pricing
+    const packagePricing: { [key: string]: number } = {
+      'quick-boost': 299,    // $2.99
+      'featured': 699,       // $6.99
+      'premium': 1299,       // $12.99
+      'super-boost': 2499    // $24.99
+    };
+    
+    // Calculate amount based on package or duration
+    let calculatedAmount: number;
+    if (package_type && packagePricing[package_type]) {
+      calculatedAmount = packagePricing[package_type];
+    } else if (amount) {
+      calculatedAmount = amount;
+    } else {
+      // Fallback to old pricing model
+      calculatedAmount = duration_days === 7 ? 700 : 3000;
     }
 
     // Create Supabase client
@@ -44,8 +63,8 @@ serve(async (req) => {
       throw new Error("Ad not found or you don't have permission to feature it");
     }
 
-    // Calculate amount based on duration
-    const amount = duration_days === 7 ? 700 : 3000; // $7 or $30 in cents
+    // Use calculated amount
+    const finalAmount = calculatedAmount;
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -68,10 +87,10 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: `Feature Ad: ${ad.title}`,
-              description: `Feature your ad for ${duration_days} days`
+              name: `${package_type ? package_type.charAt(0).toUpperCase() + package_type.slice(1).replace('-', ' ') : 'Feature'} Ad: ${ad.title}`,
+              description: `${package_type ? package_type.charAt(0).toUpperCase() + package_type.slice(1).replace('-', ' ') + ' promotion' : 'Feature your ad'} for ${duration_days} days`
             },
-            unit_amount: amount,
+            unit_amount: finalAmount,
           },
           quantity: 1,
         },
@@ -83,6 +102,7 @@ serve(async (req) => {
         ad_id: ad_id,
         duration_days: duration_days.toString(),
         user_id: user.id,
+        package_type: package_type || 'standard',
       },
     });
 
@@ -98,7 +118,7 @@ serve(async (req) => {
       ad_id: ad_id,
       stripe_session_id: session.id,
       duration_days: duration_days,
-      amount: amount,
+      amount: finalAmount,
       status: "pending",
     });
 

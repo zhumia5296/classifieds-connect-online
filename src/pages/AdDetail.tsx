@@ -14,6 +14,7 @@ import ChatWindow from '@/components/ChatWindow';
 import MessageStarter from '@/components/MessageStarter';
 import FeatureAdButton from '@/components/FeatureAdButton';
 import FeaturedAdStatus from '@/components/FeaturedAdStatus';
+import AdPromotionTools from '@/components/AdPromotionTools';
 import SocialShare from '@/components/SocialShare';
 import QRCodeCard from '@/components/QRCodeCard';
 import { FullscreenImageGallery } from '@/components/ImageGallery';
@@ -614,19 +615,16 @@ const AdDetailPage = () => {
           showDownload={true}
         />
 
-        {/* Feature Ad Section for Owners */}
+        {/* Ad Promotion Tools for Owners */}
         {isOwner && (
-          <div className="mb-8 space-y-4">
-            <FeaturedAdStatus 
-              isFeatured={ad.is_featured}
-              featuredUntil={ad.featured_until}
-              showDetails={true}
-            />
-            <FeatureAdButton
+          <div className="mb-8">
+            <AdPromotionTools
               adId={ad.id}
+              adTitle={ad.title}
               isOwner={isOwner}
               isFeatured={ad.is_featured}
               featuredUntil={ad.featured_until}
+              currentViews={ad.views_count}
             />
           </div>
         )}
