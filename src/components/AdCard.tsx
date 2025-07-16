@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
-import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2 } from "lucide-react";
+import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { calculateDistance, formatDistance } from '@/lib/location';
 import ChatWindow from './ChatWindow';
 import QuickFeatureButton from './QuickFeatureButton';
 import SocialShare from './SocialShare';
+import QuickImageGallery from './QuickImageGallery';
 
 interface AdCardProps {
   id: string;
@@ -20,6 +21,7 @@ interface AdCardProps {
   longitude?: number;
   timeAgo: string;
   imageUrl: string;
+  images?: string[];
   isFeatured?: boolean;
   featuredUntil?: string;
   isLiked?: boolean;
@@ -39,6 +41,7 @@ const AdCard = ({
   longitude,
   timeAgo,
   imageUrl,
+  images = [],
   isFeatured = false,
   featuredUntil,
   isLiked = false,
@@ -51,6 +54,10 @@ const AdCard = ({
   const { user } = useAuth();
   const { location: userLocation } = useLocation();
   const [showChat, setShowChat] = useState(false);
+  const [showImageGallery, setShowImageGallery] = useState(false);
+  
+  // Create display images array (fallback to single image if no images array)
+  const displayImages = images.length > 0 ? images : [imageUrl];
   
   // Calculate distance if both user and ad have coordinates
   const distance = userLocation?.coords && latitude && longitude
@@ -96,7 +103,7 @@ const AdCard = ({
     >
       <div className="relative overflow-hidden">
         <div 
-          className="aspect-[4/3] w-full overflow-hidden"
+          className="aspect-[4/3] w-full overflow-hidden relative group/image"
           onClick={() => window.location.href = `/ad/${id}`}
         >
           <img 
@@ -106,6 +113,25 @@ const AdCard = ({
               isFeatured ? 'group-hover:scale-110' : 'group-hover:scale-105'
             }`}
           />
+          
+          {/* Multiple Images Indicator */}
+          {displayImages.length > 1 && (
+            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="bg-background/80 hover:bg-background/90 backdrop-blur-sm text-xs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowImageGallery(true);
+                }}
+              >
+                <Camera className="h-3 w-3 mr-1" />
+                {displayImages.length}
+              </Button>
+            </div>
+          )}
         </div>
         
         {/* Featured Badge */}
@@ -245,6 +271,14 @@ const AdCard = ({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Image Gallery */}
+      <QuickImageGallery
+        images={displayImages}
+        isOpen={showImageGallery}
+        onOpenChange={setShowImageGallery}
+        title={title}
+      />
     </Card>
   );
 };

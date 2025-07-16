@@ -15,6 +15,7 @@ import MessageStarter from '@/components/MessageStarter';
 import FeatureAdButton from '@/components/FeatureAdButton';
 import FeaturedAdStatus from '@/components/FeaturedAdStatus';
 import SocialShare from '@/components/SocialShare';
+import { FullscreenImageGallery } from '@/components/ImageGallery';
 import { 
   ArrowLeft, 
   Heart, 
@@ -389,7 +390,7 @@ const AdDetailPage = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background backdrop-blur-sm"
                     onClick={previousImage}
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -397,27 +398,27 @@ const AdDetailPage = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background backdrop-blur-sm"
                     onClick={nextImage}
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                   
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/80 rounded-full px-3 py-1 text-sm">
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 text-sm">
                     {currentImageIndex + 1} / {images.length}
                   </div>
                 </>
               )}
             </div>
 
-            {/* Thumbnail Navigation */}
+            {/* Enhanced Thumbnail Navigation */}
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 {images.map((image, index) => (
                   <button
                     key={index}
-                    className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-colors ${
-                      index === currentImageIndex ? 'border-primary' : 'border-muted'
+                    className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-all hover:scale-105 ${
+                      index === currentImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-muted hover:border-primary/50'
                     }`}
                     onClick={() => setCurrentImageIndex(index)}
                   >
@@ -588,39 +589,15 @@ const AdDetailPage = () => {
           </CardContent>
         </Card>
 
-        {/* Image Gallery Dialog */}
-        <Dialog open={showImageGallery} onOpenChange={setShowImageGallery}>
-          <DialogContent className="max-w-4xl h-[80vh] p-2">
-            <div className="relative w-full h-full flex items-center justify-center">
-              <img
-                src={images[currentImageIndex]}
-                alt={ad.title}
-                className="max-w-full max-h-full object-contain"
-              />
-              
-              {images.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80"
-                    onClick={previousImage}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Enhanced Image Gallery */}
+        <FullscreenImageGallery
+          isOpen={showImageGallery}
+          onOpenChange={setShowImageGallery}
+          images={images}
+          initialIndex={currentImageIndex}
+          title={ad.title}
+          showDownload={true}
+        />
 
         {/* Feature Ad Section for Owners */}
         {isOwner && (
