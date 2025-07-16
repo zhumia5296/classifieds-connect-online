@@ -1,11 +1,14 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';
+import { useSavedAds } from '@/hooks/useSavedAds';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import QuickFeatureButton from '@/components/QuickFeatureButton';
+import AdCard from '@/components/AdCard';
+import { useState, useEffect } from 'react';
 import { 
   User, 
   PlusCircle, 
@@ -21,6 +24,9 @@ import {
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
+  const { savedAdIds, getSavedAdsWithDetails, toggleSaveAd, isAdSaved } = useSavedAds();
+  const [savedAds, setSavedAds] = useState([]);
+  const [loadingSavedAds, setLoadingSavedAds] = useState(true);
   
   // SEO for dashboard page
   useSEO({
@@ -28,6 +34,38 @@ const Dashboard = () => {
     description: "Manage your ads, view messages, and track your marketplace activity on Classifieds Connect.",
     keywords: "dashboard, my ads, messages, marketplace, manage ads"
   });
+
+  // Load saved ads when component mounts or saved ads change
+  useEffect(() => {
+    const loadSavedAds = async () => {
+      setLoadingSavedAds(true);
+      const ads = await getSavedAdsWithDetails();
+      setSavedAds(ads);
+      setLoadingSavedAds(false);
+    };
+
+    if (user) {
+      loadSavedAds();
+    }
+  }, [user, getSavedAdsWithDetails]);
+
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
+  const formatPrice = (price, currency = 'USD') => {
+    if (!price) return 'Price on request';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(price);
+  };
 
   if (loading) {
     return (
@@ -152,7 +190,7 @@ const Dashboard = () => {
                   <Heart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">7</div>
+                  <div className="text-2xl font-bold">{savedAdIds.length}</div>
                   <p className="text-xs text-muted-foreground">
                     Watching for updates
                   </p>
@@ -268,18 +306,52 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle>Saved Advertisements</CardTitle>
                 <CardDescription>
-                  Ads you've saved for later viewing
+                  Ads you've saved for later viewing ({savedAdIds.length} saved)
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No saved ads yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Start browsing ads and save the ones you're interested in
-                  </p>
-                  <Button>Browse Ads</Button>
-                </div>
+                {loadingSavedAds ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : savedAds.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No saved ads yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Start browsing ads and save the ones you're interested in
+                    </p>
+                    <Button onClick={() => window.location.href = '/'}>Browse Ads</Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {savedAds.map((ad) => (
+                      <AdCard
+                        key={ad.id}
+                        id={ad.id}
+                        title={ad.title}
+                        price={formatPrice(ad.price, ad.currency)}
+                        location={ad.location || 'Location not specified'}
+                        latitude={ad.latitude}
+                        longitude={ad.longitude}
+                        timeAgo={formatTimeAgo(ad.created_at)}
+                        imageUrl={ad.imageUrl}
+                        isFeatured={ad.is_featured}
+                        featuredUntil={ad.featured_until}
+                        isLiked={true}
+                        category={ad.category}
+                        condition={ad.condition}
+                        sellerId={ad.user_id}
+                        isOwner={false}
+                        onToggleSave={() => {
+                          toggleSaveAd(ad.id);
+                          // Remove from local state immediately for better UX
+                          setSavedAds(prev => prev.filter(savedAd => savedAd.id !== ad.id));
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategoryFilter } from '@/hooks/useCategoryFilter';
 import { useFeaturedAdsCleanup } from '@/hooks/useFeaturedAdsCleanup';
+import { useSavedAds } from '@/hooks/useSavedAds';
 import { supabase } from '@/integrations/supabase/client';
 import AdCard from "./AdCard";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ const AdGrid = () => {
   const { selectedCategory, searchQuery } = useCategoryFilter();
   const { toast } = useToast();
   const { cleanupComplete } = useFeaturedAdsCleanup();
+  const { toggleSaveAd, isAdSaved } = useSavedAds();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -498,12 +500,12 @@ const AdGrid = () => {
               imageUrl={getImageUrl(ad.ad_images)}
               isFeatured={ad.is_featured}
               featuredUntil={ad.featured_until}
-              isLiked={ad.saved_ads.length > 0}
+              isLiked={isAdSaved(ad.id)}
               category={ad.categories?.name || 'Other'}
               condition={ad.condition}
               sellerId={ad.user_id}
               isOwner={user?.id === ad.user_id}
-              onToggleSave={() => handleToggleSave(ad.id)}
+              onToggleSave={() => toggleSaveAd(ad.id)}
             />
           ))}
         </div>
