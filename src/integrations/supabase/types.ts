@@ -222,7 +222,9 @@ export type Database = {
           latitude: number | null
           location: string | null
           longitude: number | null
+          max_quantity_per_order: number | null
           price: number | null
+          quantity_available: number | null
           status: string
           title: string
           updated_at: string
@@ -245,7 +247,9 @@ export type Database = {
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          max_quantity_per_order?: number | null
           price?: number | null
+          quantity_available?: number | null
           status?: string
           title: string
           updated_at?: string
@@ -268,7 +272,9 @@ export type Database = {
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          max_quantity_per_order?: number | null
           price?: number | null
+          quantity_available?: number | null
           status?: string
           title?: string
           updated_at?: string
@@ -688,6 +694,87 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string | null
+          id: string
+          seller_id: string
+          status: string | null
+          stripe_session_id: string | null
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          seller_id: string
+          status?: string | null
+          stripe_session_id?: string | null
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          seller_id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: string | null
@@ -1022,6 +1109,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      shopping_cart: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_cart_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscribers: {
         Row: {

@@ -7,6 +7,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface CheckoutItem {
+  ad_id: string;
+  quantity: number;
+  unit_price: number;
+}
+
+interface CheckoutRequest {
+  items?: CheckoutItem[];
+  seller_id?: string;
+  total_amount?: number;
+  tier?: string; // For subscription checkout
+}
+
 // Helper logging function for debugging
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -42,33 +55,9 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body to get subscription tier
-    const { tier } = await req.json();
-    if (!tier) throw new Error("Subscription tier is required");
-    logStep("Subscription tier received", { tier });
-
-    // Define subscription plans
-    const plans = {
-      basic: {
-        name: "Basic Plan",
-        price: 999, // $9.99 in cents
-        description: "Enhanced ad posting and basic features"
-      },
-      premium: {
-        name: "Premium Plan", 
-        price: 1999, // $19.99 in cents
-        description: "Priority listings and advanced features"
-      },
-      enterprise: {
-        name: "Enterprise Plan",
-        price: 4999, // $49.99 in cents
-        description: "Full access to all premium features"
-      }
-    };
-
-    const selectedPlan = plans[tier as keyof typeof plans];
-    if (!selectedPlan) throw new Error("Invalid subscription tier");
-    logStep("Plan selected", selectedPlan);
+    // Parse request body
+    const body: CheckoutRequest = await req.json();
+    const { tier, items, seller_id, total_amount } = body;
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -83,33 +72,150 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
-    logStep("Creating checkout session", { origin });
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: selectedPlan.name,
-              description: selectedPlan.description
-            },
-            unit_amount: selectedPlan.price,
-            recurring: { interval: "month" },
-          },
-          quantity: 1,
+    let session;
+
+    if (tier) {
+      // Subscription checkout
+      logStep("Creating subscription checkout", { tier });
+
+      const plans = {
+        basic: {
+          name: "Basic Plan",
+          price: 999,
+          description: "Enhanced ad posting and basic features"
         },
-      ],
-      mode: "subscription",
-      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing`,
-      metadata: {
-        user_id: user.id,
-        tier: tier
+        premium: {
+          name: "Premium Plan", 
+          price: 1999,
+          description: "Priority listings and advanced features"
+        },
+        enterprise: {
+          name: "Enterprise Plan",
+          price: 4999,
+          description: "Full access to all premium features"
+        }
+      };
+
+      const selectedPlan = plans[tier as keyof typeof plans];
+      if (!selectedPlan) throw new Error("Invalid subscription tier");
+
+      session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : user.email,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { 
+                name: selectedPlan.name,
+                description: selectedPlan.description
+              },
+              unit_amount: selectedPlan.price,
+              recurring: { interval: "month" },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "subscription",
+        success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pricing`,
+        metadata: {
+          user_id: user.id,
+          tier: tier
+        }
+      });
+    } else if (items && seller_id) {
+      // Product checkout
+      logStep("Creating product checkout", { itemCount: items.length, sellerId: seller_id });
+
+      // Validate items and check inventory
+      for (const item of items) {
+        const { data: ad, error } = await supabaseClient
+          .from('ads')
+          .select('quantity_available, max_quantity_per_order, is_active, status, title')
+          .eq('id', item.ad_id)
+          .single();
+
+        if (error || !ad) {
+          throw new Error(`Ad ${item.ad_id} not found`);
+        }
+
+        if (!ad.is_active || ad.status !== 'active') {
+          throw new Error(`Ad "${ad.title}" is not available`);
+        }
+
+        if (item.quantity > ad.quantity_available) {
+          throw new Error(`Not enough inventory for "${ad.title}"`);
+        }
+
+        if (item.quantity > ad.max_quantity_per_order) {
+          throw new Error(`Quantity exceeds maximum allowed for "${ad.title}"`);
+        }
       }
-    });
+
+      session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : user.email,
+        line_items: items.map(item => ({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Product ${item.ad_id}`,
+            },
+            unit_amount: Math.round(item.unit_price * 100),
+          },
+          quantity: item.quantity,
+        })),
+        mode: "payment",
+        success_url: `${origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/cart`,
+        metadata: {
+          user_id: user.id,
+          seller_id: seller_id,
+          items: JSON.stringify(items),
+          checkout_type: 'product'
+        }
+      });
+
+      // Create order record using service role
+      const supabaseService = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+
+      const { data: order, error: orderError } = await supabaseService
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          seller_id: seller_id,
+          total_amount: total_amount,
+          stripe_session_id: session.id,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = items.map(item => ({
+        order_id: order.id,
+        ad_id: item.ad_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.unit_price * item.quantity
+      }));
+
+      const { error: itemsError } = await supabaseService
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+    } else {
+      throw new Error("Invalid checkout request - missing required parameters");
+    }
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
