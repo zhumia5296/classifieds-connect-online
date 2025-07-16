@@ -88,6 +88,50 @@ export type Database = {
           },
         ]
       }
+      activities: {
+        Row: {
+          activity_type: string
+          ad_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          ad_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          ad_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ad_embeddings: {
         Row: {
           ad_id: string
@@ -1017,6 +1061,27 @@ export type Database = {
           },
         ]
       }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_interactions: {
         Row: {
           ad_id: string
@@ -1361,6 +1426,14 @@ export type Database = {
       get_analytics_overview: {
         Args: { start_date: string; end_date: string }
         Returns: Json
+      }
+      get_followers_count: {
+        Args: { target_user_id: string }
+        Returns: number
+      }
+      get_following_count: {
+        Args: { target_user_id: string }
+        Returns: number
       }
       get_nearby_ads: {
         Args: {

@@ -59,7 +59,8 @@ const App = () => (
             <Route path="/user/:id" element={<UserProfile />} />
             <Route path="/settings" element={<Settings />} />
         <Route path="/saved" element={<Favorites />} />
-        <Route path="/favorites" element={<Favorites />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/activity-feed" element={<ActivityFeed />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/search" element={<SearchResults />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

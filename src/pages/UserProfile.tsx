@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Edit, MapPin, Calendar, Star, MessageCircle, ArrowLeft, Flag } from 'lucide-react';
+import { User, Edit, MapPin, Calendar, Star, MessageCircle, ArrowLeft, Flag, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +11,12 @@ import Navbar from '@/components/Navbar';
 import { ReviewsList } from '@/components/ReviewsList';
 import { UserReputationCard } from '@/components/UserReputationCard';
 import VerificationBadge from '@/components/VerificationBadge';
+import { FollowButton } from '@/components/FollowButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';
+import { useFollowCounts } from '@/hooks/useFollows';
+import { useUserActivities } from '@/hooks/useActivities';
+import { ActivityCard } from '@/components/ActivityCard';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -59,6 +63,10 @@ const UserProfile = () => {
   });
 
   const isOwnProfile = currentUser?.id === id;
+  
+  // Get follow counts and user activities for this profile
+  const { data: followCounts } = useFollowCounts(id || "");
+  const { data: userActivities } = useUserActivities(id || "");
 
   useEffect(() => {
     if (id) {
@@ -236,6 +244,7 @@ const UserProfile = () => {
                 </Button>
               ) : (
                 <>
+                  <FollowButton userId={profile.user_id} />
                   <Button variant="outline">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Message
@@ -249,7 +258,7 @@ const UserProfile = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6">
             <Card className="p-4">
               <div className="text-2xl font-bold text-primary">{adStats.total}</div>
               <p className="text-sm text-muted-foreground">Total Listings</p>
@@ -266,6 +275,16 @@ const UserProfile = () => {
             </Card>
             
             <Card className="p-4">
+              <div className="text-2xl font-bold text-orange-600">{followCounts?.followers || 0}</div>
+              <p className="text-sm text-muted-foreground">Followers</p>
+            </Card>
+            
+            <Card className="p-4">
+              <div className="text-2xl font-bold text-indigo-600">{followCounts?.following || 0}</div>
+              <p className="text-sm text-muted-foreground">Following</p>
+            </Card>
+            
+            <Card className="p-4">
               <div className="text-2xl font-bold text-purple-600">
                 {profile.is_verified ? '✓' : '—'}
               </div>
@@ -278,8 +297,9 @@ const UserProfile = () => {
       {/* Content Tabs */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-[600px] grid-cols-3">
+          <TabsList className="grid w-full max-w-[800px] grid-cols-4">
             <TabsTrigger value="listings">Listings ({adStats.total})</TabsTrigger>
+            <TabsTrigger value="activities">Activities</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="reputation">Reputation</TabsTrigger>
           </TabsList>
@@ -338,6 +358,20 @@ const UserProfile = () => {
                     Post Your First Ad
                   </Button>
                 )}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activities" className="mt-6">
+            {userActivities && userActivities.length > 0 ? (
+              <div className="space-y-4">
+                {userActivities.map((activity) => (
+                  <ActivityCard key={activity.id} activity={activity} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                {isOwnProfile ? "You haven't posted any activities yet" : "This user hasn't posted any activities yet"}
               </div>
             )}
           </TabsContent>
