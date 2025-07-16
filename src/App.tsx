@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import "./lib/i18n"; // Initialize i18n
 import { CategoryProvider } from "@/hooks/useCategoryFilter";
@@ -35,10 +36,16 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CategoryProvider>
-        <ComparisonProvider>
-          <TooltipProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <AuthProvider>
+        <CategoryProvider>
+          <ComparisonProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -70,10 +77,11 @@ const App = () => (
               </Routes>
               <InstallPrompt />
             </BrowserRouter>
-          </TooltipProvider>
-        </ComparisonProvider>
-      </CategoryProvider>
-    </AuthProvider>
+            </TooltipProvider>
+          </ComparisonProvider>
+        </CategoryProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

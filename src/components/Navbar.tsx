@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import NotificationBell from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -120,6 +121,7 @@ const Navbar = () => {
             {user && <NotificationBell />}
             
             <LanguageSwitcher />
+            <ThemeToggle />
             
             {user ? (
               <DropdownMenu>
