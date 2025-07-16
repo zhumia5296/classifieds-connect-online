@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
-import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera, Video } from "lucide-react";
+import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +22,6 @@ interface AdCardProps {
   timeAgo: string;
   imageUrl: string;
   images?: string[];
-  hasVideos?: boolean;
   isFeatured?: boolean;
   featuredUntil?: string;
   isLiked?: boolean;
@@ -43,7 +42,6 @@ const AdCard = ({
   timeAgo,
   imageUrl,
   images = [],
-  hasVideos = false,
   isFeatured = false,
   featuredUntil,
   isLiked = false,
@@ -116,9 +114,9 @@ const AdCard = ({
             }`}
           />
           
-          {/* Media Indicators */}
-          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-            {displayImages.length > 1 && (
+          {/* Multiple Images Indicator */}
+          {displayImages.length > 1 && (
+            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
                 size="sm"
@@ -132,14 +130,8 @@ const AdCard = ({
                 <Camera className="h-3 w-3 mr-1" />
                 {displayImages.length}
               </Button>
-            )}
-            {hasVideos && (
-              <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
-                <Video className="h-3 w-3 mr-1" />
-                Video
-              </Badge>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         
         {/* Featured Badge */}

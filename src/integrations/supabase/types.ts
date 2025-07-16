@@ -126,56 +126,6 @@ export type Database = {
           },
         ]
       }
-      ad_videos: {
-        Row: {
-          ad_id: string
-          alt_text: string | null
-          created_at: string
-          duration_seconds: number | null
-          file_size_bytes: number | null
-          id: string
-          is_primary: boolean
-          mime_type: string | null
-          sort_order: number | null
-          thumbnail_url: string | null
-          video_url: string
-        }
-        Insert: {
-          ad_id: string
-          alt_text?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          file_size_bytes?: number | null
-          id?: string
-          is_primary?: boolean
-          mime_type?: string | null
-          sort_order?: number | null
-          thumbnail_url?: string | null
-          video_url: string
-        }
-        Update: {
-          ad_id?: string
-          alt_text?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          file_size_bytes?: number | null
-          id?: string
-          is_primary?: boolean
-          mime_type?: string | null
-          sort_order?: number | null
-          thumbnail_url?: string | null
-          video_url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ad_videos_ad_id_fkey"
-            columns: ["ad_id"]
-            isOneToOne: false
-            referencedRelation: "ads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ads: {
         Row: {
           category_id: string
