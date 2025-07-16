@@ -18,6 +18,9 @@ import AdPromotionTools from '@/components/AdPromotionTools';
 import SocialShare from '@/components/SocialShare';
 import QRCodeCard from '@/components/QRCodeCard';
 import { FullscreenImageGallery } from '@/components/ImageGallery';
+import { ProductRating } from '@/components/ProductRating';
+import { ProductReviewSummary } from '@/components/ProductReviewSummary';
+import { ReviewsList } from '@/components/ReviewsList';
 import { 
   ArrowLeft, 
   Heart, 
@@ -578,6 +581,7 @@ const AdDetailPage = () => {
                         </Badge>
                       )}
                     </div>
+                    <ProductRating userId={ad.user_id} size="sm" className="mt-1" />
                     <div className="text-sm text-muted-foreground space-y-1">
                       {ad.profiles?.location && (
                         <div className="flex items-center gap-1">
@@ -601,6 +605,19 @@ const AdDetailPage = () => {
               url={window.location.href}
               title={ad.title}
               description={`${formatPrice(ad.price, ad.currency)} - ${ad.location}`}
+            />
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <ProductReviewSummary userId={ad.user_id} />
+          <div>
+            <ReviewsList 
+              userId={ad.user_id} 
+              showWriteReview={!isOwner && !!user}
+              adId={ad.id}
+              adTitle={ad.title}
             />
           </div>
         </div>

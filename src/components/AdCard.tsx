@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { useComparison } from '@/hooks/useComparison';
 import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera, Scale } from "lucide-react";
+import { ProductRating } from './ProductRating';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -259,11 +260,21 @@ const AdCard = ({
             </div>
           )}
           
-          {condition && (
-            <Badge variant="outline" className="text-xs">
-              {formatCondition(condition)}
-            </Badge>
-          )}
+          <div className="flex items-center justify-between">
+            {condition && (
+              <Badge variant="outline" className="text-xs">
+                {formatCondition(condition)}
+              </Badge>
+            )}
+            {sellerId && (
+              <ProductRating 
+                userId={sellerId} 
+                size="sm" 
+                showReviewCount={false}
+                className="ml-auto"
+              />
+            )}
+          </div>
         </div>
 
         {/* Contact/Feature Buttons */}
