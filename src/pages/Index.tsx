@@ -4,6 +4,7 @@ import CategoryNav from "@/components/CategoryNav";
 import HeroSection from "@/components/HeroSection";
 import AdGrid from "@/components/AdGrid";
 import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
+import ComparisonBar from "@/components/ComparisonBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
 import { CategoryProvider } from "@/hooks/useCategoryFilter";
@@ -53,6 +54,7 @@ const Index = () => {
             </div>
           </div>
         </div>
+        <ComparisonBar />
       </div>
     </CategoryProvider>
   );

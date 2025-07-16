@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ComparisonProvider } from "@/hooks/useComparison";
 import { InstallPrompt } from "@/hooks/usePWA";
 import Index from "./pages/Index";
+import Compare from "./pages/Compare";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import PostAd from "./pages/PostAd";
@@ -23,28 +25,31 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/post-ad" element={<PostAd />} />
-            <Route path="/ad/:id" element={<AdDetail />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/realtime-demo" element={<RealtimeDemo />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/mobile" element={<MobileOptimization />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/watchlists" element={<Watchlists />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <InstallPrompt />
-        </BrowserRouter>
-      </TooltipProvider>
+      <ComparisonProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/post-ad" element={<PostAd />} />
+              <Route path="/ad/:id" element={<AdDetail />} />
+              <Route path="/compare" element={<Compare />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/realtime-demo" element={<RealtimeDemo />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/mobile" element={<MobileOptimization />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/watchlists" element={<Watchlists />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <InstallPrompt />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ComparisonProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
-import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera } from "lucide-react";
+import { useComparison } from '@/hooks/useComparison';
+import { Heart, MapPin, Clock, Star, MessageCircle, Navigation, Share2, Camera, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,6 +54,7 @@ const AdCard = ({
 }: AdCardProps) => {
   const { user } = useAuth();
   const { location: userLocation } = useLocation();
+  const { addToComparison, isInComparison } = useComparison();
   const [showChat, setShowChat] = useState(false);
   const [showImageGallery, setShowImageGallery] = useState(false);
   
@@ -86,6 +88,24 @@ const AdCard = ({
     if (sellerId && sellerId !== user.id) {
       setShowChat(true);
     }
+  };
+
+  const handleComparisonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToComparison({
+      id,
+      title,
+      price,
+      location,
+      imageUrl,
+      category,
+      condition,
+      latitude,
+      longitude,
+      timeAgo,
+      isFeatured
+    });
   };
 
   const formatCondition = (condition?: string) => {
@@ -156,6 +176,19 @@ const AdCard = ({
         
         {/* Action Buttons */}
         <div className="absolute bottom-3 right-3 flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`backdrop-blur-sm transition-colors hover-scale ${
+              isInComparison(id)
+                ? 'text-primary bg-background/90 hover:bg-background'
+                : 'text-foreground/70 bg-background/80 hover:bg-background hover:text-primary'
+            }`}
+            onClick={handleComparisonClick}
+            disabled={isInComparison(id)}
+          >
+            <Scale className="h-4 w-4" />
+          </Button>
           <div className="backdrop-blur-sm bg-background/80 rounded-md">
             <SocialShare
               url={`${window.location.origin}/ad/${id}`}
