@@ -322,14 +322,53 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
               </SheetHeader>
               
               <div className="space-y-6 mt-6">
-                {/* Price Range with Slider */}
+                {/* Enhanced Price Range with Presets */}
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">Price Range</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="font-medium">Price Range</h3>
+                    </div>
+                    {(filters.priceRange.min !== null || filters.priceRange.max !== null) && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                          updateFilter('priceRange', { min: null, max: null });
+                          setPriceSliderValue([0, 10000]);
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
                   
                   <div className="space-y-4">
+                    {/* Price Presets */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: 'Under $100', min: null, max: 100 },
+                        { label: '$100-$500', min: 100, max: 500 },
+                        { label: '$500-$1K', min: 500, max: 1000 },
+                        { label: '$1K-$5K', min: 1000, max: 5000 },
+                        { label: '$5K-$10K', min: 5000, max: 10000 },
+                        { label: 'Over $10K', min: 10000, max: null }
+                      ].map((preset) => (
+                        <Button
+                          key={preset.label}
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs justify-start"
+                          onClick={() => {
+                            updateFilter('priceRange', { min: preset.min, max: preset.max });
+                            setPriceSliderValue([preset.min || 0, preset.max || 10000]);
+                          }}
+                        >
+                          {preset.label}
+                        </Button>
+                      ))}
+                    </div>
+                    
                     <div className="px-2">
                       <Slider
                         value={priceSliderValue}
@@ -339,8 +378,8 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>${priceSliderValue[0]}</span>
-                        <span>${priceSliderValue[1]}</span>
+                        <span>${priceSliderValue[0].toLocaleString()}</span>
+                        <span>${priceSliderValue[1].toLocaleString()}</span>
                       </div>
                     </div>
                     
@@ -358,6 +397,14 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                         onChange={(e) => updatePriceRange('max', e.target.value)}
                       />
                     </div>
+                    
+                    {(filters.priceRange.min !== null || filters.priceRange.max !== null) && (
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        Showing items {filters.priceRange.min !== null ? `from $${filters.priceRange.min.toLocaleString()}` : ''} 
+                        {filters.priceRange.min !== null && filters.priceRange.max !== null ? ' ' : ''}
+                        {filters.priceRange.max !== null ? `to $${filters.priceRange.max.toLocaleString()}` : ''}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -428,28 +475,64 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                   </div>
                 </div>
 
-                {/* Condition */}
+                {/* Enhanced Condition Filter */}
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <Star className="h-4 w-4 text-muted-foreground" />
                     <h3 className="font-medium">Condition</h3>
                   </div>
-                  <Select
-                    value={filters.condition}
-                    onValueChange={(value) => updateFilter('condition', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any condition" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
-                      <SelectItem value="">Any condition</SelectItem>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="like-new">Like New</SelectItem>
-                      <SelectItem value="good">Good</SelectItem>
-                      <SelectItem value="fair">Fair</SelectItem>
-                      <SelectItem value="poor">Poor</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-2">
+                    <Select
+                      value={filters.condition}
+                      onValueChange={(value) => updateFilter('condition', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any condition" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        <SelectItem value="">Any condition</SelectItem>
+                        <SelectItem value="new">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span>New</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="like-new">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                            <span>Like New</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="good">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                            <span>Good</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="fair">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                            <span>Fair</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="poor">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                            <span>Poor</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {filters.condition && (
+                      <div className="text-xs text-muted-foreground">
+                        {filters.condition === 'new' && 'Brand new items, never used'}
+                        {filters.condition === 'like-new' && 'Minimal wear, excellent condition'}
+                        {filters.condition === 'good' && 'Some wear but functions perfectly'}
+                        {filters.condition === 'fair' && 'Visible wear, may need minor repairs'}
+                        {filters.condition === 'poor' && 'Significant wear, functional issues possible'}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Additional Options */}
