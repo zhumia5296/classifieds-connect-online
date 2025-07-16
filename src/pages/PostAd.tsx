@@ -29,6 +29,7 @@ import {
   Star,
   Crown
 } from 'lucide-react';
+import { VideoUpload } from '@/components/VideoUpload';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -63,6 +64,16 @@ const PostAd = () => {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videos, setVideos] = useState<Array<{
+    id: string;
+    video_url: string;
+    thumbnail_url?: string;
+    alt_text?: string;
+    is_primary: boolean;
+    duration_seconds?: number;
+    file_size_bytes?: number;
+  }>>([]);
+  const [createdAdId, setCreatedAdId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   // SEO for post ad page
@@ -245,6 +256,9 @@ const PostAd = () => {
         .single();
 
       if (adError) throw adError;
+
+      // Set the created ad ID for video uploads
+      setCreatedAdId(ad.id);
 
       // Upload images if any
       if (images.length > 0) {
@@ -615,6 +629,33 @@ const PostAd = () => {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Videos */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Videos</CardTitle>
+                <CardDescription>
+                  Upload up to 3 videos to showcase your item in action
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <VideoUpload
+                  adId={createdAdId}
+                  onVideoUploaded={(videoData) => {
+                    setVideos(prev => [...prev, {
+                      ...videoData,
+                      alt_text: formData.title,
+                      is_primary: prev.length === 0
+                    }]);
+                  }}
+                  onVideoRemoved={(videoId) => {
+                    setVideos(prev => prev.filter(v => v.id !== videoId));
+                  }}
+                  existingVideos={videos}
+                  maxVideos={3}
+                />
               </CardContent>
             </Card>
 

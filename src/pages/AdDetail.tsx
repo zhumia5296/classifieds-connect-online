@@ -17,6 +17,7 @@ import FeaturedAdStatus from '@/components/FeaturedAdStatus';
 import SocialShare from '@/components/SocialShare';
 import QRCodeCard from '@/components/QRCodeCard';
 import { FullscreenImageGallery } from '@/components/ImageGallery';
+import { VideoGallery } from '@/components/VideoGallery';
 import { 
   ArrowLeft, 
   Heart, 
@@ -60,6 +61,15 @@ interface AdDetail {
     image_url: string;
     alt_text: string | null;
     is_primary: boolean;
+  }[];
+  ad_videos: {
+    id: string;
+    video_url: string;
+    thumbnail_url?: string;
+    alt_text?: string;
+    is_primary: boolean;
+    duration_seconds?: number;
+    file_size_bytes?: number;
   }[];
   profiles: {
     display_name: string | null;
@@ -136,6 +146,15 @@ const AdDetailPage = () => {
             image_url,
             alt_text,
             is_primary
+          ),
+          ad_videos (
+            id,
+            video_url,
+            thumbnail_url,
+            alt_text,
+            is_primary,
+            duration_seconds,
+            file_size_bytes
           ),
           profiles:profiles!user_id (
             display_name,
@@ -430,6 +449,19 @@ const AdDetailPage = () => {
                     />
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* Video Gallery */}
+            {ad.ad_videos && ad.ad_videos.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-semibold">Videos</h3>
+                <VideoGallery 
+                  videos={ad.ad_videos}
+                  autoplay={false}
+                  showDuration={true}
+                  showControls={true}
+                />
               </div>
             )}
           </div>
