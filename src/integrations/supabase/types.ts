@@ -1534,6 +1534,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      send_ad_expiring_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       sparsevec_out: {
         Args: { "": unknown }
         Returns: unknown
