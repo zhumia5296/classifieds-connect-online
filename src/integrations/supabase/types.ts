@@ -1284,6 +1284,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_message: string
+          p_type?: string
+          p_data?: Json
+          p_action_url?: string
+          p_action_label?: string
+          p_expires_at?: string
+        }
+        Returns: string
+      }
       expire_featured_ads: {
         Args: Record<PropertyKey, never>
         Returns: number
