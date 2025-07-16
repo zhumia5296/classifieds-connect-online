@@ -1239,6 +1239,23 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      find_similar_ads: {
+        Args: {
+          target_ad_id: string
+          similarity_threshold?: number
+          max_results?: number
+        }
+        Returns: {
+          ad_id: string
+          similarity_score: number
+          title: string
+          price: number
+          location: string
+          image_url: string
+          category_name: string
+          is_featured: boolean
+        }[]
+      }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
