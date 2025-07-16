@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileBulkManagement from "./MobileBulkManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -65,6 +67,13 @@ interface AdvancedFilters {
 export default function BulkAdManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+
+  // If mobile, use mobile-optimized version
+  if (isMobile) {
+    return <MobileBulkManagement />;
+  }
+
   const [ads, setAds] = useState<Ad[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
