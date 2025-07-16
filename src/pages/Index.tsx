@@ -7,7 +7,6 @@ import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
 import ComparisonBar from "@/components/ComparisonBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
-import { CategoryProvider } from "@/hooks/useCategoryFilter";
 
 const Index = () => {
   const { loading } = useAuth();
@@ -39,24 +38,22 @@ const Index = () => {
   }
 
   return (
-    <CategoryProvider>
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <CategoryNav />
-        <HeroSection />
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3">
-              <AdGrid />
-            </div>
-            <div className="space-y-6">
-              <LocationBasedSuggestions />
-            </div>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <CategoryNav />
+      <HeroSection />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <AdGrid />
+          </div>
+          <div className="space-y-6">
+            <LocationBasedSuggestions />
           </div>
         </div>
-        <ComparisonBar />
       </div>
-    </CategoryProvider>
+      <ComparisonBar />
+    </div>
   );
 };
 
