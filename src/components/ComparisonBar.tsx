@@ -1,14 +1,29 @@
 import { useState } from 'react';
-import { X, Scale, ArrowRight } from 'lucide-react';
+import { X, Scale, ArrowRight, Save, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useComparison } from '@/hooks/useComparison';
+import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const ComparisonBar = () => {
-  const { comparisonAds, removeFromComparison, clearComparison } = useComparison();
+  const { 
+    comparisonAds, 
+    savedComparisons, 
+    removeFromComparison, 
+    clearComparison, 
+    saveComparison, 
+    loadComparison, 
+    deleteComparison 
+  } = useComparison();
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
+  const [comparisonName, setComparisonName] = useState('');
   const navigate = useNavigate();
 
   if (comparisonAds.length === 0) {
@@ -17,6 +32,19 @@ const ComparisonBar = () => {
 
   const handleCompare = () => {
     navigate('/compare');
+  };
+
+  const handleSave = async () => {
+    if (comparisonName.trim()) {
+      await saveComparison(comparisonName.trim());
+      setComparisonName('');
+      setShowSaveDialog(false);
+    }
+  };
+
+  const handleLoad = async (comparisonId: string) => {
+    await loadComparison(comparisonId);
+    setShowLoadDialog(false);
   };
 
   return (
@@ -78,12 +106,101 @@ const ComparisonBar = () => {
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="text-sm text-muted-foreground">
-              {comparisonAds.length < 2 
-                ? `Add ${2 - comparisonAds.length} more ad${2 - comparisonAds.length === 1 ? '' : 's'} to compare`
-                : 'Ready to compare!'
-              }
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-muted-foreground">
+                {comparisonAds.length < 2 
+                  ? `Add ${2 - comparisonAds.length} more ad${2 - comparisonAds.length === 1 ? '' : 's'} to compare`
+                  : 'Ready to compare!'
+                }
+              </div>
+              
+              {user && (
+                <div className="flex gap-1">
+                  {/* Save Comparison */}
+                  <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-1">
+                        <Save className="h-3 w-3" />
+                        Save
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Save Comparison</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Enter comparison name..."
+                          value={comparisonName}
+                          onChange={(e) => setComparisonName(e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                          <Button onClick={handleSave} disabled={!comparisonName.trim()}>
+                            Save
+                          </Button>
+                          <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Load Comparison */}
+                  <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-1">
+                        <FolderOpen className="h-3 w-3" />
+                        Load
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Load Saved Comparison</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {savedComparisons.length === 0 ? (
+                          <p className="text-muted-foreground text-center py-4">
+                            No saved comparisons found.
+                          </p>
+                        ) : (
+                          savedComparisons.map((comparison) => (
+                            <div
+                              key={comparison.id}
+                              className="flex items-center justify-between p-3 border rounded-lg"
+                            >
+                              <div>
+                                <h4 className="font-medium">{comparison.name}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {comparison.ad_ids.length} ads • {new Date(comparison.updated_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleLoad(comparison.id)}
+                                >
+                                  Load
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteComparison(comparison.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
             </div>
+            
             <Button 
               onClick={handleCompare}
               disabled={comparisonAds.length < 2}
