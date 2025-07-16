@@ -9,8 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Filter, SlidersHorizontal, Grid, List, MapPin, X } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Search, Filter, SlidersHorizontal, Grid, List, MapPin, X, Calendar as CalendarIcon, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format, subDays, subWeeks, subMonths } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 
 type Ad = Tables<'ads'> & {
   ad_images?: Tables<'ad_images'>[];
@@ -43,9 +50,27 @@ const SearchResults = () => {
     min: searchParams.get('price_min') || '',
     max: searchParams.get('price_max') || ''
   });
+  const [priceSlider, setPriceSlider] = useState([0, 10000]);
   const [location, setLocation] = useState(searchParams.get('location') || '');
   const [condition, setCondition] = useState(searchParams.get('condition') || '');
   const [categories, setCategories] = useState<Tables<'categories'>[]>([]);
+  
+  // Advanced filters
+  const [distanceRange, setDistanceRange] = useState(parseInt(searchParams.get('distance') || '0'));
+  const [dateFilter, setDateFilter] = useState(searchParams.get('date') || '');
+  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined
+  });
+  const [featuredOnly, setFeaturedOnly] = useState(searchParams.get('featured') === 'true');
+  const [hasImages, setHasImages] = useState(searchParams.get('images') === 'true');
+  const [userLocation, setUserLocation] = useState<{latitude: number; longitude: number} | null>(null);
+  
+  // Manual location input for distance filtering
+  const [manualLocation, setManualLocation] = useState({
+    latitude: '',
+    longitude: ''
+  });
 
   // Fetch categories for filter
   useEffect(() => {
@@ -418,6 +443,146 @@ const SearchResults = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Price Slider */}
+                <div>
+                  <label className="text-sm font-medium mb-3 block">
+                    Price Range: ${priceSlider[0]} - ${priceSlider[1]}
+                  </label>
+                  <Slider
+                    value={priceSlider}
+                    onValueChange={(value) => {
+                      setPriceSlider(value);
+                      setPriceRange({
+                        min: value[0].toString(),
+                        max: value[1].toString()
+                      });
+                    }}
+                    min={0}
+                    max={50000}
+                    step={100}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Distance Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-3 block">
+                    Distance: {distanceRange === 0 ? 'Any distance' : `${distanceRange} km`}
+                  </label>
+                  <Slider
+                    value={[distanceRange]}
+                    onValueChange={(value) => setDistanceRange(value[0])}
+                    min={0}
+                    max={100}
+                    step={5}
+                    className="w-full"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Requires location access or manual coordinates
+                  </div>
+                </div>
+
+                {/* Date Filters */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Posted Date</label>
+                  <Select value={dateFilter} onValueChange={setDateFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Any time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Any time</SelectItem>
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="week">This week</SelectItem>
+                      <SelectItem value="month">This month</SelectItem>
+                      <SelectItem value="custom">Custom range</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {dateFilter === 'custom' && (
+                    <div className="mt-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {customDateRange?.from ? (
+                              customDateRange.to ? (
+                                <>
+                                  {format(customDateRange.from, "LLL dd, y")} -{" "}
+                                  {format(customDateRange.to, "LLL dd, y")}
+                                </>
+                              ) : (
+                                format(customDateRange.from, "LLL dd, y")
+                              )
+                            ) : (
+                              <span>Pick date range</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={customDateRange?.from}
+                            selected={customDateRange}
+                            onSelect={(range) => setCustomDateRange(range || { from: undefined, to: undefined })}
+                            numberOfMonths={2}
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Options */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium block">Additional Options</label>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="featured"
+                      checked={featuredOnly}
+                      onCheckedChange={(checked) => setFeaturedOnly(checked as boolean)}
+                    />
+                    <Label htmlFor="featured" className="text-sm">Featured ads only</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="images"
+                      checked={hasImages}
+                      onCheckedChange={(checked) => setHasImages(checked as boolean)}
+                    />
+                    <Label htmlFor="images" className="text-sm">Has images</Label>
+                  </div>
+                </div>
+
+                {/* Manual Location Input for Distance */}
+                {distanceRange > 0 && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Your Location (for distance)</label>
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Latitude"
+                        type="number"
+                        step="any"
+                        value={manualLocation.latitude}
+                        onChange={(e) => setManualLocation(prev => ({ ...prev, latitude: e.target.value }))}
+                      />
+                      <Input
+                        placeholder="Longitude"
+                        type="number"
+                        step="any"
+                        value={manualLocation.longitude}
+                        onChange={(e) => setManualLocation(prev => ({ ...prev, longitude: e.target.value }))}
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        Use GPS coordinates or enable location access
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
