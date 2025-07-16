@@ -28,6 +28,13 @@ export interface Order {
   currency: string;
   status: string;
   stripe_session_id: string | null;
+  shipping_method?: string;
+  shipping_cost?: number;
+  shipping_address?: any;
+  tracking_number?: string;
+  carrier?: string;
+  estimated_delivery_date?: string;
+  actual_delivery_date?: string;
   created_at: string;
   updated_at: string;
   order_items: OrderItem[];

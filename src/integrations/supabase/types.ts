@@ -506,6 +506,50 @@ export type Database = {
           },
         ]
       }
+      customs_items: {
+        Row: {
+          created_at: string | null
+          description: string
+          hs_tariff_number: string | null
+          id: string
+          origin_country: string | null
+          quantity: number
+          shipment_id: string | null
+          value: number
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          hs_tariff_number?: string | null
+          id?: string
+          origin_country?: string | null
+          quantity: number
+          shipment_id?: string | null
+          value: number
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          hs_tariff_number?: string | null
+          id?: string
+          origin_country?: string | null
+          quantity?: number
+          shipment_id?: string | null
+          value?: number
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customs_items_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_ad_orders: {
         Row: {
           ad_id: string
@@ -741,35 +785,56 @@ export type Database = {
       }
       orders: {
         Row: {
+          actual_delivery_date: string | null
+          carrier: string | null
           created_at: string
           currency: string | null
+          estimated_delivery_date: string | null
           id: string
           seller_id: string
+          shipping_address: Json | null
+          shipping_cost: number | null
+          shipping_method: string | null
           status: string | null
           stripe_session_id: string | null
           total_amount: number
+          tracking_number: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          actual_delivery_date?: string | null
+          carrier?: string | null
           created_at?: string
           currency?: string | null
+          estimated_delivery_date?: string | null
           id?: string
           seller_id: string
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          shipping_method?: string | null
           status?: string | null
           stripe_session_id?: string | null
           total_amount: number
+          tracking_number?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          actual_delivery_date?: string | null
+          carrier?: string | null
           created_at?: string
           currency?: string | null
+          estimated_delivery_date?: string | null
           id?: string
           seller_id?: string
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          shipping_method?: string | null
           status?: string | null
           stripe_session_id?: string | null
           total_amount?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1109,6 +1174,169 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      shipments: {
+        Row: {
+          carrier: string | null
+          created_at: string | null
+          customs_info: Json | null
+          delivered_at: string | null
+          dimensions: Json | null
+          estimated_delivery: string | null
+          from_address: Json | null
+          id: string
+          insurance_value: number | null
+          order_id: string | null
+          service_type: string | null
+          shipped_at: string | null
+          shipping_address: Json
+          signature_required: boolean | null
+          status: string | null
+          tracking_events: Json | null
+          tracking_number: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string | null
+          customs_info?: Json | null
+          delivered_at?: string | null
+          dimensions?: Json | null
+          estimated_delivery?: string | null
+          from_address?: Json | null
+          id?: string
+          insurance_value?: number | null
+          order_id?: string | null
+          service_type?: string | null
+          shipped_at?: string | null
+          shipping_address: Json
+          signature_required?: boolean | null
+          status?: string | null
+          tracking_events?: Json | null
+          tracking_number?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string | null
+          customs_info?: Json | null
+          delivered_at?: string | null
+          dimensions?: Json | null
+          estimated_delivery?: string | null
+          from_address?: Json | null
+          id?: string
+          insurance_value?: number | null
+          order_id?: string | null
+          service_type?: string | null
+          shipped_at?: string | null
+          shipping_address?: Json
+          signature_required?: boolean | null
+          status?: string | null
+          tracking_events?: Json | null
+          tracking_number?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_rates: {
+        Row: {
+          base_cost: number | null
+          created_at: string | null
+          description: string | null
+          distance_based: boolean | null
+          distance_rate: number | null
+          id: string
+          international: boolean | null
+          is_active: boolean | null
+          min_order_for_free: number | null
+          name: string
+          rate_type: string
+          updated_at: string | null
+          weight_based: boolean | null
+          weight_rate: number | null
+        }
+        Insert: {
+          base_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          distance_based?: boolean | null
+          distance_rate?: number | null
+          id?: string
+          international?: boolean | null
+          is_active?: boolean | null
+          min_order_for_free?: number | null
+          name: string
+          rate_type: string
+          updated_at?: string | null
+          weight_based?: boolean | null
+          weight_rate?: number | null
+        }
+        Update: {
+          base_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          distance_based?: boolean | null
+          distance_rate?: number | null
+          id?: string
+          international?: boolean | null
+          is_active?: boolean | null
+          min_order_for_free?: number | null
+          name?: string
+          rate_type?: string
+          updated_at?: string | null
+          weight_based?: boolean | null
+          weight_rate?: number | null
+        }
+        Relationships: []
+      }
+      shipping_zones: {
+        Row: {
+          countries: string[] | null
+          created_at: string | null
+          id: string
+          name: string
+          postal_codes: string[] | null
+          rate_id: string | null
+          states: string[] | null
+        }
+        Insert: {
+          countries?: string[] | null
+          created_at?: string | null
+          id?: string
+          name: string
+          postal_codes?: string[] | null
+          rate_id?: string | null
+          states?: string[] | null
+        }
+        Update: {
+          countries?: string[] | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          postal_codes?: string[] | null
+          rate_id?: string | null
+          states?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_zones_rate_id_fkey"
+            columns: ["rate_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_rates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shopping_cart: {
         Row: {

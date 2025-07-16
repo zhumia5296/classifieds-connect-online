@@ -22,6 +22,8 @@ import {
   Mail
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ShippingTracker } from '@/components/ShippingTracker';
+import { CreateShipmentForm } from '@/components/CreateShipmentForm';
 
 export const OrderDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -242,6 +244,28 @@ export const OrderDetails: React.FC = () => {
             )}
           </div>
 
+          {/* Shipping Information */}
+          {(order.tracking_number || isSeller) && (
+            <div className="lg:col-span-2">
+              {order.tracking_number ? (
+                <ShippingTracker
+                  trackingNumber={order.tracking_number}
+                  autoTrack={true}
+                />
+              ) : (
+                isSeller && order.status === 'paid' && (
+                  <CreateShipmentForm
+                    orderId={order.id}
+                    onShipmentCreated={(shipment) => {
+                      // Refresh order data
+                      window.location.reload();
+                    }}
+                  />
+                )
+              )}
+            </div>
+          )}
+
           {/* Order Summary */}
           <div className="space-y-4">
             <Card>
@@ -259,7 +283,12 @@ export const OrderDetails: React.FC = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Shipping:</span>
-                    <span>Free</span>
+                    <span>
+                      {order.shipping_cost 
+                        ? formatPrice(order.shipping_cost, order.currency)
+                        : 'Free'
+                      }
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax:</span>
@@ -268,7 +297,7 @@ export const OrderDetails: React.FC = () => {
                   <Separator />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total:</span>
-                    <span>{formatPrice(order.total_amount, order.currency)}</span>
+                    <span>{formatPrice(order.total_amount + (order.shipping_cost || 0), order.currency)}</span>
                   </div>
                 </div>
 
@@ -283,6 +312,18 @@ export const OrderDetails: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
                       <span>Payment ID: {order.stripe_session_id.slice(-8)}</span>
+                    </div>
+                  )}
+                  {order.tracking_number && (
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4" />
+                      <span>Tracking: {order.tracking_number}</span>
+                    </div>
+                  )}
+                  {order.estimated_delivery_date && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>Est. Delivery: {format(new Date(order.estimated_delivery_date), 'MMM dd, yyyy')}</span>
                     </div>
                   )}
                 </div>
