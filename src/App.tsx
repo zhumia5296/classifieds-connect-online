@@ -27,6 +27,7 @@ import Settings from "./pages/Settings";
 import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
 import SearchResults from "./pages/SearchResults";
+import { ActivityFeed } from "./pages/ActivityFeed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
