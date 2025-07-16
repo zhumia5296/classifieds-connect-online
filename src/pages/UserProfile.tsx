@@ -1,104 +1,106 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useReviews } from '@/hooks/useReviews';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useParams, useNavigate } from 'react-router-dom';
+import { User, Edit, MapPin, Calendar, Star, MessageCircle, ArrowLeft, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserReputationCard } from '@/components/UserReputationCard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import Navbar from '@/components/Navbar';
 import { ReviewsList } from '@/components/ReviewsList';
-import { ReviewForm } from '@/components/ReviewForm';
-import AdCard from '@/components/AdCard';
-import { 
-  User, 
-  MapPin, 
-  Calendar, 
-  Award, 
-  Star,
-  MessageSquare,
-  Flag,
-  Eye,
-  Shield
-} from 'lucide-react';
+import { UserReputationCard } from '@/components/UserReputationCard';
+import VerificationBadge from '@/components/VerificationBadge';
+import { useAuth } from '@/hooks/useAuth';
+import { useSEO } from '@/hooks/useSEO';
+import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow } from 'date-fns';
 
-interface UserProfile {
+interface Profile {
   id: string;
   user_id: string;
-  display_name?: string;
-  avatar_url?: string;
-  bio?: string;
-  location?: string;
+  display_name: string | null;
+  bio: string | null;
+  location: string | null;
+  avatar_url: string | null;
+  phone: string | null;
   is_verified: boolean;
   created_at: string;
+  updated_at: string;
 }
 
-interface UserAd {
+interface Ad {
   id: string;
   title: string;
-  price: number;
-  currency: string;
-  location: string;
-  condition: string;
+  price: number | null;
+  currency: string | null;
+  location: string | null;
   created_at: string;
   is_featured: boolean;
-  featured_until?: string;
-  categories: {
-    name: string;
-  };
-  ad_images: {
-    image_url: string;
-    is_primary: boolean;
-  }[];
+  condition: string | null;
+  status: string;
+  ad_images: Array<{ image_url: string; is_primary: boolean }>;
+  categories: { name: string };
 }
 
 const UserProfile = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const { getUserReputation } = useReviews();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [userReputation, setUserReputation] = useState(null);
-  const [userAds, setUserAds] = useState<UserAd[]>([]);
+  
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [userAds, setUserAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('listings');
+  const [adStats, setAdStats] = useState({
+    total: 0,
+    active: 0,
+    sold: 0
+  });
+
+  const isOwnProfile = currentUser?.id === id;
 
   useEffect(() => {
-    if (userId) {
-      loadUserProfile();
-      loadUserReputation();
-      loadUserAds();
+    if (id) {
+      fetchUserProfile();
+      fetchUserAds();
     }
-  }, [userId]);
+  }, [id]);
 
-  const loadUserProfile = async () => {
+  // Set up SEO
+  useSEO({
+    title: profile ? `${profile.display_name || 'User'} - Profile` : 'User Profile',
+    description: profile?.bio || 'User profile on ClassifiedList',
+    keywords: 'user profile, classifieds, marketplace'
+  });
+
+  const fetchUserProfile = async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', userId)
-        .single();
+        .eq('user_id', id)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
+      
+      if (!data) {
+        navigate('/');
+        return;
+      }
+
       setProfile(data);
     } catch (error) {
-      console.error('Error loading user profile:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching profile:', error);
+      navigate('/');
     }
   };
 
-  const loadUserReputation = async () => {
-    if (userId) {
-      const reputation = await getUserReputation(userId);
-      setUserReputation(reputation);
-    }
-  };
-
-  const loadUserAds = async () => {
+  const fetchUserAds = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      const { data: adsData, error } = await supabase
         .from('ads')
         .select(`
           id,
@@ -106,268 +108,250 @@ const UserProfile = () => {
           price,
           currency,
           location,
-          condition,
           created_at,
           is_featured,
-          featured_until,
-          categories(name),
-          ad_images(image_url, is_primary)
+          condition,
+          status,
+          ad_images!inner(image_url, is_primary),
+          categories!inner(name)
         `)
-        .eq('user_id', userId)
+        .eq('user_id', id)
         .eq('is_active', true)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(6);
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUserAds(data || []);
+
+      setUserAds(adsData || []);
+      
+      // Calculate stats
+      const total = adsData?.length || 0;
+      const active = adsData?.filter(ad => ad.status === 'active').length || 0;
+      const sold = adsData?.filter(ad => ad.status === 'sold').length || 0;
+      
+      setAdStats({ total, active, sold });
     } catch (error) {
-      console.error('Error loading user ads:', error);
+      console.error('Error fetching user ads:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    const diffMonths = Math.floor(diffDays / 30);
-    const diffYears = Math.floor(diffDays / 365);
-
-    if (diffYears > 0) return `${diffYears} year${diffYears > 1 ? 's' : ''} ago`;
-    if (diffMonths > 0) return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
-    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  const getImageUrl = (images: Ad['ad_images']) => {
+    const primaryImage = images?.find(img => img.is_primary);
+    return primaryImage?.image_url || images?.[0]?.image_url || '/placeholder.svg';
   };
 
-  const formatPrice = (price: number | null, currency: string) => {
-    if (!price) return 'Contact for price';
+  const formatPrice = (price: number | null, currency: string | null) => {
+    if (!price) return 'Price on request';
     
     const currencySymbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      CAD: 'C$'
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£',
     };
-
-    const symbol = currencySymbols[currency] || '$';
+    
+    const symbol = currencySymbols[currency || 'USD'] || '$';
     return `${symbol}${price.toLocaleString()}`;
   };
 
-  const getImageUrl = (adImages: UserAd['ad_images']) => {
-    const primaryImage = adImages.find(img => img.is_primary);
-    const fallbackImage = adImages[0];
-    const defaultImage = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop";
-    
-    return primaryImage?.image_url || fallbackImage?.image_url || defaultImage;
-  };
-
-  if (loading) {
+  if (loading && !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">User not found</h1>
-          <p className="text-muted-foreground">This user profile does not exist.</p>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-48 w-full mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-64" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  const isOwnProfile = currentUser?.id === userId;
-  const canWriteReview = currentUser && currentUser.id !== userId;
+  if (!profile) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-start gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profile.avatar_url} />
-                <AvatarFallback className="text-2xl">
-                  {profile.display_name?.charAt(0)?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold">
-                    {profile.display_name || 'Anonymous User'}
-                  </h1>
-                  {profile.is_verified && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Shield className="h-3 w-3" />
-                      Verified
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                  {profile.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {profile.location}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    Member since {new Date(profile.created_at).toLocaleDateString()}
+      <Navbar />
+      
+      {/* Header */}
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center space-x-4 mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-muted-foreground"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
+
+          {/* Profile Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+            <Avatar className="w-24 h-24">
+              <AvatarImage src={profile.avatar_url || undefined} />
+              <AvatarFallback className="text-2xl">
+                {profile.display_name?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1">
+              <div className="flex items-center space-x-3 mb-2">
+                <h1 className="text-3xl font-bold">
+                  {profile.display_name || 'Anonymous User'}
+                </h1>
+                <VerificationBadge isVerified={profile.is_verified} />
+              </div>
+
+              {profile.bio && (
+                <p className="text-muted-foreground mb-3">{profile.bio}</p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                {profile.location && (
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    {profile.location}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    {userAds.length} active ads
-                  </div>
-                </div>
-                
-                {profile.bio && (
-                  <p className="text-muted-foreground mb-4">{profile.bio}</p>
                 )}
-                
-                <div className="flex gap-3">
-                  {canWriteReview && (
-                    <Button onClick={() => setShowReviewForm(true)}>
-                      <Star className="h-4 w-4 mr-2" />
-                      Write Review
-                    </Button>
-                  )}
-                  {!isOwnProfile && (
-                    <>
-                      <Button variant="outline">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Message
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Flag className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  Joined {formatDistanceToNow(new Date(profile.created_at))} ago
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Content Tabs */}
-        <Tabs defaultValue="ads" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="ads">Active Ads ({userAds.length})</TabsTrigger>
+            <div className="flex items-center space-x-2">
+              {isOwnProfile ? (
+                <Button onClick={() => navigate('/profile')}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+              ) : (
+                <>
+                  <Button variant="outline">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Message
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <Card className="p-4">
+              <div className="text-2xl font-bold text-primary">{adStats.total}</div>
+              <p className="text-sm text-muted-foreground">Total Listings</p>
+            </Card>
+            
+            <Card className="p-4">
+              <div className="text-2xl font-bold text-green-600">{adStats.active}</div>
+              <p className="text-sm text-muted-foreground">Active</p>
+            </Card>
+            
+            <Card className="p-4">
+              <div className="text-2xl font-bold text-blue-600">{adStats.sold}</div>
+              <p className="text-sm text-muted-foreground">Sold</p>
+            </Card>
+            
+            <Card className="p-4">
+              <div className="text-2xl font-bold text-purple-600">
+                {profile.is_verified ? '✓' : '—'}
+              </div>
+              <p className="text-sm text-muted-foreground">Verified</p>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Tabs */}
+      <div className="container mx-auto px-4 py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-[600px] grid-cols-3">
+            <TabsTrigger value="listings">Listings ({adStats.total})</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="reputation">Reputation</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="ads">
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Listings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {userAds.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No active ads found.</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {userAds.map((ad) => (
-                      <AdCard
-                        key={ad.id}
-                        id={ad.id}
-                        title={ad.title}
-                        price={formatPrice(ad.price, ad.currency)}
-                        location={ad.location}
-                        timeAgo={formatTimeAgo(ad.created_at)}
-                        imageUrl={getImageUrl(ad.ad_images)}
-                        isFeatured={ad.is_featured}
-                        featuredUntil={ad.featured_until}
-                        isLiked={false}
-                        category={ad.categories?.name || 'Uncategorized'}
-                        condition={ad.condition}
-                        sellerId={userId}
-                        isOwner={isOwnProfile}
-                        onToggleSave={() => {}}
+          <TabsContent value="listings" className="mt-6">
+            {userAds.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {userAds.map((ad) => (
+                  <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="aspect-video relative">
+                      <img
+                        src={getImageUrl(ad.ad_images)}
+                        alt={ad.title}
+                        className="w-full h-full object-cover"
+                        onClick={() => navigate(`/ad/${ad.id}`)}
                       />
-                    ))}
-                  </div>
+                      {ad.is_featured && (
+                        <Badge className="absolute top-2 left-2 bg-yellow-500 text-yellow-50">
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold mb-2 line-clamp-2">{ad.title}</h3>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-lg font-bold text-primary">
+                          {formatPrice(ad.price, ad.currency)}
+                        </span>
+                        {ad.condition && (
+                          <Badge variant="outline" className="text-xs">
+                            {ad.condition}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{ad.categories.name}</span>
+                        <span>{formatDistanceToNow(new Date(ad.created_at))} ago</span>
+                      </div>
+                      {ad.location && (
+                        <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {ad.location}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-muted-foreground mb-4">
+                  {isOwnProfile ? "You haven't posted any listings yet" : "This user hasn't posted any listings yet"}
+                </div>
+                {isOwnProfile && (
+                  <Button onClick={() => navigate('/post-ad')}>
+                    Post Your First Ad
+                  </Button>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="reviews">
-            <ReviewsList 
-              userId={userId!} 
-              showWriteReview={canWriteReview} 
-            />
+          <TabsContent value="reviews" className="mt-6">
+            <ReviewsList userId={profile.user_id} />
           </TabsContent>
 
-          <TabsContent value="reputation">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <UserReputationCard reputation={userReputation} />
-              <Card>
-                <CardHeader>
-                  <CardTitle>Reputation Overview</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">
-                      {userReputation?.reputation_score || 0}
-                    </div>
-                    <p className="text-muted-foreground">Reputation Points</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">
-                        {userReputation?.total_sales || 0}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Items Sold</p>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {userReputation?.total_purchases || 0}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Items Bought</p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t">
-                    <h4 className="font-medium mb-2">How reputation is calculated:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• 5-star reviews: +100 points</li>
-                      <li>• 4-star reviews: +75 points</li>
-                      <li>• 3-star reviews: +50 points</li>
-                      <li>• 2-star reviews: +25 points</li>
-                      <li>• 1-star reviews: +0 points</li>
-                      <li>• Volume bonus: +10 per review (max 500)</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent value="reputation" className="mt-6">
+            <div className="text-center py-12 text-muted-foreground">
+              User reputation feature coming soon
             </div>
           </TabsContent>
         </Tabs>
-
-        {/* Review Form Modal */}
-        <ReviewForm
-          isOpen={showReviewForm}
-          onClose={() => setShowReviewForm(false)}
-          userId={userId!}
-          onSubmit={() => {
-            loadUserReputation();
-            setShowReviewForm(false);
-          }}
-        />
       </div>
     </div>
   );
