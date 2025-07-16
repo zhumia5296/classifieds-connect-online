@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useSEO } from '@/hooks/useSEO';
 import { useSavedAds } from '@/hooks/useSavedAds';
+import { useReviews } from '@/hooks/useReviews';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import QuickFeatureButton from '@/components/QuickFeatureButton';
 import AdCard from '@/components/AdCard';
+import { UserReputationCard } from '@/components/UserReputationCard';
+import { ReviewsList } from '@/components/ReviewsList';
 import { useState, useEffect } from 'react';
 import { 
   User, 
@@ -19,14 +22,17 @@ import {
   Eye,
   Calendar,
   Star,
-  Crown
+  Crown,
+  Award
 } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const { savedAdIds, getSavedAdsWithDetails, toggleSaveAd, isAdSaved } = useSavedAds();
+  const { getUserReputation } = useReviews();
   const [savedAds, setSavedAds] = useState([]);
   const [loadingSavedAds, setLoadingSavedAds] = useState(true);
+  const [userReputation, setUserReputation] = useState(null);
   
   // SEO for dashboard page
   useSEO({
@@ -48,6 +54,18 @@ const Dashboard = () => {
       loadSavedAds();
     }
   }, [user, getSavedAdsWithDetails]);
+
+  // Load user reputation
+  useEffect(() => {
+    const loadReputation = async () => {
+      if (user) {
+        const reputation = await getUserReputation(user.id);
+        setUserReputation(reputation);
+      }
+    };
+
+    loadReputation();
+  }, [user, getUserReputation]);
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -124,7 +142,7 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -136,6 +154,10 @@ const Dashboard = () => {
             <TabsTrigger value="saved" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Saved</span>
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              <span className="hidden sm:inline">Reviews</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -354,6 +376,27 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="reviews">
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <UserReputationCard reputation={userReputation} />
+              </div>
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>My Reviews</CardTitle>
+                    <CardDescription>
+                      Reviews and feedback from other users
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ReviewsList userId={user.id} showWriteReview={false} />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="profile">

@@ -686,6 +686,91 @@ export type Database = {
           },
         ]
       }
+      review_votes: {
+        Row: {
+          created_at: string
+          id: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_helpful?: boolean
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          ad_id: string | null
+          comment: string | null
+          created_at: string
+          helpful_count: number | null
+          id: string
+          is_verified: boolean | null
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          title: string
+          transaction_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          ad_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          title: string
+          transaction_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          rating?: number
+          reviewed_user_id?: string
+          reviewer_id?: string
+          title?: string
+          transaction_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_ads: {
         Row: {
           ad_id: string
@@ -789,6 +874,54 @@ export type Database = {
           },
         ]
       }
+      user_reputation: {
+        Row: {
+          average_rating: number | null
+          five_star_count: number | null
+          four_star_count: number | null
+          id: string
+          last_updated: string
+          one_star_count: number | null
+          reputation_score: number | null
+          three_star_count: number | null
+          total_purchases: number | null
+          total_reviews: number | null
+          total_sales: number | null
+          two_star_count: number | null
+          user_id: string
+        }
+        Insert: {
+          average_rating?: number | null
+          five_star_count?: number | null
+          four_star_count?: number | null
+          id?: string
+          last_updated?: string
+          one_star_count?: number | null
+          reputation_score?: number | null
+          three_star_count?: number | null
+          total_purchases?: number | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          two_star_count?: number | null
+          user_id: string
+        }
+        Update: {
+          average_rating?: number | null
+          five_star_count?: number | null
+          four_star_count?: number | null
+          id?: string
+          last_updated?: string
+          one_star_count?: number | null
+          reputation_score?: number | null
+          three_star_count?: number | null
+          total_purchases?: number | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          two_star_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string
@@ -875,6 +1008,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      update_user_reputation: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
