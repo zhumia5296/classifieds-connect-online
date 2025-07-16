@@ -907,6 +907,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_searches: {
+        Row: {
+          category_ids: string[] | null
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          notification_enabled: boolean
+          search_query: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_ids?: string[] | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          name: string
+          notification_enabled?: boolean
+          search_query?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_ids?: string[] | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          notification_enabled?: boolean
+          search_query?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       typing_indicators: {
         Row: {
           ad_id: string

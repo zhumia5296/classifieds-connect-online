@@ -34,10 +34,12 @@ import {
   Star,
   Calendar,
   TrendingUp,
-  Sliders
+  Sliders,
+  BookmarkPlus
 } from "lucide-react";
 import { useCategoryFilter } from '@/hooks/useCategoryFilter';
 import { supabase } from '@/integrations/supabase/client';
+import SaveSearchModal from './SaveSearchModal';
 
 export interface FilterOptions {
   priceRange: { min: number | null; max: number | null };
@@ -296,6 +298,21 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Save Search Button */}
+          {(searchQuery || activeFiltersCount > 0) && (
+            <SaveSearchModal
+              searchQuery={searchQuery}
+              filters={filters}
+              categoryIds={filters.categories}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <BookmarkPlus className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+              }
+            />
+          )}
 
           {/* Advanced Filters Sheet */}
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>

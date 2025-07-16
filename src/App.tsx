@@ -24,7 +24,7 @@ import CategoryPage from "./pages/CategoryPage";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
-import SavedAds from "./pages/SavedAds";
+import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
 import SearchResults from "./pages/SearchResults";
 import NotFound from "./pages/NotFound";
@@ -58,7 +58,8 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/:id" element={<UserProfile />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/saved" element={<SavedAds />} />
+        <Route path="/saved" element={<Favorites />} />
+        <Route path="/favorites" element={<Favorites />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/search" element={<SearchResults />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
