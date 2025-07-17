@@ -52,6 +52,8 @@ interface FormData {
   category_id: string;
   expires_at: Date | undefined;
   feature_option: 'none' | '7days' | '30days';
+  quantity_available: string;
+  max_quantity_per_order: string;
 }
 
 const PostAd = () => {
@@ -83,7 +85,9 @@ const PostAd = () => {
     contact_email: user?.email || '',
     category_id: '',
     expires_at: undefined,
-    feature_option: 'none'
+    feature_option: 'none',
+    quantity_available: '1',
+    max_quantity_per_order: '10'
   });
 
   // Redirect if not authenticated
@@ -235,7 +239,9 @@ const PostAd = () => {
         contact_phone: formData.contact_phone.trim() || null,
         contact_email: formData.contact_email.trim(),
         category_id: formData.category_id,
-        expires_at: formData.expires_at?.toISOString() || null
+        expires_at: formData.expires_at?.toISOString() || null,
+        quantity_available: parseInt(formData.quantity_available) || 1,
+        max_quantity_per_order: parseInt(formData.max_quantity_per_order) || 10
       };
 
       const { data: ad, error: adError } = await supabase
@@ -616,10 +622,57 @@ const PostAd = () => {
                   )}
                 </div>
               </CardContent>
-            </Card>
+             </Card>
 
-            {/* Contact Information */}
-            <Card>
+             {/* Inventory Management */}
+             <Card>
+               <CardHeader>
+                 <CardTitle>Inventory Management</CardTitle>
+                 <CardDescription>
+                   Set stock levels for your item
+                 </CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-6">
+                 <div className="grid gap-6 md:grid-cols-2">
+                   <div className="space-y-2">
+                     <Label htmlFor="quantity_available">
+                       Available Stock <span className="text-destructive">*</span>
+                     </Label>
+                     <Input
+                       id="quantity_available"
+                       type="number"
+                       min="0"
+                       placeholder="How many do you have?"
+                       value={formData.quantity_available}
+                       onChange={(e) => handleInputChange('quantity_available', e.target.value)}
+                     />
+                     <p className="text-sm text-muted-foreground">
+                       Total number of items available for sale
+                     </p>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label htmlFor="max_quantity_per_order">
+                       Maximum Per Order
+                     </Label>
+                     <Input
+                       id="max_quantity_per_order"
+                       type="number"
+                       min="1"
+                       placeholder="10"
+                       value={formData.max_quantity_per_order}
+                       onChange={(e) => handleInputChange('max_quantity_per_order', e.target.value)}
+                     />
+                     <p className="text-sm text-muted-foreground">
+                       Maximum number a buyer can order at once
+                     </p>
+                   </div>
+                 </div>
+               </CardContent>
+             </Card>
+
+             {/* Contact Information */}
+             <Card>
               <CardHeader>
                 <CardTitle>Contact & Location</CardTitle>
                 <CardDescription>

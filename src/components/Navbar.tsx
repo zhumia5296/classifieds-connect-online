@@ -188,6 +188,10 @@ const Navbar = () => {
                      <Package className="mr-2 h-4 w-4" />
                      <span>Orders</span>
                    </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/inventory')}>
+                     <Package className="mr-2 h-4 w-4" />
+                     <span>Inventory</span>
+                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/realtime-demo')}>
                     <Zap className="mr-2 h-4 w-4" />
                     Real-time Demo

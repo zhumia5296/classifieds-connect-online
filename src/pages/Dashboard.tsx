@@ -26,9 +26,11 @@ import {
   Crown,
   Award,
   QrCode,
-  Shield
+  Shield,
+  Package
 } from 'lucide-react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import { StockTracker } from '@/components/StockTracker';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -146,7 +148,7 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -154,6 +156,10 @@ const Dashboard = () => {
             <TabsTrigger value="my-ads" className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
               <span className="hidden sm:inline">My Ads</span>
+            </TabsTrigger>
+            <TabsTrigger value="inventory" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:inline">Inventory</span>
             </TabsTrigger>
             <TabsTrigger value="saved" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
@@ -341,6 +347,10 @@ const Dashboard = () => {
                 ))}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="inventory">
+            <StockTracker />
           </TabsContent>
 
           <TabsContent value="saved">
