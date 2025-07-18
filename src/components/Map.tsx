@@ -277,10 +277,19 @@ const Map = () => {
             type="text"
             placeholder="pk.eyJ1IjoiZXhhbXBsZS..."
             value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
+            onChange={(e) => {
+              console.log('Token input changed:', e.target.value.length);
+              setMapboxToken(e.target.value);
+            }}
             className="flex-1"
           />
-          <Button type="submit" disabled={!mapboxToken.trim()}>
+          <Button 
+            type="submit" 
+            disabled={!mapboxToken.trim()}
+            onClick={(e) => {
+              console.log('Button clicked, form will submit');
+            }}
+          >
             Load Map
           </Button>
         </form>
