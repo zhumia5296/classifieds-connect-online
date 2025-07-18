@@ -87,7 +87,7 @@ const AdDetailPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageGallery, setShowImageGallery] = useState(false);
 
-  // SEO hook - will update when ad data changes
+  // SEO hook - always call with current ad data (hook handles null internally)
   useAdSEO(ad ? {
     id: ad.id,
     title: ad.title,
@@ -100,7 +100,7 @@ const AdDetailPage = () => {
     categories: ad.categories,
     user: ad.profiles,
     created_at: ad.created_at
-  } : {} as any);
+  } : null);
 
   useEffect(() => {
     if (id) {
