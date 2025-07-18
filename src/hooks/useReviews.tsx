@@ -50,18 +50,31 @@ export const useReviews = () => {
   const getUserReviews = async (userId: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data: reviewsData, error } = await supabase
         .from('reviews')
         .select(`
           *,
-          reviewer:profiles!reviews_reviewer_id_fkey(display_name, avatar_url),
           ad:ads(title)
         `)
         .eq('reviewed_user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Review[];
+
+      // Fetch reviewer profiles separately since there's no foreign key
+      const reviewerIds = reviewsData?.map(review => review.reviewer_id) || [];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', reviewerIds);
+
+      // Merge the data
+      const reviews = reviewsData?.map(review => ({
+        ...review,
+        reviewer: profilesData?.find(profile => profile.user_id === review.reviewer_id) || null
+      })) || [];
+
+      return reviews as Review[];
     } catch (error) {
       console.error('Error fetching user reviews:', error);
       toast({
