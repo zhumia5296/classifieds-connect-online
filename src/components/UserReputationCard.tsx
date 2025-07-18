@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useReviews, UserReputation } from '@/hooks/useReviews';
+import { SafetyRatingDisplay } from './SafetyRatingDisplay';
 
 interface UserReputationCardProps {
   reputation: UserReputation | null;
@@ -60,19 +61,28 @@ export const UserReputationCard = ({ reputation, compact = false }: UserReputati
     return (
       <Card className="w-full">
         <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                {renderStars(averageRating)}
-                <span className="font-semibold text-lg">{averageRating.toFixed(1)}</span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  {renderStars(averageRating)}
+                  <span className="font-semibold text-lg">{averageRating.toFixed(1)}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  ({reputation.total_reviews} reviews)
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                ({reputation.total_reviews} reviews)
-              </div>
+              <Badge className={`${reputationLevel.bgColor} ${reputationLevel.color} border-0`}>
+                {reputationLevel.level}
+              </Badge>
             </div>
-            <Badge className={`${reputationLevel.bgColor} ${reputationLevel.color} border-0`}>
-              {reputationLevel.level}
-            </Badge>
+            
+            {/* Safety Rating Compact Display */}
+            <SafetyRatingDisplay
+              overallSafetyScore={reputation.overall_safety_score}
+              compact={true}
+              showTitle={false}
+            />
           </div>
         </CardContent>
       </Card>
@@ -136,6 +146,17 @@ export const UserReputationCard = ({ reputation, compact = false }: UserReputati
             <p className="text-xs text-muted-foreground">Items Bought</p>
           </div>
         </div>
+
+        {/* Safety Ratings */}
+        <SafetyRatingDisplay
+          safetyRating={reputation.average_safety_rating}
+          communicationRating={reputation.average_communication_rating}
+          reliabilityRating={reputation.average_reliability_rating}
+          paymentSafetyRating={reputation.average_payment_safety_rating}
+          overallSafetyScore={reputation.overall_safety_score}
+          compact={false}
+          showTitle={true}
+        />
 
         {/* Reputation Progress */}
         <div className="space-y-2">

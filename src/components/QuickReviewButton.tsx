@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Star, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ReviewForm } from './ReviewForm';
+import { SafetyReviewForm } from './SafetyReviewForm';
 import { useAuth } from '@/hooks/useAuth';
 import { useReviews } from '@/hooks/useReviews';
 
@@ -53,7 +53,7 @@ export const QuickReviewButton = ({
         )}
       </Button>
 
-      <ReviewForm
+      <SafetyReviewForm
         isOpen={showReviewForm}
         onClose={() => setShowReviewForm(false)}
         userId={sellerId}

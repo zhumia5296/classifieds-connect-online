@@ -14,6 +14,10 @@ export interface Review {
   transaction_type?: 'buying' | 'selling';
   is_verified: boolean;
   helpful_count: number;
+  safety_rating?: number;
+  communication_rating?: number;
+  reliability_rating?: number;
+  payment_safety_rating?: number;
   created_at: string;
   updated_at: string;
   reviewer?: {
@@ -38,6 +42,11 @@ export interface UserReputation {
   total_sales: number;
   total_purchases: number;
   reputation_score: number;
+  average_safety_rating: number;
+  average_communication_rating: number;
+  average_reliability_rating: number;
+  average_payment_safety_rating: number;
+  overall_safety_score: number;
   last_updated: string;
 }
 
@@ -113,6 +122,10 @@ export const useReviews = () => {
     title: string;
     comment?: string;
     transaction_type?: 'buying' | 'selling';
+    safety_rating?: number;
+    communication_rating?: number;
+    reliability_rating?: number;
+    payment_safety_rating?: number;
   }) => {
     if (!user) {
       toast({
@@ -168,6 +181,10 @@ export const useReviews = () => {
     rating?: number;
     title?: string;
     comment?: string;
+    safety_rating?: number;
+    communication_rating?: number;
+    reliability_rating?: number;
+    payment_safety_rating?: number;
   }) => {
     if (!user) return null;
 

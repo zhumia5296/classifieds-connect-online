@@ -1034,13 +1034,17 @@ export type Database = {
         Row: {
           ad_id: string | null
           comment: string | null
+          communication_rating: number | null
           created_at: string
           helpful_count: number | null
           id: string
           is_verified: boolean | null
+          payment_safety_rating: number | null
           rating: number
+          reliability_rating: number | null
           reviewed_user_id: string
           reviewer_id: string
+          safety_rating: number | null
           title: string
           transaction_type: string | null
           updated_at: string
@@ -1048,13 +1052,17 @@ export type Database = {
         Insert: {
           ad_id?: string | null
           comment?: string | null
+          communication_rating?: number | null
           created_at?: string
           helpful_count?: number | null
           id?: string
           is_verified?: boolean | null
+          payment_safety_rating?: number | null
           rating: number
+          reliability_rating?: number | null
           reviewed_user_id: string
           reviewer_id: string
+          safety_rating?: number | null
           title: string
           transaction_type?: string | null
           updated_at?: string
@@ -1062,13 +1070,17 @@ export type Database = {
         Update: {
           ad_id?: string | null
           comment?: string | null
+          communication_rating?: number | null
           created_at?: string
           helpful_count?: number | null
           id?: string
           is_verified?: boolean | null
+          payment_safety_rating?: number | null
           rating?: number
+          reliability_rating?: number | null
           reviewed_user_id?: string
           reviewer_id?: string
+          safety_rating?: number | null
           title?: string
           transaction_type?: string | null
           updated_at?: string
@@ -1610,12 +1622,17 @@ export type Database = {
       }
       user_reputation: {
         Row: {
+          average_communication_rating: number | null
+          average_payment_safety_rating: number | null
           average_rating: number | null
+          average_reliability_rating: number | null
+          average_safety_rating: number | null
           five_star_count: number | null
           four_star_count: number | null
           id: string
           last_updated: string
           one_star_count: number | null
+          overall_safety_score: number | null
           reputation_score: number | null
           three_star_count: number | null
           total_purchases: number | null
@@ -1625,12 +1642,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          average_communication_rating?: number | null
+          average_payment_safety_rating?: number | null
           average_rating?: number | null
+          average_reliability_rating?: number | null
+          average_safety_rating?: number | null
           five_star_count?: number | null
           four_star_count?: number | null
           id?: string
           last_updated?: string
           one_star_count?: number | null
+          overall_safety_score?: number | null
           reputation_score?: number | null
           three_star_count?: number | null
           total_purchases?: number | null
@@ -1640,12 +1662,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          average_communication_rating?: number | null
+          average_payment_safety_rating?: number | null
           average_rating?: number | null
+          average_reliability_rating?: number | null
+          average_safety_rating?: number | null
           five_star_count?: number | null
           four_star_count?: number | null
           id?: string
           last_updated?: string
           one_star_count?: number | null
+          overall_safety_score?: number | null
           reputation_score?: number | null
           three_star_count?: number | null
           total_purchases?: number | null
