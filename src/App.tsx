@@ -42,6 +42,7 @@ import Orders from "./pages/Orders";
 import { OrderDetails } from "./components/OrderDetails";
 import Inventory from "./pages/Inventory";
 import SafeMeetup from "./pages/SafeMeetup";
+import NearbyAlerts from "./pages/NearbyAlerts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -95,6 +96,7 @@ const App = () => (
                 <Route path="/orders/:orderId" element={<Layout><OrderDetails /></Layout>} />
                 <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
                 <Route path="/safe-meetup" element={<Layout><SafeMeetup /></Layout>} />
+                <Route path="/nearby-alerts" element={<Layout><NearbyAlerts /></Layout>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Layout><NotFound /></Layout>} />
               </Routes>

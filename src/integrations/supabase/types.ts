@@ -654,6 +654,57 @@ export type Database = {
           },
         ]
       }
+      nearby_alert_preferences: {
+        Row: {
+          categories: string[] | null
+          conditions: string[] | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          keywords: string | null
+          location_lat: number | null
+          location_lng: number | null
+          location_name: string | null
+          max_price: number | null
+          min_price: number | null
+          radius_km: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categories?: string[] | null
+          conditions?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          keywords?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_name?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          radius_km?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categories?: string[] | null
+          conditions?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          keywords?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_name?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          radius_km?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           ad_expiring: boolean | null

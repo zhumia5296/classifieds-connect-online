@@ -4,6 +4,7 @@ import CategoryNav from "@/components/CategoryNav";
 import HeroSection from "@/components/HeroSection";
 import AdGrid from "@/components/AdGrid";
 import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
+import NearbyAlertPrompt from "@/components/NearbyAlertPrompt";
 import ComparisonBar from "@/components/ComparisonBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
@@ -48,6 +49,7 @@ const Index = () => {
             <AdGrid />
           </div>
           <div className="space-y-6">
+            <NearbyAlertPrompt />
             <LocationBasedSuggestions />
           </div>
         </div>

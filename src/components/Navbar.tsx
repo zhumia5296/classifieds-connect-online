@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List, ShoppingCart, Package } from "lucide-react";
+import { Search, Menu, User, Plus, MapPin, LogOut, Settings, Heart, MessageCircle, Shield, Crown, Zap, BarChart3, Smartphone, Bell, List, ShoppingCart, Package, Target } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useNearbyAlerts } from "@/hooks/useNearbyAlerts";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ShoppingCartComponent } from "@/components/ShoppingCart";
@@ -26,6 +27,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { isAdmin, isModerator, userRole } = useAdmin();
   const { t } = useLanguage();
+  const { hasActiveAlerts } = useNearbyAlerts();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -173,6 +175,18 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem onClick={() => navigate('/nearby-alerts')}>
+                    <Target className="mr-2 h-4 w-4" />
+                    <div className="flex items-center justify-between w-full">
+                      <span>Nearby Alerts</span>
+                      {hasActiveAlerts && (
+                        <Badge variant="secondary" className="ml-2 h-4 text-xs">
+                          On
+                        </Badge>
+                      )}
+                    </div>
                   </DropdownMenuItem>
                    <DropdownMenuItem onClick={() => navigate('/messages')}>
                      <MessageCircle className="mr-2 h-4 w-4" />
