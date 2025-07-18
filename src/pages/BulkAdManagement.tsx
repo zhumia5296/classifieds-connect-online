@@ -95,11 +95,6 @@ export default function BulkAdManagement() {
     sortOrder: 'desc',
   });
 
-  // If mobile, use mobile-optimized version
-  if (isMobile) {
-    return <MobileBulkManagement />;
-  }
-
   const fetchAds = async () => {
     if (!user) return;
 
@@ -162,7 +157,7 @@ export default function BulkAdManagement() {
     }
   };
 
-  // Apply filters to ads
+  // Apply filters to ads - useMemo hook must be called before conditional returns
   const filteredAds = useMemo(() => {
     let filtered = [...ads];
 
@@ -221,10 +216,16 @@ export default function BulkAdManagement() {
     return filtered;
   }, [ads, filters]);
 
+  // useEffect hook must be called before conditional returns
   useEffect(() => {
     fetchAds();
     fetchCategories();
   }, [user, filters.sortBy, filters.sortOrder]);
+
+  // If mobile, use mobile-optimized version (must be after all hooks)
+  if (isMobile) {
+    return <MobileBulkManagement />;
+  }
 
   const updateFilter = (key: keyof AdvancedFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
