@@ -123,7 +123,7 @@ const SearchResults = () => {
       }
 
       // Apply category filter
-      if (selectedCategory) {
+      if (selectedCategory && selectedCategory !== 'all') {
         query = query.eq('category_id', selectedCategory);
       }
 
@@ -141,8 +141,40 @@ const SearchResults = () => {
       }
 
       // Apply condition filter
-      if (condition) {
+      if (condition && condition !== 'all') {
         query = query.eq('condition', condition);
+      }
+
+      // Apply date filter
+      if (dateFilter && dateFilter !== 'all') {
+        const now = new Date();
+        let startDate: Date;
+        
+        switch (dateFilter) {
+          case 'today':
+            startDate = subDays(now, 1);
+            break;
+          case 'week':
+            startDate = subWeeks(now, 1);
+            break;
+          case 'month':
+            startDate = subMonths(now, 1);
+            break;
+          case 'custom':
+            if (customDateRange?.from) {
+              query = query.gte('created_at', customDateRange.from.toISOString());
+            }
+            if (customDateRange?.to) {
+              query = query.lte('created_at', customDateRange.to.toISOString());
+            }
+            break;
+          default:
+            startDate = new Date(0);
+        }
+        
+        if (dateFilter !== 'custom' && startDate) {
+          query = query.gte('created_at', startDate.toISOString());
+        }
       }
 
       // Apply sorting
@@ -382,12 +414,12 @@ const SearchResults = () => {
                 {/* Category filter */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">Category</label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select value={selectedCategory || 'all'} onValueChange={setSelectedCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="All categories" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All categories</SelectItem>
+                      <SelectItem value="all">All categories</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
@@ -429,12 +461,12 @@ const SearchResults = () => {
                 {/* Condition */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">Condition</label>
-                  <Select value={condition} onValueChange={setCondition}>
+                  <Select value={condition || 'all'} onValueChange={setCondition}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any condition" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any condition</SelectItem>
+                      <SelectItem value="all">Any condition</SelectItem>
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="like_new">Like New</SelectItem>
                       <SelectItem value="good">Good</SelectItem>
@@ -486,12 +518,12 @@ const SearchResults = () => {
                 {/* Date Filters */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">Posted Date</label>
-                  <Select value={dateFilter} onValueChange={setDateFilter}>
+                  <Select value={dateFilter || 'all'} onValueChange={setDateFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any time" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any time</SelectItem>
+                      <SelectItem value="all">Any time</SelectItem>
                       <SelectItem value="today">Today</SelectItem>
                       <SelectItem value="week">This week</SelectItem>
                       <SelectItem value="month">This month</SelectItem>

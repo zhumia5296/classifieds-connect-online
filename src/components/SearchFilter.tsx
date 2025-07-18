@@ -125,7 +125,9 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
   };
 
   const updateFilter = (key: keyof FilterOptions, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+    // Convert "all" values to empty string for backward compatibility
+    const processedValue = value === 'all' ? '' : value;
+    const newFilters = { ...filters, [key]: processedValue };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -500,14 +502,14 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                   </div>
                   <div className="space-y-2">
                     <Select
-                      value={filters.condition}
+                      value={filters.condition || 'all'}
                       onValueChange={(value) => updateFilter('condition', value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Any condition" />
                       </SelectTrigger>
                       <SelectContent className="bg-background z-50">
-                        <SelectItem value="">Any condition</SelectItem>
+                        <SelectItem value="all">Any condition</SelectItem>
                         <SelectItem value="new">
                           <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 rounded-full bg-green-500"></div>

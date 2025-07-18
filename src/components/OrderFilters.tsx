@@ -19,7 +19,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   const handleFilterChange = (key: string, value: string | number) => {
     onFilterChange({
       ...currentFilters,
-      [key]: value || undefined
+      [key]: (value === 'all' || value === '') ? undefined : value
     });
   };
 
@@ -63,14 +63,14 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           <div className="space-y-2">
             <label className="text-sm font-medium">Status</label>
             <Select
-              value={currentFilters.status || ''}
+              value={currentFilters.status || 'all'}
               onValueChange={(value) => handleFilterChange('status', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="shipped">Shipped</SelectItem>

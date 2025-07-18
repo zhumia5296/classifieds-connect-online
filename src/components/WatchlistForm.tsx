@@ -73,7 +73,7 @@ const WatchlistForm = ({ watchlist, onSuccess, onCancel }: WatchlistFormProps) =
     const criteria: Watchlist['criteria'] = {};
     
     if (formData.keywords.trim()) criteria.keywords = formData.keywords.trim();
-    if (formData.category_id) criteria.category_id = formData.category_id;
+    if (formData.category_id && formData.category_id !== 'all') criteria.category_id = formData.category_id;
     if (formData.min_price) criteria.min_price = parseFloat(formData.min_price);
     if (formData.max_price) criteria.max_price = parseFloat(formData.max_price);
     if (formData.location.trim()) criteria.location = formData.location.trim();
@@ -162,15 +162,15 @@ const WatchlistForm = ({ watchlist, onSuccess, onCancel }: WatchlistFormProps) =
                 <Tag className="h-4 w-4" />
                 Category
               </Label>
-              <Select 
-                value={formData.category_id} 
+              <Select
+                value={formData.category_id || 'all'}
                 onValueChange={(value) => handleInputChange('category_id', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
