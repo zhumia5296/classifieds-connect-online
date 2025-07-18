@@ -31,8 +31,11 @@ const Map = () => {
 
   const fetchMapboxToken = async () => {
     try {
+      console.log('=== MAPBOX TOKEN FETCH DEBUG ===');
       console.log('Fetching Mapbox token from edge function...');
       const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      
+      console.log('Edge function response:', { data, error });
       
       if (error) {
         console.error('Error fetching token:', error);
@@ -40,10 +43,12 @@ const Map = () => {
       }
 
       if (!data?.token) {
+        console.error('No token in response data:', data);
         throw new Error('No token received from edge function');
       }
 
-      console.log('Successfully fetched Mapbox token');
+      console.log('Successfully fetched Mapbox token, length:', data.token.length);
+      console.log('Token starts with:', data.token.substring(0, 10));
       return data.token;
     } catch (error) {
       console.error('Failed to fetch Mapbox token:', error);
@@ -53,8 +58,13 @@ const Map = () => {
   };
 
   const initializeMap = async (token: string) => {
+    console.log('=== MAP INITIALIZATION DEBUG ===');
+    console.log('Container ref:', mapContainer.current);
+    console.log('Token provided:', !!token);
+    console.log('Token length:', token?.length);
+    
     if (!mapContainer.current || !token.trim()) {
-      console.log('Missing container or token');
+      console.log('Missing container or token - Container:', !!mapContainer.current, 'Token:', !!token.trim());
       return;
     }
 
