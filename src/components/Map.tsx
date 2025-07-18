@@ -257,6 +257,13 @@ const Map = () => {
   // Initialize map on component mount
   useEffect(() => {
     const initMap = async () => {
+      // Ensure container is ready
+      if (!mapContainer.current) {
+        console.log('Container not ready, waiting...');
+        setTimeout(() => initMap(), 100);
+        return;
+      }
+
       try {
         const token = await fetchMapboxToken();
         await initializeMap(token);
@@ -266,9 +273,13 @@ const Map = () => {
       }
     };
 
-    initMap();
+    // Small delay to ensure the container ref is ready
+    const timeoutId = setTimeout(() => {
+      initMap();
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
       if (map.current) {
         map.current.remove();
         map.current = null;
