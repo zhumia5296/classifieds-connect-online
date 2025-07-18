@@ -233,15 +233,13 @@ export const useNotificationPreferences = () => {
         .from('notification_preferences')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // No preferences found, create default ones
-          await createDefaultPreferences();
-        } else {
-          throw error;
-        }
+        throw error;
+      } else if (!data) {
+        // No preferences found, create default ones
+        await createDefaultPreferences();
       } else {
         setPreferences(data);
       }

@@ -104,9 +104,9 @@ export const useReviews = () => {
         .from('user_reputation')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as UserReputation | null;
     } catch (error) {
       console.error('Error fetching user reputation:', error);
@@ -295,9 +295,9 @@ export const useReviews = () => {
         .select('is_helpful')
         .eq('review_id', reviewId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data?.is_helpful ?? null;
     } catch (error) {
       console.error('Error fetching review vote:', error);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ export const useSavedAds = () => {
   const { toast } = useToast();
   const [savedAdIds, setSavedAdIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const lastErrorTime = useRef<number>(0);
 
   // Fetch saved ads for the current user
   const fetchSavedAds = async () => {
@@ -28,11 +29,17 @@ export const useSavedAds = () => {
       setSavedAdIds(data?.map(item => item.ad_id) || []);
     } catch (error) {
       console.error('Error fetching saved ads:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load saved ads",
-        variant: "destructive",
-      });
+      
+      // Throttle error toasts to prevent spam - only show once every 5 seconds
+      const now = Date.now();
+      if (now - lastErrorTime.current > 5000) {
+        toast({
+          title: "Error",
+          description: "Failed to load saved ads",
+          variant: "destructive",
+        });
+        lastErrorTime.current = now;
+      }
     } finally {
       setLoading(false);
     }
@@ -140,11 +147,17 @@ export const useSavedAds = () => {
       })) || [];
     } catch (error) {
       console.error('Error fetching saved ads with details:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load saved ads",
-        variant: "destructive",
-      });
+      
+      // Throttle error toasts to prevent spam - only show once every 5 seconds
+      const now = Date.now();
+      if (now - lastErrorTime.current > 5000) {
+        toast({
+          title: "Error",
+          description: "Failed to load saved ads",
+          variant: "destructive",
+        });
+        lastErrorTime.current = now;
+      }
       return [];
     }
   };
