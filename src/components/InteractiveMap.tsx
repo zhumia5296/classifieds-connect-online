@@ -4,7 +4,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, Navigation, Loader2, RefreshCw } from 'lucide-react';
+import { MapPin, Navigation, Loader2, RefreshCw, Target, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AdMarker {
   id: string;
@@ -25,7 +26,11 @@ const InteractiveMap = () => {
   const [ads, setAds] = useState<AdMarker[]>([]);
   const [loadingAds, setLoadingAds] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [nearbyAlerts, setNearbyAlerts] = useState<any[]>([]);
+  const [showAlertRadius, setShowAlertRadius] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   console.log('🎯 InteractiveMap component rendered');
 
@@ -233,16 +238,141 @@ const InteractiveMap = () => {
     }
   };
 
+  // Fetch user's nearby alert preferences
+  const fetchNearbyAlerts = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('nearby_alert_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_enabled', true);
+
+      if (error) throw error;
+      
+      setNearbyAlerts(data || []);
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching nearby alerts:', error);
+      return [];
+    }
+  };
+
+  // Add alert radius circles to map
+  const addAlertRadiusCircles = (userLat: number, userLng: number, alerts: any[]) => {
+    if (!map.current) return;
+
+    // Remove existing circles
+    if (map.current.getLayer('alert-radius-fill')) {
+      map.current.removeLayer('alert-radius-fill');
+    }
+    if (map.current.getLayer('alert-radius-border')) {
+      map.current.removeLayer('alert-radius-border');
+    }
+    if (map.current.getSource('alert-radius')) {
+      map.current.removeSource('alert-radius');
+    }
+
+    // Create circles for each alert preference
+    const features = alerts.map((alert, index) => {
+      const radiusKm = alert.radius_km || 25;
+      const center = [userLng, userLat];
+      const radiusInMeters = radiusKm * 1000;
+      
+      // Create a circle using turf.js-like calculation
+      const points = 64;
+      const coords = [];
+      for (let i = 0; i < points; i++) {
+        const angle = (i * 360) / points;
+        const dx = radiusInMeters * Math.cos(angle * Math.PI / 180);
+        const dy = radiusInMeters * Math.sin(angle * Math.PI / 180);
+        
+        // Convert meters to degrees (approximate)
+        const deltaLat = dy / 111320;
+        const deltaLon = dx / (111320 * Math.cos(userLat * Math.PI / 180));
+        
+        coords.push([userLng + deltaLon, userLat + deltaLat]);
+      }
+      coords.push(coords[0]); // Close the polygon
+
+      return {
+        type: 'Feature' as const,
+        properties: {
+          alertIndex: index,
+          radiusKm: radiusKm
+        },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [coords]
+        }
+      };
+    });
+
+    // Add source
+    map.current.addSource('alert-radius', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: features
+      }
+    });
+
+    // Add fill layer
+    map.current.addLayer({
+      id: 'alert-radius-fill',
+      type: 'fill',
+      source: 'alert-radius',
+      paint: {
+        'fill-color': '#3b82f6',
+        'fill-opacity': 0.1
+      }
+    });
+
+    // Add border layer
+    map.current.addLayer({
+      id: 'alert-radius-border',
+      type: 'line',
+      source: 'alert-radius',
+      paint: {
+        'line-color': '#3b82f6',
+        'line-width': 2,
+        'line-dasharray': [2, 2]
+      }
+    });
+  };
+
   const getUserLocation = () => {
     if (navigator.geolocation && map.current) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           console.log('📍 User location:', latitude, longitude);
+          
+          setUserLocation({ lat: latitude, lng: longitude });
+          
+          // Add user location marker
+          const userMarkerEl = document.createElement('div');
+          userMarkerEl.innerHTML = `
+            <div class="bg-blue-500 text-white rounded-full w-4 h-4 border-2 border-white shadow-lg animate-pulse"></div>
+          `;
+          
+          new mapboxgl.Marker(userMarkerEl)
+            .setLngLat([longitude, latitude])
+            .addTo(map.current!);
+
           map.current?.flyTo({
             center: [longitude, latitude],
             zoom: 12
           });
+
+          // Fetch and display alert radius if enabled
+          if (showAlertRadius) {
+            const alerts = await fetchNearbyAlerts();
+            if (alerts.length > 0) {
+              addAlertRadiusCircles(latitude, longitude, alerts);
+            }
+          }
         },
         (error) => {
           console.error('❌ Location error:', error);
@@ -253,6 +383,49 @@ const InteractiveMap = () => {
           });
         }
       );
+    }
+  };
+
+  const toggleAlertRadius = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to view your alert radius",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newShowState = !showAlertRadius;
+    setShowAlertRadius(newShowState);
+
+    if (newShowState && userLocation) {
+      const alerts = await fetchNearbyAlerts();
+      if (alerts.length > 0) {
+        addAlertRadiusCircles(userLocation.lat, userLocation.lng, alerts);
+        toast({
+          title: "Alert Radius Visible",
+          description: `Showing ${alerts.length} alert zone(s)`,
+        });
+      } else {
+        toast({
+          title: "No Alert Preferences",
+          description: "Set up nearby alerts in settings to see radius",
+        });
+      }
+    } else {
+      // Remove radius circles
+      if (map.current) {
+        if (map.current.getLayer('alert-radius-fill')) {
+          map.current.removeLayer('alert-radius-fill');
+        }
+        if (map.current.getLayer('alert-radius-border')) {
+          map.current.removeLayer('alert-radius-border');
+        }
+        if (map.current.getSource('alert-radius')) {
+          map.current.removeSource('alert-radius');
+        }
+      }
     }
   };
 
@@ -337,6 +510,16 @@ const InteractiveMap = () => {
         >
           <Navigation className="h-4 w-4 mr-2" />
           My Location
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={toggleAlertRadius}
+          className="shadow-md"
+          disabled={isLoading}
+        >
+          {showAlertRadius ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+          {showAlertRadius ? 'Hide' : 'Show'} Alert Radius
         </Button>
         <Button
           variant="secondary"
