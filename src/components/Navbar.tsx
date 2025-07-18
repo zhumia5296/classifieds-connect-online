@@ -80,9 +80,6 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <SidebarTrigger className="h-8 w-8" />
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
             <div className="flex items-center space-x-2">
               <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 ClassifiedList

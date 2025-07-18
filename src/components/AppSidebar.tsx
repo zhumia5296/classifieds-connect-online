@@ -90,12 +90,11 @@ export function AppSidebar() {
       collapsible="icon"
     >
       <SidebarContent>
-        {/* Logo and Trigger */}
-        <div className="flex items-center justify-between p-4 border-b">
+        {/* Logo */}
+        <div className="flex items-center p-4 border-b">
           {!collapsed && (
             <h2 className="text-lg font-semibold text-primary">ClassifiedList</h2>
           )}
-          <SidebarTrigger className="h-6 w-6" />
         </div>
 
         {/* Main Navigation */}
