@@ -74,7 +74,12 @@ export const useAdSEO = (ad: {
   categories?: { name: string };
   user?: { display_name?: string };
   created_at: string;
-}) => {
+} | null) => {
+  // Don't run SEO updates if ad data isn't loaded yet
+  if (!ad || !ad.description) {
+    return;
+  }
+
   const adImages = ad.images?.map(img => img.image_url) || [];
   const primaryImage = adImages[0] || "https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/icons/icon-512x512.png";
   
