@@ -141,12 +141,6 @@ const AdDetailPage = () => {
             alt_text,
             is_primary
           ),
-          profiles!user_id (
-            display_name,
-            location,
-            is_verified,
-            created_at
-          ),
           saved_ads (
             id
           )
@@ -167,6 +161,16 @@ const AdDetailPage = () => {
         navigate('/');
         return;
       }
+
+      // Fetch profile data separately
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('display_name, location, is_verified, created_at')
+        .eq('user_id', data.user_id)
+        .maybeSingle();
+
+      // Attach profile data to the ad object
+      (data as any).profiles = profileData;
 
       // Filter saved_ads for current user only
       if (user) {
