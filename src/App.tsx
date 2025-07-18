@@ -9,6 +9,7 @@ import "./lib/i18n"; // Initialize i18n
 import { CategoryProvider } from "@/hooks/useCategoryFilter";
 import { ComparisonProvider } from "@/hooks/useComparison";
 import { InstallPrompt } from "@/hooks/usePWA";
+import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import Compare from "./pages/Compare";
 import Auth from "./pages/Auth";
@@ -61,41 +62,41 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/post-ad" element={<PostAd />} />
-                <Route path="/ad/:id" element={<AdDetail />} />
-                <Route path="/compare" element={<Compare />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/realtime-demo" element={<RealtimeDemo />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/mobile" element={<MobileOptimization />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/watchlists" element={<Watchlists />} />
-                <Route path="/bulk-management" element={<BulkAdManagement />} />
-                <Route path="/category/:slug" element={<CategoryPage />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/user/:id" element={<UserProfile />} />
-            <Route path="/settings" element={<Settings />} />
-        <Route path="/saved" element={<Favorites />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/activity-feed" element={<ActivityFeed />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/checkout-success" element={<CheckoutSuccess />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:orderId" element={<OrderDetails />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/safe-meetup" element={<SafeMeetup />} />
+                <Route path="/" element={<Layout><Index /></Layout>} />
+                <Route path="/auth" element={<Layout><Auth /></Layout>} />
+                <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/post-ad" element={<Layout><PostAd /></Layout>} />
+                <Route path="/ad/:id" element={<Layout><AdDetail /></Layout>} />
+                <Route path="/compare" element={<Layout><Compare /></Layout>} />
+                <Route path="/messages" element={<Layout><Messages /></Layout>} />
+                <Route path="/realtime-demo" element={<Layout><RealtimeDemo /></Layout>} />
+                <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+                <Route path="/mobile" element={<Layout><MobileOptimization /></Layout>} />
+                <Route path="/admin" element={<Layout><Admin /></Layout>} />
+                <Route path="/watchlists" element={<Layout><Watchlists /></Layout>} />
+                <Route path="/bulk-management" element={<Layout><BulkAdManagement /></Layout>} />
+                <Route path="/category/:slug" element={<Layout><CategoryPage /></Layout>} />
+                <Route path="/profile" element={<Layout><Profile /></Layout>} />
+                <Route path="/user/:id" element={<Layout><UserProfile /></Layout>} />
+                <Route path="/settings" element={<Layout><Settings /></Layout>} />
+                <Route path="/saved" element={<Layout><Favorites /></Layout>} />
+                <Route path="/favorites" element={<Layout><Favorites /></Layout>} />
+                <Route path="/activity-feed" element={<Layout><ActivityFeed /></Layout>} />
+                <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
+                <Route path="/search" element={<Layout><SearchResults /></Layout>} />
+                <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+                <Route path="/subscription-success" element={<Layout><SubscriptionSuccess /></Layout>} />
+                <Route path="/blog" element={<Layout><Blog /></Layout>} />
+                <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
+                <Route path="/about" element={<Layout><About /></Layout>} />
+                <Route path="/faq" element={<Layout><FAQ /></Layout>} />
+                <Route path="/checkout-success" element={<Layout><CheckoutSuccess /></Layout>} />
+                <Route path="/orders" element={<Layout><Orders /></Layout>} />
+                <Route path="/orders/:orderId" element={<Layout><OrderDetails /></Layout>} />
+                <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+                <Route path="/safe-meetup" element={<Layout><SafeMeetup /></Layout>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<Layout><NotFound /></Layout>} />
               </Routes>
               <InstallPrompt />
             </BrowserRouter>
