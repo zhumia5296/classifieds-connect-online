@@ -134,7 +134,7 @@ const MobileOptimization = () => {
       title: 'Push Notifications',
       description: 'Get notified about new messages and updates',
       available: 'Notification' in window,
-      status: Notification?.permission === 'granted' ? 'Enabled' : 'Available'
+      status: typeof Notification !== 'undefined' && Notification?.permission === 'granted' ? 'Enabled' : 'Available'
     },
     {
       icon: Camera,
@@ -318,7 +318,7 @@ const MobileOptimization = () => {
           </Card>
         )}
         
-        {Notification?.permission !== 'granted' && (
+        {(typeof Notification !== 'undefined' && Notification?.permission !== 'granted') && (
           <Card>
             <CardContent className="p-6 text-center">
               <Bell className="h-12 w-12 mx-auto mb-4 text-primary" />
