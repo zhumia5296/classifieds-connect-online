@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -22,114 +21,95 @@ interface AdMarker {
 const Map = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isMapReady, setIsMapReady] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [ads, setAds] = useState<AdMarker[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingAds, setLoadingAds] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchMapboxToken = async () => {
-    try {
-      console.log('=== MAPBOX TOKEN FETCH DEBUG ===');
-      console.log('Fetching Mapbox token from edge function...');
-      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-      
-      console.log('Edge function response:', { data, error });
-      
-      if (error) {
-        console.error('Error fetching token:', error);
-        throw error;
-      }
-
-      if (!data?.token) {
-        console.error('No token in response data:', data);
-        throw new Error('No token received from edge function');
-      }
-
-      console.log('Successfully fetched Mapbox token, length:', data.token.length);
-      console.log('Token starts with:', data.token.substring(0, 10));
-      return data.token;
-    } catch (error) {
-      console.error('Failed to fetch Mapbox token:', error);
-      setError('Failed to load map configuration. Please check your Mapbox token setup.');
+    console.log('🗺️ Fetching Mapbox token...');
+    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+    
+    if (error) {
+      console.error('❌ Token fetch error:', error);
       throw error;
     }
+
+    if (!data?.token) {
+      console.error('❌ No token in response');
+      throw new Error('No token received');
+    }
+
+    console.log('✅ Token fetched successfully');
+    return data.token;
   };
 
-  const initializeMap = async (token: string) => {
-    console.log('=== MAP INITIALIZATION DEBUG ===');
-    console.log('Container ref:', mapContainer.current);
-    console.log('Token provided:', !!token);
-    console.log('Token length:', token?.length);
+  const initializeMap = async () => {
+    console.log('🚀 Starting map initialization...');
     
-    if (!mapContainer.current || !token.trim()) {
-      console.log('Missing container or token - Container:', !!mapContainer.current, 'Token:', !!token.trim());
+    if (!mapContainer.current) {
+      console.error('❌ No container element');
+      setError('Map container not found');
       return;
     }
 
     try {
-      // Clean up existing map
+      setIsLoading(true);
+      setError(null);
+
+      // Get token
+      const token = await fetchMapboxToken();
+      console.log('🔑 Got token, setting up map...');
+
+      // Clean up any existing map
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
 
-      console.log('Initializing map with token:', token.substring(0, 20) + '...');
-      
-      mapboxgl.accessToken = token.trim();
-      
+      // Set Mapbox token
+      mapboxgl.accessToken = token;
+
+      // Create map
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [-74.006, 40.7128], // Default to NYC
+        center: [-74.006, 40.7128],
         zoom: 10,
       });
 
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: true,
-        }),
-        'top-right'
-      );
+      // Add controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+      // Set up event handlers
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
+        console.log('✅ Map loaded successfully');
         setIsMapReady(true);
-        setIsInitializing(false);
-        setError(null);
+        setIsLoading(false);
         fetchAdsWithLocation();
       });
 
       map.current.on('error', (e) => {
-        console.error('Map error:', e);
-        setIsInitializing(false);
-        setError('Failed to load map. Please check your Mapbox token configuration.');
-        toast({
-          title: "Map Error",
-          description: "Failed to load map. Please check your Mapbox token.",
-          variant: "destructive"
-        });
+        console.error('❌ Map error:', e);
+        setError('Failed to load map');
+        setIsLoading(false);
       });
 
     } catch (error) {
-      console.error('Error initializing map:', error);
-      setIsInitializing(false);
-      setError('Failed to initialize map. Please try again.');
-      toast({
-        title: "Initialization Error",
-        description: "Failed to initialize map. Please check your token and try again.",
-        variant: "destructive"
-      });
+      console.error('❌ Map initialization failed:', error);
+      setError('Failed to initialize map');
+      setIsLoading(false);
     }
   };
 
   const fetchAdsWithLocation = async () => {
     if (!map.current) return;
     
-    setLoading(true);
+    setLoadingAds(true);
     try {
-      console.log('Fetching ads with location...');
+      console.log('📍 Fetching ads with location...');
       const { data, error } = await supabase
         .from('ads')
         .select(`
@@ -162,32 +142,29 @@ const Map = () => {
         image_url: ad.ad_images?.[0]?.image_url
       }));
 
-      console.log(`Found ${formattedAds.length} ads with location`);
+      console.log(`✅ Found ${formattedAds.length} ads with location`);
       setAds(formattedAds);
       addMarkersToMap(formattedAds);
     } catch (err) {
-      console.error('Error fetching ads:', err);
+      console.error('❌ Error fetching ads:', err);
       toast({
         title: "Error",
         description: "Failed to load items on map",
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setLoadingAds(false);
     }
   };
 
   const addMarkersToMap = (adsData: AdMarker[]) => {
     if (!map.current) return;
 
-    console.log(`Adding ${adsData.length} markers to map`);
-
     // Remove existing markers
     const existingMarkers = document.querySelectorAll('.mapbox-marker');
     existingMarkers.forEach(marker => marker.remove());
 
     adsData.forEach(ad => {
-      // Create marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'mapbox-marker';
       markerEl.innerHTML = `
@@ -199,7 +176,6 @@ const Map = () => {
         </div>
       `;
 
-      // Create popup content
       const popupContent = `
         <div class="min-w-[200px] max-w-[300px]">
           ${ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}" class="w-full h-32 object-cover rounded mb-2" />` : ''}
@@ -246,7 +222,6 @@ const Map = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          console.log('User location:', latitude, longitude);
           map.current?.flyTo({
             center: [longitude, latitude],
             zoom: 12
@@ -264,36 +239,15 @@ const Map = () => {
     }
   };
 
-  // Initialize map on component mount
+  // Initialize map when component mounts
   useEffect(() => {
-    const initMap = async () => {
-      console.log('=== INIT MAP DEBUG ===');
-      console.log('Container current:', mapContainer.current);
-      console.log('Container type:', typeof mapContainer.current);
-      
-      if (!mapContainer.current) {
-        console.log('Container not ready yet');
-        return;
-      }
-
-      try {
-        console.log('Container is ready, fetching token...');
-        const token = await fetchMapboxToken();
-        console.log('Token fetched, initializing map...');
-        await initializeMap(token);
-      } catch (error) {
-        console.error('Failed to initialize map:', error);
-        setIsInitializing(false);
-      }
-    };
-
-    // Use a longer delay and try multiple times if needed
-    const timeoutId = setTimeout(() => {
-      initMap();
-    }, 500);
+    console.log('🎯 Map component mounted');
+    const timer = setTimeout(() => {
+      initializeMap();
+    }, 100);
 
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(timer);
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -305,39 +259,26 @@ const Map = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg">
         <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Map Configuration Error</h3>
+        <h3 className="text-lg font-semibold mb-2">Map Error</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
           {error}
         </p>
-        <Button 
-          onClick={() => {
-            setError(null);
-            setIsInitializing(true);
-            // Retry initialization
-            const initMap = async () => {
-              try {
-                const token = await fetchMapboxToken();
-                await initializeMap(token);
-              } catch (error) {
-                console.error('Failed to initialize map:', error);
-                setIsInitializing(false);
-              }
-            };
-            initMap();
-          }}
-        >
-          Retry
+        <Button onClick={() => {
+          setError(null);
+          initializeMap();
+        }}>
+          Try Again
         </Button>
       </div>
     );
   }
 
-  if (isInitializing) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg">
         <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Initializing Map...</h3>
-        <p className="text-sm text-muted-foreground">Please wait while we load your map</p>
+        <h3 className="text-lg font-semibold mb-2">Loading Map...</h3>
+        <p className="text-sm text-muted-foreground">Please wait while we initialize the map</p>
       </div>
     );
   }
@@ -361,11 +302,11 @@ const Map = () => {
           variant="secondary"
           size="sm"
           onClick={fetchAdsWithLocation}
-          disabled={loading}
+          disabled={loadingAds}
           className="shadow-md"
         >
           <MapPin className="h-4 w-4 mr-2" />
-          {loading ? 'Loading...' : 'Refresh'}
+          {loadingAds ? 'Loading...' : 'Refresh'}
         </Button>
       </div>
 
