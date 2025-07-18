@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ export const useSubscription = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastErrorTime = useRef<number>(0);
 
   const checkSubscription = useCallback(async () => {
     if (!user) {
@@ -38,7 +39,13 @@ export const useSubscription = () => {
       if (error) {
         console.error('Subscription check error:', error);
         setError(error.message);
-        toast.error('Failed to check subscription status');
+        
+        // Throttle error toasts to prevent spam - only show once every 10 seconds
+        const now = Date.now();
+        if (now - lastErrorTime.current > 10000) {
+          toast.error('Failed to check subscription status');
+          lastErrorTime.current = now;
+        }
         return;
       }
 
