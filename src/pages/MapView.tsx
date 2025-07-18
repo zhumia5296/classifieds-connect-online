@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import Map from '@/components/Map';
+import InteractiveMap from '@/components/InteractiveMap';
 import { useSEO } from '@/hooks/useSEO';
 
 const MapView: React.FC = () => {
@@ -44,7 +44,7 @@ const MapView: React.FC = () => {
 
           {/* Map Container */}
           <div className="flex-1 rounded-lg border overflow-hidden">
-            <Map />
+            <InteractiveMap />
           </div>
         </div>
       </div>
