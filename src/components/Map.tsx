@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -5,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Loader2 } from 'lucide-react';
 
 interface AdMarker {
   id: string;
@@ -24,33 +25,70 @@ const Map = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [ads, setAds] = useState<AdMarker[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const initializeMap = (token: string) => {
-    if (!mapContainer.current || !token) return;
+  const initializeMap = async (token: string) => {
+    if (!mapContainer.current || !token.trim()) {
+      console.log('Missing container or token');
+      return;
+    }
 
-    mapboxgl.accessToken = token;
+    setIsInitializing(true);
     
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-74.006, 40.7128], // Default to NYC
-      zoom: 10,
-    });
+    try {
+      // Clean up existing map
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
 
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
+      console.log('Initializing map with token:', token.substring(0, 20) + '...');
+      
+      mapboxgl.accessToken = token.trim();
+      
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-74.006, 40.7128], // Default to NYC
+        zoom: 10,
+      });
 
-    map.current.on('load', () => {
-      setIsMapReady(true);
-      fetchAdsWithLocation();
-    });
+      map.current.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: true,
+        }),
+        'top-right'
+      );
+
+      map.current.on('load', () => {
+        console.log('Map loaded successfully');
+        setIsMapReady(true);
+        setIsInitializing(false);
+        fetchAdsWithLocation();
+      });
+
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        setIsInitializing(false);
+        toast({
+          title: "Map Error",
+          description: "Failed to load map. Please check your Mapbox token.",
+          variant: "destructive"
+        });
+      });
+
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      setIsInitializing(false);
+      toast({
+        title: "Initialization Error",
+        description: "Failed to initialize map. Please check your token and try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const fetchAdsWithLocation = async () => {
@@ -58,6 +96,7 @@ const Map = () => {
     
     setLoading(true);
     try {
+      console.log('Fetching ads with location...');
       const { data, error } = await supabase
         .from('ads')
         .select(`
@@ -90,6 +129,7 @@ const Map = () => {
         image_url: ad.ad_images?.[0]?.image_url
       }));
 
+      console.log(`Found ${formattedAds.length} ads with location`);
       setAds(formattedAds);
       addMarkersToMap(formattedAds);
     } catch (err) {
@@ -106,6 +146,8 @@ const Map = () => {
 
   const addMarkersToMap = (adsData: AdMarker[]) => {
     if (!map.current) return;
+
+    console.log(`Adding ${adsData.length} markers to map`);
 
     // Remove existing markers
     const existingMarkers = document.querySelectorAll('.mapbox-marker');
@@ -168,8 +210,15 @@ const Map = () => {
 
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Token submitted, length:', mapboxToken.trim().length);
     if (mapboxToken.trim()) {
       initializeMap(mapboxToken.trim());
+    } else {
+      toast({
+        title: "Invalid Token",
+        description: "Please enter a valid Mapbox token",
+        variant: "destructive"
+      });
     }
   };
 
@@ -178,6 +227,7 @@ const Map = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          console.log('User location:', latitude, longitude);
           map.current?.flyTo({
             center: [longitude, latitude],
             zoom: 12
@@ -197,11 +247,14 @@ const Map = () => {
 
   useEffect(() => {
     return () => {
-      map.current?.remove();
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, []);
 
-  if (!isMapReady) {
+  if (!isMapReady && !isInitializing) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg">
         <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
@@ -215,7 +268,7 @@ const Map = () => {
         <form onSubmit={handleTokenSubmit} className="flex gap-2 w-full max-w-md">
           <Input
             type="text"
-            placeholder="Enter Mapbox public token"
+            placeholder="pk.eyJ1IjoiZXhhbXBsZS..."
             value={mapboxToken}
             onChange={(e) => setMapboxToken(e.target.value)}
             className="flex-1"
@@ -224,6 +277,16 @@ const Map = () => {
             Load Map
           </Button>
         </form>
+      </div>
+    );
+  }
+
+  if (isInitializing) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg">
+        <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+        <h3 className="text-lg font-semibold mb-2">Initializing Map...</h3>
+        <p className="text-sm text-muted-foreground">Please wait while we load your map</p>
       </div>
     );
   }
