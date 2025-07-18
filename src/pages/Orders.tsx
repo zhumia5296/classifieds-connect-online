@@ -2,36 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useOrders } from '@/hooks/useOrders';
 import { useAuth } from '@/hooks/useAuth';
 import { OrderCard } from '@/components/OrderCard';
 import { OrderFilters } from '@/components/OrderFilters';
+import { OrderAnalyticsDashboard } from '@/components/OrderAnalyticsDashboard';
+import { BulkOrderActions } from '@/components/BulkOrderActions';
 import { 
   ShoppingBag, 
   Store, 
   TrendingUp, 
   Package, 
   RefreshCcw,
-  AlertCircle 
+  AlertCircle,
+  BarChart3 
 } from 'lucide-react';
 
 const Orders: React.FC = () => {
   const { orders, loading, fetchOrders, updateOrderStatus, getOrderStats } = useOrders();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
+  const [activeTab, setActiveTab] = useState<'buyer' | 'seller' | 'analytics'>('buyer');
   const [filters, setFilters] = useState({});
   const [stats, setStats] = useState<any>(null);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   useEffect(() => {
-    if (user) {
+    if (user && activeTab !== 'analytics') {
       fetchOrders(activeTab, filters);
       loadStats();
     }
   }, [user, activeTab, filters]);
 
   const loadStats = async () => {
-    const statsData = await getOrderStats(activeTab);
-    setStats(statsData);
+    if (activeTab !== 'analytics') {
+      const statsData = await getOrderStats(activeTab);
+      setStats(statsData);
+    }
   };
 
   const handleFilterChange = (newFilters: any) => {
@@ -43,8 +50,10 @@ const Orders: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    fetchOrders(activeTab, filters);
-    loadStats();
+    if (activeTab !== 'analytics') {
+      fetchOrders(activeTab, filters);
+      loadStats();
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -134,7 +143,7 @@ const Orders: React.FC = () => {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller')}>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'buyer' | 'seller' | 'analytics')}>
           <TabsList className="w-full md:w-auto">
             <TabsTrigger value="buyer" className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
@@ -144,6 +153,10 @@ const Orders: React.FC = () => {
               <Store className="h-4 w-4" />
               My Sales
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="buyer" className="space-y-6">
@@ -151,6 +164,19 @@ const Orders: React.FC = () => {
               onFilterChange={handleFilterChange}
               onReset={handleResetFilters}
               currentFilters={filters}
+            />
+
+            <BulkOrderActions
+              orders={orders}
+              selectedOrders={selectedOrders}
+              onSelectionChange={setSelectedOrders}
+              onOrdersUpdate={() => {
+                if (activeTab !== 'analytics') {
+                  fetchOrders(activeTab, filters);
+                  loadStats();
+                }
+              }}
+              userType="buyer"
             />
 
             {loading ? (
@@ -173,11 +199,26 @@ const Orders: React.FC = () => {
             ) : orders.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {orders.map((order) => (
-                  <OrderCard
-                    key={order.id}
-                    order={order}
-                    viewType="buyer"
-                  />
+                  <div key={order.id} className="relative">
+                    <div className="absolute top-2 left-2 z-10">
+                      <Checkbox
+                        checked={selectedOrders.includes(order.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedOrders(prev => [...prev, order.id]);
+                          } else {
+                            setSelectedOrders(prev => prev.filter(id => id !== order.id));
+                          }
+                        }}
+                        className="bg-background border-2"
+                      />
+                    </div>
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      viewType="buyer"
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -200,6 +241,19 @@ const Orders: React.FC = () => {
               currentFilters={filters}
             />
 
+            <BulkOrderActions
+              orders={orders}
+              selectedOrders={selectedOrders}
+              onSelectionChange={setSelectedOrders}
+              onOrdersUpdate={() => {
+                if (activeTab !== 'analytics') {
+                  fetchOrders(activeTab, filters);
+                  loadStats();
+                }
+              }}
+              userType="seller"
+            />
+
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (
@@ -220,12 +274,27 @@ const Orders: React.FC = () => {
             ) : orders.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {orders.map((order) => (
-                  <OrderCard
-                    key={order.id}
-                    order={order}
-                    viewType="seller"
-                    onStatusUpdate={updateOrderStatus}
-                  />
+                  <div key={order.id} className="relative">
+                    <div className="absolute top-2 left-2 z-10">
+                      <Checkbox
+                        checked={selectedOrders.includes(order.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedOrders(prev => [...prev, order.id]);
+                          } else {
+                            setSelectedOrders(prev => prev.filter(id => id !== order.id));
+                          }
+                        }}
+                        className="bg-background border-2"
+                      />
+                    </div>
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      viewType="seller"
+                      onStatusUpdate={updateOrderStatus}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -239,6 +308,10 @@ const Orders: React.FC = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <OrderAnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </div>
