@@ -64,13 +64,15 @@ export const useNearbyAds = (radiusKm: number = 50, limit: number = 20) => {
   const [nearbyAds, setNearbyAds] = useState<NearbyAd[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentRadius, setCurrentRadius] = useState(radiusKm);
   const { location } = useLocation();
 
-  const fetchNearbyAds = async () => {
+  const fetchNearbyAds = async (customRadius?: number) => {
     if (!location?.coords) {
       return;
     }
 
+    const searchRadius = customRadius ?? currentRadius;
     setLoading(true);
     setError(null);
 
@@ -78,7 +80,7 @@ export const useNearbyAds = (radiusKm: number = 50, limit: number = 20) => {
       const { data, error: fetchError } = await supabase.rpc('get_nearby_ads', {
         user_lat: location.coords.latitude,
         user_lng: location.coords.longitude,
-        radius_km: radiusKm,
+        radius_km: searchRadius,
         limit_count: limit
       });
 
@@ -94,18 +96,31 @@ export const useNearbyAds = (radiusKm: number = 50, limit: number = 20) => {
     }
   };
 
+  const updateRadius = (newRadius: number) => {
+    setCurrentRadius(newRadius);
+    fetchNearbyAds(newRadius);
+  };
+
   useEffect(() => {
     if (location?.coords) {
       fetchNearbyAds();
     }
-  }, [location, radiusKm, limit]);
+  }, [location]);
+
+  useEffect(() => {
+    setCurrentRadius(radiusKm);
+  }, [radiusKm]);
+
+  const refetch = (customRadius?: number) => fetchNearbyAds(customRadius);
 
   return {
     nearbyAds,
     loading,
     error,
-    refetch: fetchNearbyAds,
-    hasLocation: !!location?.coords
+    refetch,
+    hasLocation: !!location?.coords,
+    currentRadius,
+    updateRadius
   };
 };
 

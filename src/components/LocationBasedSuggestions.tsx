@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { MapPin, Navigation, X } from 'lucide-react';
+import { MapPin, Navigation, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useLocation, useNearbyAds } from '@/hooks/useLocation';
 import { formatDistance } from '@/lib/location';
 import { useNavigate } from 'react-router-dom';
+import LocationRadiusControl from './LocationRadiusControl';
 
 interface LocationBasedSuggestionsProps {
   maxSuggestions?: number;
@@ -20,8 +22,9 @@ const LocationBasedSuggestions = ({
 }: LocationBasedSuggestionsProps) => {
   const navigate = useNavigate();
   const [showLocationPrompt, setShowLocationPrompt] = useState(true);
+  const [showRadiusControls, setShowRadiusControls] = useState(false);
   const { location, loading: locationLoading, requestLocation, hasLocation } = useLocation();
-  const { nearbyAds, loading: adsLoading } = useNearbyAds(radiusKm, maxSuggestions);
+  const { nearbyAds, loading: adsLoading, currentRadius, updateRadius } = useNearbyAds(radiusKm, maxSuggestions);
 
   const handleEnableLocation = async () => {
     await requestLocation(true);
@@ -109,17 +112,45 @@ const LocationBasedSuggestions = ({
     return (
       <Card className={className}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
-            Nearby Deals
-            {location?.address && (
-              <Badge variant="secondary" className="text-xs">
-                {location.address.split(',')[0]}
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              <span>Nearby Deals</span>
+              {location?.address && (
+                <Badge variant="secondary" className="text-xs">
+                  {location.address.split(',')[0]}
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-xs">
+                {currentRadius}km
               </Badge>
-            )}
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={() => setShowRadiusControls(!showRadiusControls)}
+              title="Adjust search radius"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Radius Controls */}
+          <Collapsible open={showRadiusControls} onOpenChange={setShowRadiusControls}>
+            <CollapsibleContent>
+              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                <LocationRadiusControl
+                  radius={currentRadius}
+                  onRadiusChange={updateRadius}
+                  showPresets={true}
+                  showCustomInput={false}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           <div className="space-y-3">
             {nearbyAds.slice(0, maxSuggestions).map((ad) => (
               <div
@@ -183,30 +214,66 @@ const LocationBasedSuggestions = ({
     return (
       <Card className={className}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
-            Nearby Deals
-            {location?.address && (
-              <Badge variant="secondary" className="text-xs">
-                {location.address.split(',')[0]}
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              <span>Nearby Deals</span>
+              {location?.address && (
+                <Badge variant="secondary" className="text-xs">
+                  {location.address.split(',')[0]}
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-xs">
+                {currentRadius}km
               </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-4">
-            <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              No ads found within {radiusKm}km of your location.
-            </p>
+            </div>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="mt-2"
-              onClick={() => navigate('/post-ad')}
+              className="h-8 w-8 p-0"
+              onClick={() => setShowRadiusControls(!showRadiusControls)}
+              title="Adjust search radius"
             >
-              Be the first to post in your area
+              <Settings className="h-4 w-4" />
             </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Radius Controls */}
+          <Collapsible open={showRadiusControls} onOpenChange={setShowRadiusControls}>
+            <CollapsibleContent>
+              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                <LocationRadiusControl
+                  radius={currentRadius}
+                  onRadiusChange={updateRadius}
+                  showPresets={true}
+                  showCustomInput={false}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <div className="text-center py-4">
+            <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">
+              No ads found within {currentRadius}km of your location.
+            </p>
+            <div className="flex flex-col gap-2 mt-3">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowRadiusControls(!showRadiusControls)}
+              >
+                Expand search radius
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/post-ad')}
+              >
+                Be the first to post in your area
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

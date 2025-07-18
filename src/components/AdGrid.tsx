@@ -57,7 +57,8 @@ const AdGrid = () => {
     dateRange: 'all',
     featuredOnly: false,
     hasImages: false,
-    categories: []
+    categories: [],
+    radius: 50
   });
 
   const ITEMS_PER_PAGE = 12;

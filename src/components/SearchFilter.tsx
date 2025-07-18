@@ -35,8 +35,10 @@ import {
   Calendar,
   TrendingUp,
   Sliders,
-  BookmarkPlus
+  BookmarkPlus,
+  Target
 } from "lucide-react";
+import LocationRadiusControl from './LocationRadiusControl';
 import { useCategoryFilter } from '@/hooks/useCategoryFilter';
 import { supabase } from '@/integrations/supabase/client';
 import SaveSearchModal from './SaveSearchModal';
@@ -50,6 +52,7 @@ export interface FilterOptions {
   featuredOnly: boolean;
   hasImages: boolean;
   categories: string[];
+  radius: number;
 }
 
 interface SearchFilterProps {
@@ -72,7 +75,8 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
     dateRange: 'all',
     featuredOnly: false,
     hasImages: false,
-    categories: []
+    categories: [],
+    radius: 50
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
@@ -162,7 +166,8 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
       dateRange: 'all',
       featuredOnly: false,
       hasImages: false,
-      categories: []
+      categories: [],
+      radius: 50
     };
     setFilters(defaultFilters);
     onFiltersChange(defaultFilters);
@@ -180,6 +185,7 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
     if (filters.featuredOnly) count++;
     if (filters.hasImages) count++;
     if (filters.categories.length > 0) count++;
+    if (filters.radius !== 50) count++;
     return count;
   };
 
@@ -427,11 +433,11 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                   </div>
                 </div>
 
-                {/* Location with Popular Cities */}
-                <div className="space-y-3">
+                {/* Location with Popular Cities and Radius */}
+                <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">Location</h3>
+                    <h3 className="font-medium">Location & Radius</h3>
                   </div>
                   <Input
                     placeholder="City, state, or zip code"
@@ -450,6 +456,17 @@ const SearchFilter = ({ onFiltersChange }: SearchFilterProps) => {
                         {city}
                       </Button>
                     ))}
+                  </div>
+                  
+                  {/* Search Radius Control */}
+                  <div className="pt-2">
+                    <LocationRadiusControl
+                      radius={filters.radius}
+                      onRadiusChange={(radius) => updateFilter('radius', radius)}
+                      showPresets={true}
+                      showCustomInput={true}
+                      className="bg-muted/20 p-3 rounded-lg"
+                    />
                   </div>
                 </div>
 
