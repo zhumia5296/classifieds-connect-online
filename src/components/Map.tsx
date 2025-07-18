@@ -4,7 +4,6 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { MapPin, Navigation, Loader2 } from 'lucide-react';
 
@@ -23,12 +22,35 @@ interface AdMarker {
 const Map = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [ads, setAds] = useState<AdMarker[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const fetchMapboxToken = async () => {
+    try {
+      console.log('Fetching Mapbox token from edge function...');
+      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      
+      if (error) {
+        console.error('Error fetching token:', error);
+        throw error;
+      }
+
+      if (!data?.token) {
+        throw new Error('No token received from edge function');
+      }
+
+      console.log('Successfully fetched Mapbox token');
+      return data.token;
+    } catch (error) {
+      console.error('Failed to fetch Mapbox token:', error);
+      setError('Failed to load map configuration. Please check your Mapbox token setup.');
+      throw error;
+    }
+  };
 
   const initializeMap = async (token: string) => {
     if (!mapContainer.current || !token.trim()) {
@@ -36,8 +58,6 @@ const Map = () => {
       return;
     }
 
-    setIsInitializing(true);
-    
     try {
       // Clean up existing map
       if (map.current) {
@@ -67,12 +87,14 @@ const Map = () => {
         console.log('Map loaded successfully');
         setIsMapReady(true);
         setIsInitializing(false);
+        setError(null);
         fetchAdsWithLocation();
       });
 
       map.current.on('error', (e) => {
         console.error('Map error:', e);
         setIsInitializing(false);
+        setError('Failed to load map. Please check your Mapbox token configuration.');
         toast({
           title: "Map Error",
           description: "Failed to load map. Please check your Mapbox token.",
@@ -83,6 +105,7 @@ const Map = () => {
     } catch (error) {
       console.error('Error initializing map:', error);
       setIsInitializing(false);
+      setError('Failed to initialize map. Please try again.');
       toast({
         title: "Initialization Error",
         description: "Failed to initialize map. Please check your token and try again.",
@@ -208,27 +231,6 @@ const Map = () => {
     }
   };
 
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('=== TOKEN SUBMIT DEBUG ===');
-    console.log('Token submitted, length:', mapboxToken.trim().length);
-    console.log('Token starts with:', mapboxToken.trim().substring(0, 10));
-    console.log('MapContainer ref:', mapContainer.current);
-    console.log('Mapbox gl loaded:', typeof mapboxgl);
-    
-    if (mapboxToken.trim()) {
-      console.log('Calling initializeMap...');
-      initializeMap(mapboxToken.trim());
-    } else {
-      console.log('Token validation failed');
-      toast({
-        title: "Invalid Token",
-        description: "Please enter a valid Mapbox token",
-        variant: "destructive"
-      });
-    }
-  };
-
   const getUserLocation = () => {
     if (navigator.geolocation && map.current) {
       navigator.geolocation.getCurrentPosition(
@@ -252,7 +254,20 @@ const Map = () => {
     }
   };
 
+  // Initialize map on component mount
   useEffect(() => {
+    const initMap = async () => {
+      try {
+        const token = await fetchMapboxToken();
+        await initializeMap(token);
+      } catch (error) {
+        console.error('Failed to initialize map:', error);
+        setIsInitializing(false);
+      }
+    };
+
+    initMap();
+
     return () => {
       if (map.current) {
         map.current.remove();
@@ -261,38 +276,33 @@ const Map = () => {
     };
   }, []);
 
-  if (!isMapReady && !isInitializing) {
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg">
         <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Map Configuration Required</h3>
+        <h3 className="text-lg font-semibold mb-2">Map Configuration Error</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
-          To display the map, please enter your Mapbox public token. You can get one at{' '}
-          <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-            mapbox.com
-          </a>
+          {error}
         </p>
-        <form onSubmit={handleTokenSubmit} className="flex gap-2 w-full max-w-md">
-          <Input
-            type="text"
-            placeholder="pk.eyJ1IjoiZXhhbXBsZS..."
-            value={mapboxToken}
-            onChange={(e) => {
-              console.log('Token input changed:', e.target.value.length);
-              setMapboxToken(e.target.value);
-            }}
-            className="flex-1"
-          />
-          <Button 
-            type="submit" 
-            disabled={!mapboxToken.trim()}
-            onClick={(e) => {
-              console.log('Button clicked, form will submit');
-            }}
-          >
-            Load Map
-          </Button>
-        </form>
+        <Button 
+          onClick={() => {
+            setError(null);
+            setIsInitializing(true);
+            // Retry initialization
+            const initMap = async () => {
+              try {
+                const token = await fetchMapboxToken();
+                await initializeMap(token);
+              } catch (error) {
+                console.error('Failed to initialize map:', error);
+                setIsInitializing(false);
+              }
+            };
+            initMap();
+          }}
+        >
+          Retry
+        </Button>
       </div>
     );
   }
