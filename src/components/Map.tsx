@@ -210,10 +210,17 @@ const Map = () => {
 
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== TOKEN SUBMIT DEBUG ===');
     console.log('Token submitted, length:', mapboxToken.trim().length);
+    console.log('Token starts with:', mapboxToken.trim().substring(0, 10));
+    console.log('MapContainer ref:', mapContainer.current);
+    console.log('Mapbox gl loaded:', typeof mapboxgl);
+    
     if (mapboxToken.trim()) {
+      console.log('Calling initializeMap...');
       initializeMap(mapboxToken.trim());
     } else {
+      console.log('Token validation failed');
       toast({
         title: "Invalid Token",
         description: "Please enter a valid Mapbox token",
