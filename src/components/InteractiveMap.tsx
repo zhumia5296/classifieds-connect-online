@@ -59,8 +59,13 @@ const InteractiveMap = () => {
       console.log('🚀 Starting map initialization...');
       console.log('📦 Container ref:', mapContainer.current);
       
+      // Wait for container to be ready
       if (!mapContainer.current) {
-        throw new Error('Map container not found');
+        console.log('⏳ Container not ready, waiting...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (!mapContainer.current) {
+          throw new Error('Map container not found after waiting');
+        }
       }
 
       setIsLoading(true);
