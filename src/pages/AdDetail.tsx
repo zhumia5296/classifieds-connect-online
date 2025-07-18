@@ -141,7 +141,7 @@ const AdDetailPage = () => {
             alt_text,
             is_primary
           ),
-          profiles:profiles!user_id (
+          profiles!user_id (
             display_name,
             location,
             is_verified,
