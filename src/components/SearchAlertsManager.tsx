@@ -40,10 +40,10 @@ const SearchAlertsManager: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     search_query: '',
-    category_id: '',
+    category_id: 'all',
     min_price: '',
     max_price: '',
-    condition: '',
+    condition: 'all',
     location: '',
     notification_enabled: true
   });
@@ -101,10 +101,10 @@ const SearchAlertsManager: React.FC = () => {
     if (!user) return;
 
     const filters = {
-      category_id: formData.category_id || null,
+      category_id: formData.category_id === 'all' ? null : formData.category_id || null,
       min_price: formData.min_price ? parseFloat(formData.min_price) : null,
       max_price: formData.max_price ? parseFloat(formData.max_price) : null,
-      condition: formData.condition || null,
+      condition: formData.condition === 'all' ? null : formData.condition || null,
       location: formData.location || null
     };
 
@@ -158,10 +158,10 @@ const SearchAlertsManager: React.FC = () => {
       setFormData({
         name: '',
         search_query: '',
-        category_id: '',
+        category_id: 'all',
         min_price: '',
         max_price: '',
-        condition: '',
+        condition: 'all',
         location: '',
         notification_enabled: true
       });
@@ -232,10 +232,10 @@ const SearchAlertsManager: React.FC = () => {
     setFormData({
       name: alert.name,
       search_query: alert.search_query,
-      category_id: alert.filters?.category_id || '',
+      category_id: alert.filters?.category_id || 'all',
       min_price: alert.filters?.min_price?.toString() || '',
       max_price: alert.filters?.max_price?.toString() || '',
-      condition: alert.filters?.condition || '',
+      condition: alert.filters?.condition || 'all',
       location: alert.filters?.location || '',
       notification_enabled: alert.notification_enabled
     });
@@ -332,7 +332,7 @@ const SearchAlertsManager: React.FC = () => {
                       <SelectValue placeholder="Any category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any category</SelectItem>
+                      <SelectItem value="all">Any category</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
@@ -374,7 +374,7 @@ const SearchAlertsManager: React.FC = () => {
                       <SelectValue placeholder="Any condition" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any condition</SelectItem>
+                      <SelectItem value="all">Any condition</SelectItem>
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="like_new">Like New</SelectItem>
                       <SelectItem value="good">Good</SelectItem>
@@ -413,16 +413,16 @@ const SearchAlertsManager: React.FC = () => {
                   onClick={() => {
                     setShowCreateForm(false);
                     setEditingAlert(null);
-                    setFormData({
-                      name: '',
-                      search_query: '',
-                      category_id: '',
-                      min_price: '',
-                      max_price: '',
-                      condition: '',
-                      location: '',
-                      notification_enabled: true
-                    });
+                     setFormData({
+                       name: '',
+                       search_query: '',
+                       category_id: 'all',
+                       min_price: '',
+                       max_price: '',
+                       condition: 'all',
+                       location: '',
+                       notification_enabled: true
+                     });
                   }}
                 >
                   Cancel
