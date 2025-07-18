@@ -188,22 +188,63 @@ const PostAd = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.category_id) newErrors.category_id = 'Category is required';
-    if (!formData.condition) newErrors.condition = 'Condition is required';
-    if (!formData.location.trim()) newErrors.location = 'Location is required';
+    // Required field validations
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.trim().length < 3) {
+      newErrors.title = 'Title must be at least 3 characters long';
+    }
     
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters long';
+    }
+    
+    if (!formData.category_id) {
+      newErrors.category_id = 'Please select a category';
+    }
+    
+    if (!formData.condition) {
+      newErrors.condition = 'Please select item condition';
+    }
+    
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required';
+    } else if (formData.location.trim().length < 2) {
+      newErrors.location = 'Please enter a valid location';
+    }
+    
+    // Optional but validated fields
     if (formData.price && (isNaN(Number(formData.price)) || Number(formData.price) < 0)) {
-      newErrors.price = 'Please enter a valid price';
+      newErrors.price = 'Please enter a valid price (0 or greater)';
     }
     
-    if (formData.contact_phone && !/^\+?[\d\s\-\(\)]+$/.test(formData.contact_phone)) {
-      newErrors.contact_phone = 'Please enter a valid phone number';
+    if (formData.contact_phone && formData.contact_phone.trim()) {
+      const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
+      if (!phoneRegex.test(formData.contact_phone.trim())) {
+        newErrors.contact_phone = 'Please enter a valid phone number';
+      }
     }
     
-    if (formData.contact_email && !/\S+@\S+\.\S+/.test(formData.contact_email)) {
-      newErrors.contact_email = 'Please enter a valid email address';
+    if (formData.contact_email && formData.contact_email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.contact_email.trim())) {
+        newErrors.contact_email = 'Please enter a valid email address';
+      }
+    } else if (!formData.contact_email.trim()) {
+      newErrors.contact_email = 'Email address is required';
+    }
+    
+    // Inventory validation
+    if (!formData.quantity_available || isNaN(Number(formData.quantity_available)) || Number(formData.quantity_available) < 1) {
+      newErrors.quantity_available = 'Available stock must be at least 1';
+    }
+    
+    if (!formData.max_quantity_per_order || isNaN(Number(formData.max_quantity_per_order)) || Number(formData.max_quantity_per_order) < 1) {
+      newErrors.max_quantity_per_order = 'Maximum per order must be at least 1';
+    } else if (Number(formData.max_quantity_per_order) > Number(formData.quantity_available)) {
+      newErrors.max_quantity_per_order = 'Maximum per order cannot exceed available stock';
     }
 
     setErrors(newErrors);
@@ -214,9 +255,15 @@ const PostAd = () => {
     e.preventDefault();
     
     if (!validateForm()) {
+      // Scroll to the first error
+      const firstErrorElement = document.querySelector('.border-destructive');
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
       toast({
-        title: "Please fix the errors",
-        description: "Check the form for validation errors.",
+        title: "Please fix the validation errors",
+        description: "Check the highlighted fields and correct any issues.",
         variant: "destructive"
       });
       return;
@@ -633,41 +680,49 @@ const PostAd = () => {
                  </CardDescription>
                </CardHeader>
                <CardContent className="space-y-6">
-                 <div className="grid gap-6 md:grid-cols-2">
-                   <div className="space-y-2">
-                     <Label htmlFor="quantity_available">
-                       Available Stock <span className="text-destructive">*</span>
-                     </Label>
-                     <Input
-                       id="quantity_available"
-                       type="number"
-                       min="0"
-                       placeholder="How many do you have?"
-                       value={formData.quantity_available}
-                       onChange={(e) => handleInputChange('quantity_available', e.target.value)}
-                     />
-                     <p className="text-sm text-muted-foreground">
-                       Total number of items available for sale
-                     </p>
-                   </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="quantity_available">
+                        Available Stock <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="quantity_available"
+                        type="number"
+                        min="1"
+                        placeholder="How many do you have?"
+                        value={formData.quantity_available}
+                        onChange={(e) => handleInputChange('quantity_available', e.target.value)}
+                        className={errors.quantity_available ? 'border-destructive' : ''}
+                      />
+                      {errors.quantity_available && (
+                        <p className="text-sm text-destructive">{errors.quantity_available}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        Total number of items available for sale
+                      </p>
+                    </div>
 
-                   <div className="space-y-2">
-                     <Label htmlFor="max_quantity_per_order">
-                       Maximum Per Order
-                     </Label>
-                     <Input
-                       id="max_quantity_per_order"
-                       type="number"
-                       min="1"
-                       placeholder="10"
-                       value={formData.max_quantity_per_order}
-                       onChange={(e) => handleInputChange('max_quantity_per_order', e.target.value)}
-                     />
-                     <p className="text-sm text-muted-foreground">
-                       Maximum number a buyer can order at once
-                     </p>
-                   </div>
-                 </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="max_quantity_per_order">
+                        Maximum Per Order <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="max_quantity_per_order"
+                        type="number"
+                        min="1"
+                        placeholder="10"
+                        value={formData.max_quantity_per_order}
+                        onChange={(e) => handleInputChange('max_quantity_per_order', e.target.value)}
+                        className={errors.max_quantity_per_order ? 'border-destructive' : ''}
+                      />
+                      {errors.max_quantity_per_order && (
+                        <p className="text-sm text-destructive">{errors.max_quantity_per_order}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        Maximum number a buyer can order at once
+                      </p>
+                    </div>
+                  </div>
                </CardContent>
              </Card>
 
@@ -719,7 +774,9 @@ const PostAd = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact_email">Email Address</Label>
+                  <Label htmlFor="contact_email">
+                    Email Address <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="contact_email"
                     type="email"
@@ -727,10 +784,14 @@ const PostAd = () => {
                     value={formData.contact_email}
                     onChange={(e) => handleInputChange('contact_email', e.target.value)}
                     className={errors.contact_email ? 'border-destructive' : ''}
+                    required
                   />
                   {errors.contact_email && (
                     <p className="text-sm text-destructive">{errors.contact_email}</p>
                   )}
+                  <p className="text-sm text-muted-foreground">
+                    Buyers will use this email to contact you
+                  </p>
                 </div>
 
                 <Alert>
