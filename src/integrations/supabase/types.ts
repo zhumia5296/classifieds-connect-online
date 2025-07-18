@@ -1307,6 +1307,84 @@ export type Database = {
         }
         Relationships: []
       }
+      search_alert_matches: {
+        Row: {
+          ad_id: string
+          created_at: string | null
+          id: string
+          search_alert_id: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string | null
+          id?: string
+          search_alert_id: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string | null
+          id?: string
+          search_alert_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_alert_matches_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "search_alert_matches_search_alert_id_fkey"
+            columns: ["search_alert_id"]
+            isOneToOne: false
+            referencedRelation: "search_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      search_alerts: {
+        Row: {
+          created_at: string | null
+          filters: Json | null
+          id: string
+          is_active: boolean | null
+          last_checked_at: string | null
+          name: string
+          notification_enabled: boolean | null
+          search_query: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          filters?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          name: string
+          notification_enabled?: boolean | null
+          search_query?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          filters?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          name?: string
+          notification_enabled?: boolean | null
+          search_query?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       shipments: {
         Row: {
           carrier: string | null

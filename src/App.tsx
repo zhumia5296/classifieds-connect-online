@@ -43,6 +43,7 @@ import { OrderDetails } from "./components/OrderDetails";
 import Inventory from "./pages/Inventory";
 import SafeMeetup from "./pages/SafeMeetup";
 import NearbyAlerts from "./pages/NearbyAlerts";
+import SearchAlerts from "./pages/SearchAlerts";
 import MapView from "./pages/MapView";
 import NotFound from "./pages/NotFound";
 
@@ -98,6 +99,7 @@ const App = () => (
                 <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
                 <Route path="/safe-meetup" element={<Layout><SafeMeetup /></Layout>} />
                 <Route path="/nearby-alerts" element={<Layout><NearbyAlerts /></Layout>} />
+                <Route path="/search-alerts" element={<Layout><SearchAlerts /></Layout>} />
                 <Route path="/map" element={<Layout><MapView /></Layout>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Layout><NotFound /></Layout>} />

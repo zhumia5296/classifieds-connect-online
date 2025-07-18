@@ -188,6 +188,10 @@ const Navbar = () => {
                        )}
                      </div>
                    </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/search-alerts')}>
+                     <Search className="mr-2 h-4 w-4" />
+                     Search Alerts
+                   </DropdownMenuItem>
                    <DropdownMenuItem onClick={() => navigate('/map')}>
                      <Map className="mr-2 h-4 w-4" />
                      Map View
