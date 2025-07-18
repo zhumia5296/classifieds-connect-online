@@ -1927,6 +1927,10 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      increment_ad_views: {
+        Args: { ad_id: string }
+        Returns: undefined
+      }
       ivfflat_bit_support: {
         Args: { "": unknown }
         Returns: unknown
