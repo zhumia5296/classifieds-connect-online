@@ -75,59 +75,68 @@ export const useAdSEO = (ad: {
   user?: { display_name?: string };
   created_at: string;
 } | null) => {
-  // Don't run SEO updates if ad data isn't loaded yet
-  if (!ad || !ad.description) {
-    return;
-  }
-
-  const adImages = ad.images?.map(img => img.image_url) || [];
+  // Always call useSEO to maintain consistent hook calls
+  // If ad is null, use default values
+  const adImages = ad?.images?.map(img => img.image_url) || [];
   const primaryImage = adImages[0] || "https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/icons/icon-512x512.png";
   
-  const structuredData: StructuredDataItem = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": `https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/ad/${ad.id}`,
-    "name": ad.title,
-    "description": ad.description,
-    "url": `https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/ad/${ad.id}`,
-    "image": adImages,
-    "category": ad.categories?.name || "General",
-    "brand": {
-      "@type": "Organization",
-      "name": "Classifieds Connect"
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": ad.price || 0,
-      "priceCurrency": ad.currency || "USD",
-      "itemCondition": `https://schema.org/${ad.condition === 'new' ? 'NewCondition' : 'UsedCondition'}`,
-      "availability": "https://schema.org/InStock",
-      "seller": {
-        "@type": "Person",
-        "name": ad.user?.display_name || "Anonymous"
+  let structuredData: StructuredDataItem | undefined;
+  let breadcrumbs: Array<{ name: string; url: string }> | undefined;
+  let title = "Classifieds Connect";
+  let description = "Buy and sell items in your local area";
+  let keywords = "classifieds, marketplace, buy, sell";
+  
+  if (ad && ad.description) {
+    structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "@id": `https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/ad/${ad.id}`,
+      "name": ad.title,
+      "description": ad.description,
+      "url": `https://b9176124-6ffc-4197-917e-de49c19111ed.lovableproject.com/ad/${ad.id}`,
+      "image": adImages,
+      "category": ad.categories?.name || "General",
+      "brand": {
+        "@type": "Organization",
+        "name": "Classifieds Connect"
       },
-      "availableAtOrFrom": {
-        "@type": "Place",
-        "address": ad.location || "Location not specified"
-      }
-    },
-    "datePublished": ad.created_at,
-    "identifier": ad.id
-  };
-  
-  const breadcrumbs = [
-    { name: "Home", url: "/" },
-    { name: ad.categories?.name || "General", url: `/?category=${ad.categories?.name || 'general'}` },
-    { name: ad.title, url: `/ad/${ad.id}` }
-  ];
-  
-  const priceText = ad.price ? ` - $${ad.price}` : '';
-  const locationText = ad.location ? ` in ${ad.location}` : '';
+      "offers": {
+        "@type": "Offer",
+        "price": ad.price || 0,
+        "priceCurrency": ad.currency || "USD",
+        "itemCondition": `https://schema.org/${ad.condition === 'new' ? 'NewCondition' : 'UsedCondition'}`,
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "Person",
+          "name": ad.user?.display_name || "Anonymous"
+        },
+        "availableAtOrFrom": {
+          "@type": "Place",
+          "address": ad.location || "Location not specified"
+        }
+      },
+      "datePublished": ad.created_at,
+      "identifier": ad.id
+    };
+    
+    breadcrumbs = [
+      { name: "Home", url: "/" },
+      { name: ad.categories?.name || "General", url: `/?category=${ad.categories?.name || 'general'}` },
+      { name: ad.title, url: `/ad/${ad.id}` }
+    ];
+    
+    const priceText = ad.price ? ` - $${ad.price}` : '';
+    const locationText = ad.location ? ` in ${ad.location}` : '';
+    
+    title = `${ad.title}${priceText} | Classifieds Connect`;
+    description = `${ad.description.substring(0, 150)}...${locationText} | Buy on Classifieds Connect`;
+    keywords = `${ad.title}, ${ad.categories?.name || 'classified'}, buy, sell, marketplace${ad.location ? `, ${ad.location}` : ''}`;
+  }
   
   useSEO({
-    title: `${ad.title}${priceText} | Classifieds Connect`,
-    description: `${ad.description.substring(0, 150)}...${locationText} | Buy on Classifieds Connect`,
-    keywords: `${ad.title}, ${ad.categories?.name || 'classified'}, buy, sell, marketplace${ad.location ? `, ${ad.location}` : ''}`,
+    title,
+    description,
+    keywords,
     image: primaryImage,
     structuredData,
     breadcrumbs
