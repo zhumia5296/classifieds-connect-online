@@ -1,11 +1,13 @@
-import { Search, MapPin, TrendingUp } from "lucide-react";
+import { Search, MapPin, TrendingUp, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   
   const stats = [
     { label: t('hero.stats.total_ads'), value: "25,000+" },
@@ -57,6 +59,15 @@ const HeroSection = () => {
               </div>
               <Button variant="hero" size="xl" className="h-12 bg-white text-primary hover:bg-white/90">
                 {t('hero.search_button')}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="xl" 
+                className="h-12 border-white/20 text-white hover:bg-white/10"
+                onClick={() => navigate('/map')}
+              >
+                <Map className="h-5 w-5 mr-2" />
+                View on Map
               </Button>
             </div>
           </div>
