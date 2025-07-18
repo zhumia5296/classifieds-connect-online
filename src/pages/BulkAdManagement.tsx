@@ -68,12 +68,8 @@ export default function BulkAdManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-
-  // If mobile, use mobile-optimized version
-  if (isMobile) {
-    return <MobileBulkManagement />;
-  }
-
+  
+  // State hooks - must be called before any conditional returns
   const [ads, setAds] = useState<Ad[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
@@ -98,6 +94,11 @@ export default function BulkAdManagement() {
     sortBy: "created_at",
     sortOrder: 'desc',
   });
+
+  // If mobile, use mobile-optimized version
+  if (isMobile) {
+    return <MobileBulkManagement />;
+  }
 
   const fetchAds = async () => {
     if (!user) return;
