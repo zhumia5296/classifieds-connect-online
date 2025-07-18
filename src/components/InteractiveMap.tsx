@@ -300,6 +300,7 @@ const InteractiveMap = () => {
         <Button 
           onClick={() => {
             setError(null);
+            setIsLoading(true);
             initializeMap();
           }}
           className="gap-2"
@@ -311,19 +312,19 @@ const InteractiveMap = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full bg-muted/30 rounded-lg p-8">
-        <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Loading Map...</h3>
-        <p className="text-sm text-muted-foreground">Initializing Mapbox and fetching listings</p>
-      </div>
-    );
-  }
-
   return (
     <div className="relative w-full h-full">
+      {/* Map Container - Always rendered */}
       <div ref={mapContainer} className="absolute inset-0 rounded-lg shadow-lg" />
+      
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/30 rounded-lg p-8 z-20">
+          <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Loading Map...</h3>
+          <p className="text-sm text-muted-foreground">Initializing Mapbox and fetching listings</p>
+        </div>
+      )}
       
       {/* Controls */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
@@ -332,6 +333,7 @@ const InteractiveMap = () => {
           size="sm"
           onClick={getUserLocation}
           className="shadow-md"
+          disabled={isLoading}
         >
           <Navigation className="h-4 w-4 mr-2" />
           My Location
@@ -340,7 +342,7 @@ const InteractiveMap = () => {
           variant="secondary"
           size="sm"
           onClick={loadAdsWithLocation}
-          disabled={loadingAds}
+          disabled={loadingAds || isLoading}
           className="shadow-md"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loadingAds ? 'animate-spin' : ''}`} />
