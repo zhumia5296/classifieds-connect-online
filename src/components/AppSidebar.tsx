@@ -1,25 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  Home,
-  Search,
-  Plus,
-  MessageCircle,
-  User,
-  Settings,
-  Heart,
-  Bell,
-  Package,
-  BarChart3,
-  Shield,
-  Crown,
-  Smartphone,
-  List,
-  Zap,
-  MapPin,
-  ChevronRight,
-  Menu
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import {
   Sidebar,
@@ -42,36 +23,36 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { Badge } from "@/components/ui/badge";
 
 const mainNavItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Search", url: "/search", icon: Search },
-  { title: "Post Ad", url: "/post-ad", icon: Plus },
-  { title: "Messages", url: "/messages", icon: MessageCircle, badge: 2 },
-  { title: "Dashboard", url: "/dashboard", icon: User },
+  { title: "Home", url: "/" },
+  { title: "Search", url: "/search" },
+  { title: "Post Ad", url: "/post-ad" },
+  { title: "Messages", url: "/messages", badge: 2 },
+  { title: "Dashboard", url: "/dashboard" },
 ];
 
 const marketplaceItems = [
-  { title: "Favorites", url: "/saved", icon: Heart },
-  { title: "Orders", url: "/orders", icon: Package },
-  { title: "Inventory", url: "/inventory", icon: Package },
-  { title: "Watchlists", url: "/watchlists", icon: Bell },
-  { title: "Safe MeetUp", url: "/safe-meetup", icon: Shield },
+  { title: "Favorites", url: "/saved" },
+  { title: "Orders", url: "/orders" },
+  { title: "Inventory", url: "/inventory" },
+  { title: "Watchlists", url: "/watchlists" },
+  { title: "Safe MeetUp", url: "/safe-meetup" },
 ];
 
 const toolsItems = [
-  { title: "Bulk Management", url: "/bulk-management", icon: List },
-  { title: "Real-time Demo", url: "/realtime-demo", icon: Zap },
-  { title: "Mobile Features", url: "/mobile", icon: Smartphone },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Bulk Management", url: "/bulk-management" },
+  { title: "Real-time Demo", url: "/realtime-demo" },
+  { title: "Mobile Features", url: "/mobile" },
+  { title: "Analytics", url: "/analytics" },
 ];
 
 const adminItems = [
-  { title: "Admin Dashboard", url: "/admin", icon: Shield },
-  { title: "Subscription Plans", url: "/pricing", icon: Crown },
+  { title: "Admin Dashboard", url: "/admin" },
+  { title: "Subscription Plans", url: "/pricing" },
 ];
 
 const accountItems = [
-  { title: "Profile", url: "/profile", icon: User },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Profile", url: "/profile" },
+  { title: "Settings", url: "/settings" },
 ];
 
 export function AppSidebar() {
@@ -128,7 +109,6 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavClass}>
-                      <item.icon className="h-4 w-4" />
                       {!collapsed && (
                         <div className="flex items-center justify-between w-full">
                           <span>{item.title}</span>
@@ -139,6 +119,7 @@ export function AppSidebar() {
                           )}
                         </div>
                       )}
+                      {collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -167,8 +148,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <NavLink to={item.url} className={getNavClass}>
-                            <item.icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.title}</span>}
+                            <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -200,8 +180,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <NavLink to={item.url} className={getNavClass}>
-                            <item.icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.title}</span>}
+                            <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -233,8 +212,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <NavLink to={item.url} className={getNavClass}>
-                            <item.icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.title}</span>}
+                            <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -266,8 +244,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <NavLink to={item.url} className={getNavClass}>
-                            <item.icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.title}</span>}
+                            <span>{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
