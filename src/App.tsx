@@ -100,6 +100,7 @@ const App = () => (
                 <Route path="/safe-meetup" element={<Layout><SafeMeetup /></Layout>} />
                 <Route path="/nearby-alerts" element={<Layout><NearbyAlerts /></Layout>} />
                 <Route path="/search-alerts" element={<Layout><SearchAlerts /></Layout>} />
+                <Route path="/alert" element={<Layout><SearchAlerts /></Layout>} />
                 <Route path="/map" element={<Layout><MapView /></Layout>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Layout><NotFound /></Layout>} />
