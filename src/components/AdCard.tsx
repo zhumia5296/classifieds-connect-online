@@ -13,6 +13,7 @@ import ChatWindow from './ChatWindow';
 import QuickFeatureButton from './QuickFeatureButton';
 import SocialShare from './SocialShare';
 import QuickImageGallery from './QuickImageGallery';
+import SafeMeetupModal from './SafeMeetupModal';
 
 interface AdCardProps {
   id: string;
@@ -280,15 +281,18 @@ const AdCard = ({
         {/* Contact/Feature Buttons */}
         <div className="flex gap-2">
           {user && sellerId && user.id !== sellerId && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 hover-scale"
-              onClick={handleContactClick}
-            >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Contact Seller
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 hover-scale"
+                onClick={handleContactClick}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Contact Seller
+              </Button>
+              <SafeMeetupModal radiusKm={25} />
+            </>
           )}
           
           {isOwner && (

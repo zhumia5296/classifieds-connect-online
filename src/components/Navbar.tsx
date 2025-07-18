@@ -208,10 +208,14 @@ const Navbar = () => {
                      <List className="mr-2 h-4 w-4" />
                      Bulk Management
                    </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/saved')}>
-                    <Heart className="mr-2 h-4 w-4" />
-                    Saved Ads
-                  </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/saved')}>
+                     <Heart className="mr-2 h-4 w-4" />
+                     Saved Ads
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate('/safe-meetup')}>
+                     <Shield className="mr-2 h-4 w-4" />
+                     Safe MeetUp
+                   </DropdownMenuItem>
                    <DropdownMenuItem onClick={() => navigate('/pricing')}>
                      <Crown className="mr-2 h-4 w-4" />
                      Subscription Plans

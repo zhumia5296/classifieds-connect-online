@@ -1083,6 +1083,75 @@ export type Database = {
           },
         ]
       }
+      safe_meetup_spots: {
+        Row: {
+          address: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          has_cameras: boolean | null
+          has_security: boolean | null
+          id: string
+          is_24_7: boolean | null
+          is_active: boolean | null
+          latitude: number
+          longitude: number
+          name: string
+          operating_hours: Json | null
+          type: string
+          updated_at: string
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
+          website_url: string | null
+        }
+        Insert: {
+          address: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          has_cameras?: boolean | null
+          has_security?: boolean | null
+          id?: string
+          is_24_7?: boolean | null
+          is_active?: boolean | null
+          latitude: number
+          longitude: number
+          name: string
+          operating_hours?: Json | null
+          type: string
+          updated_at?: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          has_cameras?: boolean | null
+          has_security?: boolean | null
+          id?: string
+          is_24_7?: boolean | null
+          is_active?: boolean | null
+          latitude?: number
+          longitude?: number
+          name?: string
+          operating_hours?: Json | null
+          type?: string
+          updated_at?: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       saved_ads: {
         Row: {
           ad_id: string
