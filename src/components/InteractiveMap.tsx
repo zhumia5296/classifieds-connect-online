@@ -259,14 +259,23 @@ const InteractiveMap = () => {
   // Initialize map when component mounts
   useEffect(() => {
     console.log('🔄 useEffect triggered - initializing map');
+    console.log('📍 Container ref current:', mapContainer.current);
     
     // Add a longer delay to ensure DOM is fully ready
     const timer = setTimeout(() => {
+      console.log('⏰ Timer fired, checking container again:', mapContainer.current);
       if (mapContainer.current) {
         console.log('✅ Container found, initializing map');
         initializeMap();
       } else {
         console.log('❌ Container still not found after timeout');
+        // Try again with a longer delay
+        setTimeout(() => {
+          console.log('🔄 Retrying after longer delay:', mapContainer.current);
+          if (mapContainer.current) {
+            initializeMap();
+          }
+        }, 1000);
       }
     }, 500);
 
