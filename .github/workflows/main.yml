@@ -21,7 +21,7 @@ jobs:
           node-version: '18'
           cache: ''
 
-      - run: rm -rf node_modules package-lock.json && npm cache clean --force && npm install --verbose
+      - run: rm -rf node_modules package-lock.json && npm cache clean --force && npm install --force --verbose
 
       - run: npm run build --verbose
 
