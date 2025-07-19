@@ -1876,12 +1876,15 @@ export type Database = {
         Row: {
           additional_info: string | null
           admin_notes: string | null
+          area_code: string | null
           business_document_url: string | null
           business_name: string | null
           business_registration: string | null
           created_at: string
           id: string
           identity_document_url: string | null
+          location_coordinates: unknown | null
+          phone_number: string | null
           rejection_reason: string | null
           request_type: string
           reviewed_at: string | null
@@ -1891,17 +1894,21 @@ export type Database = {
           submitted_at: string
           updated_at: string
           user_id: string
+          verified_location: string | null
           website_url: string | null
         }
         Insert: {
           additional_info?: string | null
           admin_notes?: string | null
+          area_code?: string | null
           business_document_url?: string | null
           business_name?: string | null
           business_registration?: string | null
           created_at?: string
           id?: string
           identity_document_url?: string | null
+          location_coordinates?: unknown | null
+          phone_number?: string | null
           rejection_reason?: string | null
           request_type?: string
           reviewed_at?: string | null
@@ -1911,17 +1918,21 @@ export type Database = {
           submitted_at?: string
           updated_at?: string
           user_id: string
+          verified_location?: string | null
           website_url?: string | null
         }
         Update: {
           additional_info?: string | null
           admin_notes?: string | null
+          area_code?: string | null
           business_document_url?: string | null
           business_name?: string | null
           business_registration?: string | null
           created_at?: string
           id?: string
           identity_document_url?: string | null
+          location_coordinates?: unknown | null
+          phone_number?: string | null
           rejection_reason?: string | null
           request_type?: string
           reviewed_at?: string | null
@@ -1931,6 +1942,7 @@ export type Database = {
           submitted_at?: string
           updated_at?: string
           user_id?: string
+          verified_location?: string | null
           website_url?: string | null
         }
         Relationships: []
@@ -2012,6 +2024,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_location_verification: {
+        Args: { request_id: string; reviewer_id: string; admin_notes?: string }
+        Returns: undefined
+      }
       approve_verification: {
         Args: { request_id: string; reviewer_id: string; admin_notes?: string }
         Returns: undefined

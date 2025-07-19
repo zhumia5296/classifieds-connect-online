@@ -90,6 +90,9 @@ export const useVerification = () => {
     website_url?: string;
     social_media_urls?: any;
     additional_info?: string;
+    phone_number?: string;
+    area_code?: string;
+    verified_location?: string;
   }) => {
     if (!user) {
       toast({
