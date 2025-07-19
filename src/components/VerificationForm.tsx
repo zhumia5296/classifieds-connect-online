@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useVerification } from '@/hooks/useVerification';
+import LocationVerificationForm from './LocationVerificationForm';
 import { 
   Shield, 
   FileCheck, 
@@ -17,7 +18,8 @@ import {
   Upload,
   Building,
   User,
-  Store
+  Store,
+  MapPin
 } from "lucide-react";
 
 const VerificationForm = () => {
@@ -210,15 +212,36 @@ const VerificationForm = () => {
                         Individual Seller
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="business" id="business" />
                       <Label htmlFor="business" className="flex items-center gap-2">
                         <Building className="h-4 w-4" />
                         Business Account
                       </Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="location" id="location" />
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Location Verification
+                      </Label>
+                    </div>
                   </RadioGroup>
                 </div>
+
+                {/* Location Verification */}
+                {formData.request_type === 'location' && (
+                  <div className="space-y-4">
+                    <LocationVerificationForm 
+                      onVerificationComplete={(data) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          additional_info: `Location verified: ${data.verifiedLocation}. Phone: ${data.phoneNumber}. Area code: ${data.areaCode}. Coordinates: ${data.coordinates.lat}, ${data.coordinates.lng}`
+                        }));
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Business Information */}
                 {formData.request_type === 'business' && (

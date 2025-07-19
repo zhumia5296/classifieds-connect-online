@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Shield, Award, CheckCircle2 } from "lucide-react";
+import { Shield, Award, CheckCircle2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VerificationBadgeProps {
@@ -36,6 +36,8 @@ const VerificationBadge = ({
           return <Award className={cn(iconSize, showText && 'mr-1')} />;
         case 'premium':
           return <CheckCircle2 className={cn(iconSize, showText && 'mr-1')} />;
+        case 'location':
+          return <MapPin className={cn(iconSize, showText && 'mr-1')} />;
         default:
           return <Shield className={cn(iconSize, showText && 'mr-1')} />;
       }
@@ -49,6 +51,8 @@ const VerificationBadge = ({
           return 'Verified Business';
         case 'premium':
           return 'Premium Verified';
+        case 'location':
+          return 'Location Verified';
         default:
           return 'Verified';
       }
