@@ -557,7 +557,7 @@ const SearchResults = () => {
                             mode="range"
                             defaultMonth={customDateRange?.from}
                             selected={customDateRange}
-                            onSelect={(range) => setCustomDateRange(range || { from: undefined, to: undefined })}
+                            onSelect={setCustomDateRange}
                             numberOfMonths={2}
                             className="pointer-events-auto"
                           />
