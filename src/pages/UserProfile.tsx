@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Navbar from '@/components/Navbar';
 import { ReviewsList } from '@/components/ReviewsList';
 import { UserReputationCard } from '@/components/UserReputationCard';
+import { LocalReputationCard } from '@/components/LocalReputationCard';
+import { AreaReputationSummary } from '@/components/AreaReputationSummary';
 import VerificationBadge from '@/components/VerificationBadge';
 import { FollowButton } from '@/components/FollowButton';
 import { useAuth } from '@/hooks/useAuth';
@@ -381,8 +383,19 @@ const UserProfile = () => {
           </TabsContent>
 
           <TabsContent value="reputation" className="mt-6">
-            <div className="text-center py-12 text-muted-foreground">
-              User reputation feature coming soon
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <UserReputationCard reputation={null} compact={false} />
+                <AreaReputationSummary radiusKm={25} />
+              </div>
+              <div className="space-y-6">
+                <LocalReputationCard 
+                  userId={profile.user_id} 
+                  globalReputation={null} 
+                  radiusKm={25} 
+                  compact={false} 
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>

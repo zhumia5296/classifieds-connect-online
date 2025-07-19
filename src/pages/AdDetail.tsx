@@ -12,6 +12,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import ChatWindow from '@/components/ChatWindow';
 import MessageStarter from '@/components/MessageStarter';
+import { UserReputationCard } from '@/components/UserReputationCard';
+import { LocalReputationCard } from '@/components/LocalReputationCard';
 import FeatureAdButton from '@/components/FeatureAdButton';
 import FeaturedAdStatus from '@/components/FeaturedAdStatus';
 import AdPromotionTools from '@/components/AdPromotionTools';
@@ -603,8 +605,13 @@ const AdDetailPage = () => {
             </Card>
           </div>
 
-          {/* QR Code Sharing */}
-          <div>
+          {/* Seller Reputation */}
+          <div className="space-y-6">
+            <LocalReputationCard 
+              userId={ad.user_id} 
+              radiusKm={25} 
+              compact={true} 
+            />
             <QRCodeCard
               url={window.location.href}
               title={ad.title}

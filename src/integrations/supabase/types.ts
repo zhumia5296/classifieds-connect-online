@@ -1095,8 +1095,14 @@ export type Database = {
           reliability_rating: number | null
           reviewed_user_id: string
           reviewer_id: string
+          reviewer_latitude: number | null
+          reviewer_location: string | null
+          reviewer_longitude: number | null
           safety_rating: number | null
           title: string
+          transaction_latitude: number | null
+          transaction_location: string | null
+          transaction_longitude: number | null
           transaction_type: string | null
           updated_at: string
         }
@@ -1113,8 +1119,14 @@ export type Database = {
           reliability_rating?: number | null
           reviewed_user_id: string
           reviewer_id: string
+          reviewer_latitude?: number | null
+          reviewer_location?: string | null
+          reviewer_longitude?: number | null
           safety_rating?: number | null
           title: string
+          transaction_latitude?: number | null
+          transaction_location?: string | null
+          transaction_longitude?: number | null
           transaction_type?: string | null
           updated_at?: string
         }
@@ -1131,8 +1143,14 @@ export type Database = {
           reliability_rating?: number | null
           reviewed_user_id?: string
           reviewer_id?: string
+          reviewer_latitude?: number | null
+          reviewer_location?: string | null
+          reviewer_longitude?: number | null
           safety_rating?: number | null
           title?: string
+          transaction_latitude?: number | null
+          transaction_location?: string | null
+          transaction_longitude?: number | null
           transaction_type?: string | null
           updated_at?: string
         }
@@ -2097,6 +2115,29 @@ export type Database = {
       get_following_count: {
         Args: { target_user_id: string }
         Returns: number
+      }
+      get_local_reputation: {
+        Args: {
+          target_user_id: string
+          user_lat: number
+          user_lng: number
+          radius_km?: number
+        }
+        Returns: {
+          user_id: string
+          local_reviews_count: number
+          local_average_rating: number
+          local_average_safety: number
+          local_average_communication: number
+          local_average_reliability: number
+          local_average_payment_safety: number
+          local_five_star_count: number
+          local_four_star_count: number
+          local_three_star_count: number
+          local_two_star_count: number
+          local_one_star_count: number
+          search_radius_km: number
+        }[]
       }
       get_nearby_ads: {
         Args: {
