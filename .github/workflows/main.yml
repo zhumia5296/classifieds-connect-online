@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '18'
 
-      - run: npm install
+      - run: rm -rf node_modules package-lock.json && npm cache clean --force && npm install
 
       - run: npm run build
 
