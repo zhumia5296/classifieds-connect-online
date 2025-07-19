@@ -10,14 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
-import { Calendar } from '@/components/ui/calendar';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Search, Filter, SlidersHorizontal, Grid, List, MapPin, X, Calendar as CalendarIcon, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, subDays, subWeeks, subMonths } from 'date-fns';
-import type { DateRange } from 'react-day-picker';
+
 
 type Ad = Tables<'ads'> & {
   ad_images?: Tables<'ad_images'>[];
@@ -58,7 +58,7 @@ const SearchResults = () => {
   // Advanced filters
   const [distanceRange, setDistanceRange] = useState(parseInt(searchParams.get('distance') || '0'));
   const [dateFilter, setDateFilter] = useState(searchParams.get('date') || '');
-  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>({
+  const [customDateRange, setCustomDateRange] = useState<{from?: Date; to?: Date}>({
     from: undefined,
     to: undefined
   });
@@ -551,16 +551,31 @@ const SearchResults = () => {
                             )}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                          <Calendar
-                            initialFocus
-                            mode="range"
-                            defaultMonth={customDateRange?.from}
-                            selected={customDateRange}
-                            onSelect={setCustomDateRange}
-                            numberOfMonths={2}
-                            className="pointer-events-auto"
-                          />
+                        <PopoverContent className="w-auto p-4" align="start">
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-sm font-medium">From Date</label>
+                              <Input
+                                type="date"
+                                value={customDateRange?.from ? customDateRange.from.toISOString().split('T')[0] : ''}
+                                onChange={(e) => setCustomDateRange(prev => ({
+                                  ...prev,
+                                  from: e.target.value ? new Date(e.target.value) : undefined
+                                }))}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">To Date</label>
+                              <Input
+                                type="date"
+                                value={customDateRange?.to ? customDateRange.to.toISOString().split('T')[0] : ''}
+                                onChange={(e) => setCustomDateRange(prev => ({
+                                  ...prev,
+                                  to: e.target.value ? new Date(e.target.value) : undefined
+                                }))}
+                              />
+                            </div>
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>

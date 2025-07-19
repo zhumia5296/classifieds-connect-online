@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '18'
 
-      - run: rm -f package-lock.json && npm install --legacy-peer-deps
+      - run: npm install
 
       - run: npm run build
 

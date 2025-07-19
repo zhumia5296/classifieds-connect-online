@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar } from '@/components/ui/calendar';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -217,17 +217,31 @@ const Analytics = () => {
                 {format(dateRange.from, 'MMM dd')} - {format(dateRange.to, 'MMM dd')}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="range"
-                selected={{ from: dateRange.from, to: dateRange.to }}
-                onSelect={(range) => {
-                  if (range?.from && range?.to) {
-                    setDateRange({ from: range.from, to: range.to });
-                  }
-                }}
-                className={cn("p-3 pointer-events-auto")}
-              />
+            <PopoverContent className="w-auto p-4" align="end">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">From Date</label>
+                  <Input
+                    type="date"
+                    value={dateRange.from ? dateRange.from.toISOString().split('T')[0] : ''}
+                    onChange={(e) => setDateRange(prev => ({
+                      ...prev,
+                      from: e.target.value ? new Date(e.target.value) : new Date()
+                    }))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">To Date</label>
+                  <Input
+                    type="date"
+                    value={dateRange.to ? dateRange.to.toISOString().split('T')[0] : ''}
+                    onChange={(e) => setDateRange(prev => ({
+                      ...prev,
+                      to: e.target.value ? new Date(e.target.value) : new Date()
+                    }))}
+                  />
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
           

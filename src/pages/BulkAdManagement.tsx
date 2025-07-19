@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Calendar } from "@/components/ui/calendar";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
@@ -603,14 +603,18 @@ export default function BulkAdManagement() {
                           {filters.dateRange.from ? format(filters.dateRange.from, "MMM d, yyyy") : "From date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={filters.dateRange.from}
-                          onSelect={(date) => updateFilter('dateRange', { ...filters.dateRange, from: date })}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
+                      <PopoverContent className="w-auto p-4" align="start">
+                        <div>
+                          <label className="text-sm font-medium">From Date</label>
+                          <Input
+                            type="date"
+                            value={filters.dateRange.from ? filters.dateRange.from.toISOString().split('T')[0] : ''}
+                            onChange={(e) => updateFilter('dateRange', { 
+                              ...filters.dateRange, 
+                              from: e.target.value ? new Date(e.target.value) : undefined 
+                            })}
+                          />
+                        </div>
                       </PopoverContent>
                     </Popover>
                     <Popover>
@@ -626,14 +630,18 @@ export default function BulkAdManagement() {
                           {filters.dateRange.to ? format(filters.dateRange.to, "MMM d, yyyy") : "To date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={filters.dateRange.to}
-                          onSelect={(date) => updateFilter('dateRange', { ...filters.dateRange, to: date })}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
+                      <PopoverContent className="w-auto p-4" align="start">
+                        <div>
+                          <label className="text-sm font-medium">To Date</label>
+                          <Input
+                            type="date"
+                            value={filters.dateRange.to ? filters.dateRange.to.toISOString().split('T')[0] : ''}
+                            onChange={(e) => updateFilter('dateRange', { 
+                              ...filters.dateRange, 
+                              to: e.target.value ? new Date(e.target.value) : undefined 
+                            })}
+                          />
+                        </div>
                       </PopoverContent>
                     </Popover>
                   </div>

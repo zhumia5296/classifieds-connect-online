@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -588,15 +588,16 @@ const PostAd = () => {
                         )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.expires_at}
-                        onSelect={(date) => handleInputChange('expires_at', date)}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
+                    <PopoverContent className="w-auto p-4" align="start">
+                      <div>
+                        <label className="text-sm font-medium">Expiration Date</label>
+                        <Input
+                          type="date"
+                          min={new Date().toISOString().split('T')[0]}
+                          value={formData.expires_at ? formData.expires_at.toISOString().split('T')[0] : ''}
+                          onChange={(e) => handleInputChange('expires_at', e.target.value ? new Date(e.target.value) : undefined)}
+                        />
+                      </div>
                     </PopoverContent>
                   </Popover>
                   <p className="text-sm text-muted-foreground">
