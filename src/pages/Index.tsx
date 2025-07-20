@@ -6,9 +6,10 @@ import AdGrid from "@/components/AdGrid";
 import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
 import NearbyAlertPrompt from "@/components/NearbyAlertPrompt";
 import ComparisonBar from "@/components/ComparisonBar";
-import MobileHeroSection from "@/components/mobile/MobileHeroSection";
-import MobileCategoryNav from "@/components/mobile/MobileCategoryNav";
+import UnifiedSearchBar from "@/components/mobile/UnifiedSearchBar";
+import CompactCategoryNav from "@/components/mobile/CompactCategoryNav";
 import MobileAdGrid from "@/components/mobile/MobileAdGrid";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -204,29 +205,40 @@ const Index = () => {
   // Mobile-first responsive layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Navbar />
-        <MobileHeroSection 
-          onLocationDetect={() => {}}
+        <UnifiedSearchBar 
           onSearch={(query, location) => {
-            // Handle mobile search
-            window.location.href = `/search?q=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`;
+            // Handle mobile search with location context
+            const searchParams = new URLSearchParams();
+            if (query) searchParams.append('search', query);
+            if (location) searchParams.append('location', location);
+            if (selectedCategory) searchParams.append('category', selectedCategory);
+            
+            window.location.href = `/search?${searchParams.toString()}`;
           }}
+          onFilterToggle={() => {
+            // TODO: Implement filter modal
+            console.log('Toggle filters');
+          }}
+          defaultQuery={search || ''}
         />
-        <MobileCategoryNav
+        <CompactCategoryNav
           categories={categories}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
         />
-        <MobileAdGrid
-          ads={ads}
-          loading={adLoading}
-          hasMore={hasMore}
-          loadingMore={loadingMore}
-          onLoadMore={handleLoadMore}
-          onRefresh={handleRefresh}
-          onToggleSave={handleToggleSave}
-        />
+        <PullToRefresh onRefresh={handleRefresh} refreshing={adLoading}>
+          <MobileAdGrid
+            ads={ads}
+            loading={adLoading}
+            hasMore={hasMore}
+            loadingMore={loadingMore}
+            onLoadMore={handleLoadMore}
+            onRefresh={handleRefresh}
+            onToggleSave={handleToggleSave}
+          />
+        </PullToRefresh>
         <ComparisonBar />
       </div>
     );

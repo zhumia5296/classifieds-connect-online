@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from '@/hooks/use-toast';
-import MobileAdCard from './MobileAdCard';
+import EnhancedMobileAdCard from './EnhancedMobileAdCard';
 
 interface Ad {
   id: string;
@@ -214,14 +214,15 @@ const MobileAdGrid = ({
             key={ad.id}
             ref={index === ads.length - 1 ? lastAdRef : undefined}
           >
-            <MobileAdCard
+            <EnhancedMobileAdCard
               id={ad.id}
               title={ad.title}
-              price={formatPrice(ad.price, ad.currency)}
+              price={ad.price}
+              currency={ad.currency}
               location={ad.location}
               latitude={ad.latitude}
               longitude={ad.longitude}
-              timeAgo={formatTimeAgo(ad.created_at)}
+              createdAt={ad.created_at}
               imageUrl={getImageUrl(ad.ad_images)}
               images={getImages(ad.ad_images)}
               isFeatured={ad.is_featured && ad.featured_until && new Date(ad.featured_until) > new Date()}

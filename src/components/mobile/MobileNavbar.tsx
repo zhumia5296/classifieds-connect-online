@@ -125,12 +125,12 @@ const MobileNavbar = () => {
         </div>
       )}
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar - Enhanced */}
       <div 
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/98 backdrop-blur-md border-t shadow-lg"
         {...gestureHandlers}
       >
-        <div className="flex items-center justify-around py-2">
+        <div className="flex items-center justify-around py-1 px-2 safe-area-inset-bottom">
           {navItems.map((item) => {
             const active = isActive(item.path);
             return (
@@ -139,28 +139,41 @@ const MobileNavbar = () => {
                 to={item.path}
                 onClick={() => handleNavClick(item.path)}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-lg transition-colors min-w-0 flex-1",
+                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 min-w-0 flex-1 relative",
                   active
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary bg-primary/10 scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
                 <div className="relative">
-                  <item.icon className={cn("h-5 w-5", active && "fill-current")} />
+                  {active && (
+                    <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse" />
+                  )}
+                  <item.icon className={cn("h-6 w-6 relative z-10", active && "fill-current")} />
                   {item.badge > 0 && (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs flex items-center justify-center"
+                      className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center ring-2 ring-background"
                     >
                       {item.badge > 9 ? '9+' : item.badge}
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs truncate">{item.label}</span>
+                <span className={cn(
+                  "text-xs truncate transition-all",
+                  active ? "font-medium" : "font-normal"
+                )}>
+                  {item.label}
+                </span>
+                {active && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                )}
               </Link>
             );
           })}
         </div>
+        {/* Safe area for devices with home indicator */}
+        <div className="h-safe-area-inset-bottom" />
       </div>
 
       {/* Content Padding for Fixed Navigation */}
