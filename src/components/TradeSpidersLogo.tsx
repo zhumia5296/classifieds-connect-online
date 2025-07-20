@@ -11,66 +11,58 @@ const TradeSpidersLogo = ({
   size = 'md', 
   showText = true 
 }: TradeSpidersLogoProps) => {
-  const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8', 
-    lg: 'h-10 w-10'
+  const iconSizeClasses = {
+    sm: 'h-5 w-5',
+    md: 'h-7 w-7', 
+    lg: 'h-9 w-9'
   };
 
   const textSizeClasses = {
     sm: 'text-lg',
-    md: 'text-xl',
-    lg: 'text-2xl'
+    md: 'text-2xl',
+    lg: 'text-3xl'
   };
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      {/* Spider Logo Icon - Matching Mockup */}
-      <div className={cn(
-        "relative flex items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg",
-        sizeClasses[size]
-      )}>
-        {/* Stylized Spider Icon */}
-        <svg 
-          viewBox="0 0 24 24" 
-          className="w-5/6 h-5/6 text-white"
-          fill="currentColor"
-        >
-          {/* Spider body */}
-          <ellipse cx="12" cy="12" rx="2" ry="3" />
-          <circle cx="12" cy="10" r="1.5" />
-          
-          {/* Spider legs - left side */}
-          <path d="M10 11 L6 8 M10 12 L5 11 M10 13 L6 16 M10 14 L7 17" 
-                stroke="currentColor" 
-                strokeWidth="1" 
-                strokeLinecap="round" 
-                fill="none" />
-          
-          {/* Spider legs - right side */}
-          <path d="M14 11 L18 8 M14 12 L19 11 M14 13 L18 16 M14 14 L17 17" 
-                stroke="currentColor" 
-                strokeWidth="1" 
-                strokeLinecap="round" 
-                fill="none" />
-        </svg>
-      </div>
+    <div className={cn("flex items-center gap-2", className)}>
+      {/* Red Spider Icon - Matching Mockup */}
+      <svg 
+        viewBox="0 0 24 24" 
+        className={cn("text-red-500", iconSizeClasses[size])}
+        fill="currentColor"
+      >
+        {/* Spider body - main oval */}
+        <ellipse cx="12" cy="12" rx="2.5" ry="4" />
+        {/* Spider head */}
+        <circle cx="12" cy="8" r="1.8" />
+        
+        {/* Left legs */}
+        <path d="M9.5 10 L5 6 M9.5 11 L4 9 M9.5 13 L4 15 M9.5 14 L5 18" 
+              stroke="currentColor" 
+              strokeWidth="1.2" 
+              strokeLinecap="round" 
+              fill="none" />
+        
+        {/* Right legs */}
+        <path d="M14.5 10 L19 6 M14.5 11 L20 9 M14.5 13 L20 15 M14.5 14 L19 18" 
+              stroke="currentColor" 
+              strokeWidth="1.2" 
+              strokeLinecap="round" 
+              fill="none" />
+        
+        {/* Pedipalps (front appendages) */}
+        <circle cx="11" cy="7" r="0.4" />
+        <circle cx="13" cy="7" r="0.4" />
+      </svg>
       
-      {/* TradeSpiders Text - Matching Mockup Style */}
+      {/* TradeSpiders Text - Matching Mockup */}
       {showText && (
-        <div className="flex flex-col">
-          <span className={cn(
-            "font-bold text-gray-900 dark:text-white leading-tight",
-            textSizeClasses[size]
-          )}>
-            TradeSpiders
-          </span>
-          {size !== 'sm' && (
-            <span className="text-xs text-gray-500 dark:text-gray-400 -mt-0.5 tracking-wide">
-              Local Marketplace
-            </span>
-          )}
-        </div>
+        <span className={cn(
+          "font-semibold text-gray-900 dark:text-white",
+          textSizeClasses[size]
+        )}>
+          TradeSpiders
+        </span>
       )}
     </div>
   );
