@@ -153,18 +153,27 @@ const EnhancedMobileAdCard = ({
   };
 
   const getDistanceColor = (distance: number) => {
-    if (distance <= 2) return 'bg-green-500';
-    if (distance <= 10) return 'bg-yellow-500';
-    return 'bg-orange-500';
+    const distanceMiles = distance * 0.621371;
+    if (distanceMiles <= 0.25) return 'bg-green-500/90 text-white';
+    if (distanceMiles <= 1) return 'bg-blue-500/90 text-white';
+    if (distanceMiles <= 5) return 'bg-yellow-500/90 text-white';
+    return 'bg-orange-500/90 text-white';
+  };
+
+  const getDistancePriority = (distance: number) => {
+    const distanceMiles = distance * 0.621371;
+    if (distanceMiles <= 0.25) return 'high';
+    if (distanceMiles <= 1) return 'medium';
+    return 'normal';
   };
 
   return (
     <Card 
-      className={`group cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-[0.98] ${
+      className={`group cursor-pointer transition-all duration-300 hover:shadow-xl active:scale-[0.98] bg-white border-0 shadow-md ${
         isFeatured 
-          ? 'ring-2 ring-primary/30 bg-gradient-to-br from-primary/5 to-primary/10' 
+          ? 'ring-2 ring-primary/40 bg-gradient-to-br from-primary/5 to-primary/10' 
           : ''
-      }`}
+      } ${distance && getDistancePriority(distance) === 'high' ? 'ring-1 ring-green-200 bg-green-50/30' : ''}`}
       onClick={() => window.location.href = `/ad/${id}`}
     >
       <div className="relative overflow-hidden">
@@ -172,15 +181,15 @@ const EnhancedMobileAdCard = ({
           <img 
             src={imageUrl} 
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
           
-          {/* Distance Badge - Prominent */}
+          {/* Enhanced Distance Badge */}
           {distance && (
             <div className="absolute top-3 left-3">
               <Badge 
-                className={`${getDistanceColor(distance)} text-white border-0 shadow-md font-medium`}
+                className={`${getDistanceColor(distance)} border-0 shadow-lg font-semibold text-sm px-3 py-1 backdrop-blur-sm`}
               >
                 <Navigation className="h-3 w-3 mr-1" />
                 {formatDistance(distance)}
@@ -188,13 +197,13 @@ const EnhancedMobileAdCard = ({
             </div>
           )}
           
-          {/* Featured Badge */}
+          {/* Featured Badge - Enhanced */}
           {isFeatured && (
             <div className="absolute top-3 right-3">
               <Badge 
-                className="bg-gradient-primary text-primary-foreground border-0 shadow-md animate-pulse"
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg animate-pulse font-semibold"
               >
-                ✨ Featured
+                ⭐ Featured
               </Badge>
             </div>
           )}
@@ -202,19 +211,19 @@ const EnhancedMobileAdCard = ({
           {/* Multiple Images Indicator */}
           {images.length > 1 && (
             <div className="absolute bottom-3 left-3">
-              <Badge variant="secondary" className="bg-black/60 text-white border-0 backdrop-blur-sm">
+              <Badge variant="secondary" className="bg-black/70 text-white border-0 backdrop-blur-sm font-medium">
                 <Camera className="h-3 w-3 mr-1" />
-                {images.length} photos
+                {images.length}
               </Badge>
             </div>
           )}
           
-          {/* Quick Actions - Enhanced */}
-          <div className="absolute bottom-3 right-3 flex gap-1">
+          {/* Enhanced Quick Actions - Larger Touch Targets */}
+          <div className="absolute bottom-3 right-3 flex gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 bg-black/60 backdrop-blur-sm hover:bg-black/80 text-white border-0"
+              className="h-10 w-10 bg-black/70 backdrop-blur-sm hover:bg-black/90 text-white border-0 shadow-lg"
               onClick={handleShare}
             >
               <Share2 className="h-4 w-4" />
@@ -222,10 +231,10 @@ const EnhancedMobileAdCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-9 w-9 backdrop-blur-sm border-0 transition-all ${
+              className={`h-10 w-10 backdrop-blur-sm border-0 shadow-lg transition-all duration-200 ${
                 isLiked 
-                  ? 'text-red-500 bg-white/90 hover:bg-white' 
-                  : 'bg-black/60 hover:bg-black/80 text-white hover:text-red-400'
+                  ? 'text-red-500 bg-white/95 hover:bg-white hover:scale-110' 
+                  : 'bg-black/70 hover:bg-black/90 text-white hover:text-red-400 hover:scale-110'
               }`}
               onClick={handleSaveClick}
             >
@@ -235,45 +244,52 @@ const EnhancedMobileAdCard = ({
         </div>
       </div>
       
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          {/* Price - Most Prominent */}
-          <div className="text-2xl font-bold text-primary">
-            {formatPrice(price, currency)}
-          </div>
-          
-          {/* Title */}
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2">
-            {title}
-          </h3>
-          
-          {/* Location and Time - Simplified */}
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-1 flex-1 min-w-0">
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span className="truncate">{location}</span>
+      <CardContent className="p-5">
+        <div className="space-y-4">
+          {/* Price - Most Prominent with Visual Emphasis */}
+          <div className="flex items-center justify-between">
+            <div className="text-3xl font-bold text-primary bg-primary/5 px-3 py-2 rounded-lg">
+              {formatPrice(price, currency)}
             </div>
-            <div className="flex items-center gap-1 ml-2">
-              <Clock className="h-4 w-4" />
-              <span className="whitespace-nowrap">{timeAgo}</span>
-            </div>
-          </div>
-          
-          {/* Category and Condition */}
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              {category}
-            </Badge>
-            {condition && (
-              <Badge variant="secondary" className="text-xs">
-                {formatCondition(condition)}
+            {distance && getDistancePriority(distance) === 'high' && (
+              <Badge className="bg-green-100 text-green-700 border-green-200 font-medium">
+                📍 Nearby
               </Badge>
             )}
           </div>
           
-          {/* Seller Info - Trust Indicators */}
-          {(sellerRating || isSellerVerified) && (
-            <div className="flex items-center gap-2 text-sm">
+          {/* Title - More Prominent */}
+          <h3 className="font-bold text-xl leading-tight line-clamp-2 text-gray-900">
+            {title}
+          </h3>
+          
+          {/* Location and Time - Enhanced Layout */}
+          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-base font-medium text-gray-700 truncate flex-1">{location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm text-muted-foreground">{timeAgo}</span>
+            </div>
+          </div>
+          
+          {/* Category, Condition, and Trust Indicators */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-sm border-gray-300">
+                {category}
+              </Badge>
+              {condition && (
+                <Badge variant="secondary" className="text-sm">
+                  {formatCondition(condition)}
+                </Badge>
+              )}
+            </div>
+            
+            {/* Trust Indicators */}
+            <div className="flex items-center gap-1">
               {isSellerVerified && (
                 <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
                   <Verified className="h-3 w-3 mr-1" />
@@ -283,25 +299,32 @@ const EnhancedMobileAdCard = ({
               {sellerRating && (
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                  <span className="text-xs font-medium">{sellerRating.toFixed(1)}</span>
-                  {sellerReviews && (
-                    <span className="text-xs text-muted-foreground">({sellerReviews})</span>
-                  )}
+                  <span className="text-sm font-medium">{sellerRating.toFixed(1)}</span>
                 </div>
               )}
             </div>
-          )}
+          </div>
           
-          {/* Contact Button - Prominent */}
+          {/* Enhanced Contact Button - More Prominent */}
           {user && sellerId && user.id !== sellerId && (
-            <Button
-              size="sm"
-              className="w-full h-10 mt-2"
-              onClick={handleContactClick}
-            >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Contact Seller
-            </Button>
+            <div className="flex gap-2 pt-2">
+              <Button
+                size="lg"
+                className="flex-1 h-12 text-base font-semibold"
+                onClick={handleContactClick}
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                Message Seller
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 px-4"
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>

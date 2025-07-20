@@ -156,14 +156,23 @@ const toRadians = (degrees: number): number => {
   return degrees * (Math.PI / 180);
 };
 
-// Format distance for display
+// Format distance for display with US-friendly units
 export const formatDistance = (distanceKm: number): string => {
-  if (distanceKm < 1) {
-    return `${Math.round(distanceKm * 1000)}m away`;
-  } else if (distanceKm < 10) {
-    return `${distanceKm.toFixed(1)}km away`;
+  // Convert to miles for US audience
+  const distanceMiles = distanceKm * 0.621371;
+  
+  if (distanceMiles < 0.1) {
+    return "Very close";
+  } else if (distanceMiles < 0.25) {
+    return "Walking distance";
+  } else if (distanceMiles < 0.5) {
+    return `${Math.round(distanceMiles * 10) / 10} mi away`;
+  } else if (distanceMiles < 1) {
+    return `${Math.round(distanceMiles * 10) / 10} mi away`;
+  } else if (distanceMiles < 10) {
+    return `${Math.round(distanceMiles)} mi away`;
   } else {
-    return `${Math.round(distanceKm)}km away`;
+    return `${Math.round(distanceMiles)} mi away`;
   }
 };
 
