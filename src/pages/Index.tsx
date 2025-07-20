@@ -6,15 +6,178 @@ import AdGrid from "@/components/AdGrid";
 import LocationBasedSuggestions from "@/components/LocationBasedSuggestions";
 import NearbyAlertPrompt from "@/components/NearbyAlertPrompt";
 import ComparisonBar from "@/components/ComparisonBar";
+import MobileHeroSection from "@/components/mobile/MobileHeroSection";
+import MobileCategoryNav from "@/components/mobile/MobileCategoryNav";
+import MobileAdGrid from "@/components/mobile/MobileAdGrid";
 import { useAuth } from "@/hooks/useAuth";
 import { useSEO, useCategorySEO, useSearchSEO } from "@/hooks/useSEO";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useCategoryFilter } from "@/hooks/useCategoryFilter";
+import { useState, useEffect } from "react";
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
-  const { loading } = useAuth();
+  const { loading, user } = useAuth();
   const [searchParams] = useSearchParams();
+  const isMobile = useIsMobile();
+  const { selectedCategory, setSelectedCategory } = useCategoryFilter();
+  const [categories, setCategories] = useState([]);
+  const [ads, setAds] = useState([]);
+  const [adLoading, setAdLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
   
   const category = searchParams.get('category');
   const search = searchParams.get('search');
+
+  // Fetch categories for mobile navigation
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Fetch ads with mobile optimizations
+  useEffect(() => {
+    setPage(0);
+    setAds([]);
+    fetchAds();
+  }, [selectedCategory, search]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data: categoriesData, error } = await supabase
+        .from('categories')
+        .select('id, name, slug, icon, parent_id')
+        .eq('is_active', true)
+        .order('sort_order')
+        .order('name');
+
+      if (error) throw error;
+
+      // Get ad counts
+      const { data: adCounts, error: countError } = await supabase
+        .from('ads')
+        .select('category_id')
+        .eq('is_active', true)
+        .eq('status', 'active');
+
+      if (countError) throw countError;
+
+      const countMap = {};
+      adCounts?.forEach(ad => {
+        countMap[ad.category_id] = (countMap[ad.category_id] || 0) + 1;
+      });
+
+      const categoriesWithCounts = categoriesData?.map(cat => ({
+        ...cat,
+        ad_count: countMap[cat.id] || 0
+      })) || [];
+
+      setCategories(categoriesWithCounts);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchAds = async (pageNum = 0, append = false) => {
+    try {
+      if (!append) setAdLoading(true);
+      else setLoadingMore(true);
+
+      const from = pageNum * 12;
+      const to = from + 11;
+
+      let query = supabase
+        .from('ads')
+        .select(`
+          id, title, price, currency, location, latitude, longitude,
+          condition, created_at, is_featured, featured_until, user_id,
+          categories(name),
+          ad_images(image_url, is_primary),
+          saved_ads(id)
+        `)
+        .eq('is_active', true)
+        .eq('status', 'active');
+
+      if (search?.trim()) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      if (selectedCategory) {
+        query = query.eq('category_id', selectedCategory);
+      }
+
+      if (user) {
+        query = query.eq('saved_ads.user_id', user.id);
+      }
+
+      query = query
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const newAds = data || [];
+      
+      if (append) {
+        setAds(prev => [...prev, ...newAds]);
+      } else {
+        setAds(newAds);
+      }
+
+      setHasMore(newAds.length === 12);
+    } catch (error) {
+      console.error('Error fetching ads:', error);
+    } finally {
+      setAdLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchAds(nextPage, true);
+  };
+
+  const handleRefresh = () => {
+    setPage(0);
+    setAds([]);
+    fetchAds();
+  };
+
+  const handleToggleSave = async (adId) => {
+    if (!user) return;
+
+    try {
+      const ad = ads.find(a => a.id === adId);
+      const isSaved = ad?.saved_ads.length > 0;
+
+      if (isSaved) {
+        await supabase
+          .from('saved_ads')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('ad_id', adId);
+
+        setAds(prev => prev.map(ad => 
+          ad.id === adId ? { ...ad, saved_ads: [] } : ad
+        ));
+      } else {
+        await supabase
+          .from('saved_ads')
+          .insert({ user_id: user.id, ad_id: adId });
+
+        setAds(prev => prev.map(ad => 
+          ad.id === adId ? { ...ad, saved_ads: [{ id: 'temp' }] } : ad
+        ));
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+    }
+  };
   
   // Dynamic SEO based on URL parameters
   if (search) {
@@ -38,6 +201,38 @@ const Index = () => {
     );
   }
 
+  // Mobile-first responsive layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <MobileHeroSection 
+          onLocationDetect={() => {}}
+          onSearch={(query, location) => {
+            // Handle mobile search
+            window.location.href = `/search?q=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`;
+          }}
+        />
+        <MobileCategoryNav
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+        />
+        <MobileAdGrid
+          ads={ads}
+          loading={adLoading}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          onLoadMore={handleLoadMore}
+          onRefresh={handleRefresh}
+          onToggleSave={handleToggleSave}
+        />
+        <ComparisonBar />
+      </div>
+    );
+  }
+
+  // Desktop layout (existing)
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

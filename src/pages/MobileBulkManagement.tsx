@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEnhancedMobile } from "@/hooks/useEnhancedMobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { MobileAdCard } from "@/components/mobile/MobileAdCard";
+import MobileAdCard from "@/components/mobile/MobileAdCard";
 import { MobileFilterBar } from "@/components/mobile/MobileFilterBar";
 import { MobileBulkActions } from "@/components/mobile/MobileBulkActions";
 import { Card, CardContent } from "@/components/ui/card";
@@ -598,10 +598,15 @@ export default function MobileBulkManagement() {
           filteredAds.map((ad) => (
             <MobileAdCard
               key={ad.id}
-              {...ad}
-              selected={selectedAds.has(ad.id)}
-              onSelect={handleSelectAd}
-              onQuickAction={handleQuickAction}
+              id={ad.id}
+              title={ad.title}
+              price={`$${ad.price}`}
+              location={ad.location}
+              timeAgo="1h ago"
+              imageUrl="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
+              category={ad.category?.name || 'Other'}
+              condition="used"
+              sellerId={ad.id}
             />
           ))
         )}
