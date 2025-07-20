@@ -125,55 +125,81 @@ const MobileNavbar = () => {
         </div>
       )}
 
-      {/* Bottom Navigation Bar - Enhanced */}
+      {/* Bottom Navigation Bar - Optimized for One-Handed Use */}
       <div 
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/98 backdrop-blur-md border-t shadow-lg"
         {...gestureHandlers}
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}
       >
-        <div className="flex items-center justify-around py-1 px-2 safe-area-inset-bottom">
-          {navItems.map((item) => {
+        {/* Swipe Indicator */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-muted-foreground/30 rounded-full -translate-y-2" />
+        
+        <div className="flex items-center justify-around py-2 px-4">
+          {navItems.map((item, index) => {
             const active = isActive(item.path);
+            const isThumbReachable = index <= 2; // First 3 items are thumb-friendly for right-handed users
+            
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => handleNavClick(item.path)}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 min-w-0 flex-1 relative",
+                  "flex flex-col items-center gap-1 p-3 rounded-2xl transition-all duration-300 min-w-0 flex-1 relative group",
+                  "active:scale-95 active:bg-primary/20",
                   active
-                    ? "text-primary bg-primary/10 scale-105"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "text-primary bg-primary/10 scale-110 shadow-lg"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-105",
+                  isThumbReachable ? "mb-1" : "mb-0" // Extra margin for thumb-friendly items
                 )}
+                style={{
+                  minHeight: '64px', // Larger touch target
+                  minWidth: '56px'
+                }}
               >
+                {/* Active Indicator */}
+                {active && (
+                  <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full animate-pulse" />
+                )}
+                
                 <div className="relative">
+                  {/* Glow effect for active state */}
                   {active && (
-                    <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse" />
+                    <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse blur-sm" />
                   )}
-                  <item.icon className={cn("h-6 w-6 relative z-10", active && "fill-current")} />
+                  <item.icon className={cn(
+                    "h-6 w-6 relative z-10 transition-all duration-200", 
+                    active ? "fill-current scale-110" : "group-hover:scale-110"
+                  )} />
+                  
+                  {/* Enhanced Badge */}
                   {item.badge > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center ring-2 ring-background"
-                    >
-                      {item.badge > 9 ? '9+' : item.badge}
-                    </Badge>
+                    <div className="absolute -top-2 -right-2 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-destructive rounded-full animate-pulse" />
+                      <div className="relative bg-destructive text-destructive-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-background">
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </div>
+                    </div>
                   )}
                 </div>
+                
                 <span className={cn(
-                  "text-xs truncate transition-all",
-                  active ? "font-medium" : "font-normal"
+                  "text-xs truncate transition-all duration-200 font-medium",
+                  active ? "text-primary font-semibold" : "group-hover:font-medium"
                 )}>
                   {item.label}
                 </span>
-                {active && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                
+                {/* Thumb reach indicator for first-time users */}
+                {isThumbReachable && !active && (
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-0.5 bg-green-400 rounded-full opacity-30" />
                 )}
               </Link>
             );
           })}
         </div>
-        {/* Safe area for devices with home indicator */}
-        <div className="h-safe-area-inset-bottom" />
       </div>
 
       {/* Content Padding for Fixed Navigation */}

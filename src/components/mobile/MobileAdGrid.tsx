@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from '@/hooks/use-toast';
-import EnhancedMobileAdCard from './EnhancedMobileAdCard';
+import SwipeableAdCard from './SwipeableAdCard';
 
 interface Ad {
   id: string;
@@ -214,7 +214,7 @@ const MobileAdGrid = ({
             key={ad.id}
             ref={index === ads.length - 1 ? lastAdRef : undefined}
           >
-            <EnhancedMobileAdCard
+            <SwipeableAdCard
               id={ad.id}
               title={ad.title}
               price={ad.price}
@@ -232,7 +232,6 @@ const MobileAdGrid = ({
               sellerId={ad.user_id}
               onToggleSave={() => onToggleSave(ad.id)}
               onContact={() => {
-                // Handle contact action
                 if (!user) {
                   toast({
                     title: "Sign in required",
@@ -242,6 +241,25 @@ const MobileAdGrid = ({
                   return;
                 }
                 window.location.href = `/ad/${ad.id}`;
+              }}
+              onShare={async () => {
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: ad.title,
+                      text: `${ad.title} - ${formatPrice(ad.price, ad.currency)}`,
+                      url: `${window.location.origin}/ad/${ad.id}`
+                    });
+                  } catch (error) {
+                    // User cancelled sharing
+                  }
+                } else {
+                  navigator.clipboard.writeText(`${window.location.origin}/ad/${ad.id}`);
+                  toast({
+                    title: "Link copied",
+                    description: "Ad link copied to clipboard",
+                  });
+                }
               }}
             />
           </div>
