@@ -152,20 +152,45 @@ const EnhancedMobileAdCard = ({
     return condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const getDistanceColor = (distance: number) => {
+  const getProximityBadge = (distance: number) => {
     const distanceMiles = distance * 0.621371;
-    if (distanceMiles <= 0.25) return 'bg-green-500/90 text-white';
-    if (distanceMiles <= 1) return 'bg-blue-500/90 text-white';
-    if (distanceMiles <= 5) return 'bg-yellow-500/90 text-white';
-    return 'bg-orange-500/90 text-white';
+    
+    if (distanceMiles <= 0.25) {
+      return {
+        text: 'Walking distance',
+        icon: '🚶',
+        color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300',
+        bgColor: 'ring-1 ring-green-200 bg-green-50/30',
+        priority: 'high'
+      };
+    } else if (distanceMiles <= 1) {
+      return {
+        text: `${distanceMiles.toFixed(1)} mi • 2min walk`,
+        icon: '🚶',
+        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300',
+        bgColor: 'ring-1 ring-blue-200 bg-blue-50/20',
+        priority: 'medium'
+      };
+    } else if (distanceMiles <= 5) {
+      return {
+        text: `${distanceMiles.toFixed(1)} mi • ${Math.round(distanceMiles * 3)}min drive`,
+        icon: '🚗',
+        color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300',
+        bgColor: '',
+        priority: 'normal'
+      };
+    } else {
+      return {
+        text: `${Math.round(distanceMiles)} mi away`,
+        icon: '🚗',
+        color: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400 border-gray-300',
+        bgColor: '',
+        priority: 'normal'
+      };
+    }
   };
 
-  const getDistancePriority = (distance: number) => {
-    const distanceMiles = distance * 0.621371;
-    if (distanceMiles <= 0.25) return 'high';
-    if (distanceMiles <= 1) return 'medium';
-    return 'normal';
-  };
+  const proximityBadge = distance ? getProximityBadge(distance) : null;
 
   return (
     <Card 
@@ -173,7 +198,7 @@ const EnhancedMobileAdCard = ({
         isFeatured 
           ? 'ring-2 ring-primary/40 bg-gradient-to-br from-primary/5 to-primary/10' 
           : ''
-      } ${distance && getDistancePriority(distance) === 'high' ? 'ring-1 ring-green-200 bg-green-50/30' : ''}`}
+      } ${proximityBadge?.bgColor || ''}`}
       onClick={() => window.location.href = `/ad/${id}`}
     >
       <div className="relative overflow-hidden">
@@ -185,14 +210,14 @@ const EnhancedMobileAdCard = ({
             loading="lazy"
           />
           
-          {/* Enhanced Distance Badge */}
-          {distance && (
+          {/* Enhanced Proximity Badge */}
+          {proximityBadge && (
             <div className="absolute top-3 left-3">
               <Badge 
-                className={`${getDistanceColor(distance)} border-0 shadow-lg font-semibold text-sm px-3 py-1 backdrop-blur-sm`}
+                className={`${proximityBadge.color} border-2 shadow-lg font-medium text-sm px-3 py-1.5 backdrop-blur-sm`}
               >
-                <Navigation className="h-3 w-3 mr-1" />
-                {formatDistance(distance)}
+                <span className="mr-1.5">{proximityBadge.icon}</span>
+                {proximityBadge.text}
               </Badge>
             </div>
           )}
@@ -251,7 +276,7 @@ const EnhancedMobileAdCard = ({
             <div className="text-3xl font-bold text-primary bg-primary/5 px-3 py-2 rounded-lg">
               {formatPrice(price, currency)}
             </div>
-            {distance && getDistancePriority(distance) === 'high' && (
+            {proximityBadge?.priority === 'high' && (
               <Badge className="bg-green-100 text-green-700 border-green-200 font-medium">
                 📍 Nearby
               </Badge>
