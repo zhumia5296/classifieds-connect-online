@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import NotificationBell from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import TradeSpidersLogo from "@/components/TradeSpidersLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -79,17 +80,15 @@ const Navbar = () => {
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-4">
+          {/* TradeSpiders Logo */}
+          <div className="flex items-center space-x-3">
             <SidebarTrigger className="h-8 w-8" />
-            <div className="flex items-center space-x-2">
-              <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                ClassifiedList
-              </h1>
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                Beta
-              </Badge>
-            </div>
+            <button 
+              onClick={() => navigate('/')}
+              className="hover:opacity-80 transition-opacity"
+            >
+              <TradeSpidersLogo size="md" showText={true} />
+            </button>
           </div>
 
           {/* Search Bar */}
