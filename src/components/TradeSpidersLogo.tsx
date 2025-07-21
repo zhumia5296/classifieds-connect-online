@@ -61,7 +61,7 @@ const TradeSpidersLogo = ({
           "font-semibold text-gray-900 dark:text-white",
           textSizeClasses[size]
         )}>
-          TradeSpiders
+          TradeSpider
         </span>
       )}
     </div>
