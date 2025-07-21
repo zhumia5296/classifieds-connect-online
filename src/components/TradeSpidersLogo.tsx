@@ -31,28 +31,26 @@ const TradeSpidersLogo = ({
         className={cn("text-red-500", iconSizeClasses[size])}
         fill="currentColor"
       >
-        {/* Spider body - main oval */}
-        <ellipse cx="12" cy="12" rx="2.5" ry="4" />
-        {/* Spider head */}
-        <circle cx="12" cy="8" r="1.8" />
+        {/* Spider body - simplified to match mockup */}
+        <circle cx="12" cy="12" r="3" />
         
-        {/* Left legs */}
-        <path d="M9.5 10 L5 6 M9.5 11 L4 9 M9.5 13 L4 15 M9.5 14 L5 18" 
+        {/* Left legs - simplified design */}
+        <path d="M9 10 L4 7 M9 12 L3 12 M9 14 L4 17" 
               stroke="currentColor" 
-              strokeWidth="1.2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               fill="none" />
         
-        {/* Right legs */}
-        <path d="M14.5 10 L19 6 M14.5 11 L20 9 M14.5 13 L20 15 M14.5 14 L19 18" 
+        {/* Right legs - simplified design */}
+        <path d="M15 10 L20 7 M15 12 L21 12 M15 14 L20 17" 
               stroke="currentColor" 
-              strokeWidth="1.2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               fill="none" />
         
-        {/* Pedipalps (front appendages) */}
-        <circle cx="11" cy="7" r="0.4" />
-        <circle cx="13" cy="7" r="0.4" />
+        {/* Simple eyes */}
+        <circle cx="10.5" cy="10.5" r="0.5" fill="white" />
+        <circle cx="13.5" cy="10.5" r="0.5" fill="white" />
       </svg>
       
       {/* TradeSpiders Text - Matching Mockup */}
