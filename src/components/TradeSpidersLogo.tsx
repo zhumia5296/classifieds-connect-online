@@ -12,9 +12,9 @@ const TradeSpidersLogo = ({
   showText = true 
 }: TradeSpidersLogoProps) => {
   const iconSizeClasses = {
-    sm: 'h-7 w-7',
-    md: 'h-10 w-10', 
-    lg: 'h-12 w-12'
+    sm: 'h-9 w-9',
+    md: 'h-12 w-12', 
+    lg: 'h-16 w-16'
   };
 
   const textSizeClasses = {
