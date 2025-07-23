@@ -616,6 +616,460 @@ export type Database = {
           },
         ]
       }
+      delivery_providers: {
+        Row: {
+          availability_schedule: Json | null
+          background_check_status: string | null
+          base_rate: number
+          business_name: string
+          created_at: string
+          current_latitude: number | null
+          current_longitude: number | null
+          emergency_contact: string | null
+          id: string
+          insurance_expiry: string | null
+          is_active: boolean
+          is_available: boolean
+          last_location_update: string | null
+          license_plate: string | null
+          maximum_distance_km: number | null
+          maximum_weight_kg: number | null
+          minimum_order_value: number | null
+          per_km_rate: number
+          per_minute_rate: number
+          phone_number: string | null
+          provider_type: string
+          rating: number | null
+          service_areas: Json
+          total_deliveries: number | null
+          updated_at: string
+          user_id: string
+          vehicle_types: string[]
+          verification_documents: Json | null
+        }
+        Insert: {
+          availability_schedule?: Json | null
+          background_check_status?: string | null
+          base_rate?: number
+          business_name: string
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          emergency_contact?: string | null
+          id?: string
+          insurance_expiry?: string | null
+          is_active?: boolean
+          is_available?: boolean
+          last_location_update?: string | null
+          license_plate?: string | null
+          maximum_distance_km?: number | null
+          maximum_weight_kg?: number | null
+          minimum_order_value?: number | null
+          per_km_rate?: number
+          per_minute_rate?: number
+          phone_number?: string | null
+          provider_type: string
+          rating?: number | null
+          service_areas?: Json
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_types?: string[]
+          verification_documents?: Json | null
+        }
+        Update: {
+          availability_schedule?: Json | null
+          background_check_status?: string | null
+          base_rate?: number
+          business_name?: string
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          emergency_contact?: string | null
+          id?: string
+          insurance_expiry?: string | null
+          is_active?: boolean
+          is_available?: boolean
+          last_location_update?: string | null
+          license_plate?: string | null
+          maximum_distance_km?: number | null
+          maximum_weight_kg?: number | null
+          minimum_order_value?: number | null
+          per_km_rate?: number
+          per_minute_rate?: number
+          phone_number?: string | null
+          provider_type?: string
+          rating?: number | null
+          service_areas?: Json
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_types?: string[]
+          verification_documents?: Json | null
+        }
+        Relationships: []
+      }
+      delivery_quotes: {
+        Row: {
+          created_at: string
+          delivery_request_id: string
+          estimated_delivery_time: string | null
+          estimated_pickup_time: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string | null
+          provider_id: string
+          quoted_price: number
+        }
+        Insert: {
+          created_at?: string
+          delivery_request_id: string
+          estimated_delivery_time?: string | null
+          estimated_pickup_time?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          provider_id: string
+          quoted_price: number
+        }
+        Update: {
+          created_at?: string
+          delivery_request_id?: string
+          estimated_delivery_time?: string | null
+          estimated_pickup_time?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          provider_id?: string
+          quoted_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_quotes_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_quotes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_requests: {
+        Row: {
+          accepted_at: string | null
+          ad_id: string | null
+          assigned_provider_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          customer_budget: number | null
+          delivered_at: string | null
+          delivery_address: string
+          delivery_contact_name: string
+          delivery_contact_phone: string
+          delivery_instructions: string | null
+          delivery_latitude: number
+          delivery_longitude: number
+          delivery_started_at: string | null
+          delivery_time_window_end: string | null
+          delivery_time_window_start: string | null
+          delivery_type: string
+          estimated_cost: number | null
+          estimated_distance_km: number | null
+          estimated_duration_minutes: number | null
+          final_cost: number | null
+          id: string
+          order_id: string | null
+          package_description: string
+          package_dimensions: Json | null
+          package_value: number | null
+          package_weight_kg: number | null
+          photo_confirmation_required: boolean | null
+          picked_up_at: string | null
+          pickup_address: string
+          pickup_contact_name: string
+          pickup_contact_phone: string
+          pickup_instructions: string | null
+          pickup_latitude: number
+          pickup_longitude: number
+          pickup_scheduled_at: string | null
+          pickup_started_at: string | null
+          pickup_time_window_end: string | null
+          pickup_time_window_start: string | null
+          quoted_at: string | null
+          requested_at: string
+          signature_required: boolean | null
+          special_handling: string[] | null
+          status: string
+          updated_at: string
+          urgency_level: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          ad_id?: string | null
+          assigned_provider_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          customer_budget?: number | null
+          delivered_at?: string | null
+          delivery_address: string
+          delivery_contact_name: string
+          delivery_contact_phone: string
+          delivery_instructions?: string | null
+          delivery_latitude: number
+          delivery_longitude: number
+          delivery_started_at?: string | null
+          delivery_time_window_end?: string | null
+          delivery_time_window_start?: string | null
+          delivery_type?: string
+          estimated_cost?: number | null
+          estimated_distance_km?: number | null
+          estimated_duration_minutes?: number | null
+          final_cost?: number | null
+          id?: string
+          order_id?: string | null
+          package_description: string
+          package_dimensions?: Json | null
+          package_value?: number | null
+          package_weight_kg?: number | null
+          photo_confirmation_required?: boolean | null
+          picked_up_at?: string | null
+          pickup_address: string
+          pickup_contact_name: string
+          pickup_contact_phone: string
+          pickup_instructions?: string | null
+          pickup_latitude: number
+          pickup_longitude: number
+          pickup_scheduled_at?: string | null
+          pickup_started_at?: string | null
+          pickup_time_window_end?: string | null
+          pickup_time_window_start?: string | null
+          quoted_at?: string | null
+          requested_at?: string
+          signature_required?: boolean | null
+          special_handling?: string[] | null
+          status?: string
+          updated_at?: string
+          urgency_level?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          ad_id?: string | null
+          assigned_provider_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          customer_budget?: number | null
+          delivered_at?: string | null
+          delivery_address?: string
+          delivery_contact_name?: string
+          delivery_contact_phone?: string
+          delivery_instructions?: string | null
+          delivery_latitude?: number
+          delivery_longitude?: number
+          delivery_started_at?: string | null
+          delivery_time_window_end?: string | null
+          delivery_time_window_start?: string | null
+          delivery_type?: string
+          estimated_cost?: number | null
+          estimated_distance_km?: number | null
+          estimated_duration_minutes?: number | null
+          final_cost?: number | null
+          id?: string
+          order_id?: string | null
+          package_description?: string
+          package_dimensions?: Json | null
+          package_value?: number | null
+          package_weight_kg?: number | null
+          photo_confirmation_required?: boolean | null
+          picked_up_at?: string | null
+          pickup_address?: string
+          pickup_contact_name?: string
+          pickup_contact_phone?: string
+          pickup_instructions?: string | null
+          pickup_latitude?: number
+          pickup_longitude?: number
+          pickup_scheduled_at?: string | null
+          pickup_started_at?: string | null
+          pickup_time_window_end?: string | null
+          pickup_time_window_start?: string | null
+          quoted_at?: string | null
+          requested_at?: string
+          signature_required?: boolean | null
+          special_handling?: string[] | null
+          status?: string
+          updated_at?: string
+          urgency_level?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_requests_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_requests_assigned_provider_id_fkey"
+            columns: ["assigned_provider_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_reviews: {
+        Row: {
+          care_rating: number | null
+          comment: string | null
+          communication_rating: number | null
+          created_at: string
+          delivery_request_id: string
+          id: string
+          provider_id: string
+          punctuality_rating: number | null
+          rating: number
+          reviewer_id: string
+          title: string
+          updated_at: string
+          would_recommend: boolean | null
+        }
+        Insert: {
+          care_rating?: number | null
+          comment?: string | null
+          communication_rating?: number | null
+          created_at?: string
+          delivery_request_id: string
+          id?: string
+          provider_id: string
+          punctuality_rating?: number | null
+          rating: number
+          reviewer_id: string
+          title: string
+          updated_at?: string
+          would_recommend?: boolean | null
+        }
+        Update: {
+          care_rating?: number | null
+          comment?: string | null
+          communication_rating?: number | null
+          created_at?: string
+          delivery_request_id?: string
+          id?: string
+          provider_id?: string
+          punctuality_rating?: number | null
+          rating?: number
+          reviewer_id?: string
+          title?: string
+          updated_at?: string
+          would_recommend?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_reviews_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_tracking: {
+        Row: {
+          accuracy_meters: number | null
+          activity_type: string | null
+          battery_level: number | null
+          created_at: string
+          delivery_request_id: string
+          device_info: Json | null
+          heading_degrees: number | null
+          id: string
+          latitude: number
+          longitude: number
+          notes: string | null
+          photo_urls: string[] | null
+          provider_id: string
+          speed_kmh: number | null
+          status: string
+          tracked_at: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          activity_type?: string | null
+          battery_level?: number | null
+          created_at?: string
+          delivery_request_id: string
+          device_info?: Json | null
+          heading_degrees?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          notes?: string | null
+          photo_urls?: string[] | null
+          provider_id: string
+          speed_kmh?: number | null
+          status: string
+          tracked_at?: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          activity_type?: string | null
+          battery_level?: number | null
+          created_at?: string
+          delivery_request_id?: string
+          device_info?: Json | null
+          heading_degrees?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          notes?: string | null
+          photo_urls?: string[] | null
+          provider_id?: string
+          speed_kmh?: number | null
+          status?: string
+          tracked_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_tracking_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_tracking_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_ad_orders: {
         Row: {
           ad_id: string
@@ -2267,6 +2721,10 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      calculate_delivery_distance: {
+        Args: { lat1: number; lng1: number; lat2: number; lng2: number }
+        Returns: number
+      }
       calculate_distance: {
         Args: { lat1: number; lng1: number; lat2: number; lng2: number }
         Returns: number
@@ -2295,6 +2753,24 @@ export type Database = {
       expire_featured_ads: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      find_nearby_providers: {
+        Args: {
+          p_latitude: number
+          p_longitude: number
+          p_max_distance_km?: number
+          p_vehicle_types?: string[]
+        }
+        Returns: {
+          provider_id: string
+          business_name: string
+          provider_type: string
+          distance_km: number
+          rating: number
+          base_rate: number
+          per_km_rate: number
+          vehicle_types: string[]
+        }[]
       }
       find_similar_ads: {
         Args: {
@@ -2497,6 +2973,14 @@ export type Database = {
           p_location_area?: string
           p_activity_type?: string
         }
+        Returns: undefined
+      }
+      update_delivery_status: {
+        Args: { p_request_id: string; p_new_status: string }
+        Returns: undefined
+      }
+      update_provider_location: {
+        Args: { p_provider_id: string; p_latitude: number; p_longitude: number }
         Returns: undefined
       }
       update_user_reputation: {
