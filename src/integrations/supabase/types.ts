@@ -1766,6 +1766,51 @@ export type Database = {
         }
         Relationships: []
       }
+      trending_items: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          id: string
+          item_id: string | null
+          item_type: string
+          last_activity_at: string
+          location_area: string
+          search_count: number | null
+          search_term: string | null
+          trend_score: number | null
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          item_type: string
+          last_activity_at?: string
+          location_area: string
+          search_count?: number | null
+          search_term?: string | null
+          trend_score?: number | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          item_type?: string
+          last_activity_at?: string
+          location_area?: string
+          search_count?: number | null
+          search_term?: string | null
+          trend_score?: number | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       trusted_contacts: {
         Row: {
           contact_email: string | null
@@ -2330,6 +2375,23 @@ export type Database = {
           image_url: string
         }[]
       }
+      get_trending_items: {
+        Args: {
+          p_location_area: string
+          p_item_type?: string
+          p_limit?: number
+        }
+        Returns: {
+          item_type: string
+          item_id: string
+          search_term: string
+          category_id: string
+          trend_score: number
+          view_count: number
+          search_count: number
+          last_activity_at: string
+        }[]
+      }
       get_unread_message_count: {
         Args: { user_uuid: string }
         Returns: number
@@ -2425,6 +2487,17 @@ export type Database = {
       sparsevec_typmod_in: {
         Args: { "": unknown[] }
         Returns: number
+      }
+      track_trending_activity: {
+        Args: {
+          p_item_type: string
+          p_item_id?: string
+          p_search_term?: string
+          p_category_id?: string
+          p_location_area?: string
+          p_activity_type?: string
+        }
+        Returns: undefined
       }
       update_user_reputation: {
         Args: { target_user_id: string }

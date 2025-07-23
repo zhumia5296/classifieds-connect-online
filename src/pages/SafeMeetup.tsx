@@ -2,6 +2,7 @@ import React from 'react';
 import { Shield, MapPin, Camera, Clock, Info, Users, ArrowRight } from 'lucide-react';
 import SafeMeetupSpots from '@/components/SafeMeetupSpots';
 import SafetyCheckinModal from '@/components/SafetyCheckinModal';
+import TrendingInYourArea from '@/components/TrendingInYourArea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -139,8 +140,18 @@ const SafeMeetup = () => {
         </AlertDescription>
       </Alert>
 
-      {/* Safe Meetup Spots List */}
-      <SafeMeetupSpots radiusKm={50} />
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Safe Meetup Spots - Main Column */}
+        <div className="lg:col-span-2">
+          <SafeMeetupSpots radiusKm={50} />
+        </div>
+        
+        {/* Trending Sidebar */}
+        <div className="space-y-6">
+          <TrendingInYourArea />
+        </div>
+      </div>
     </div>
   );
 };
