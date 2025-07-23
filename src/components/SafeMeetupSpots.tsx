@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Phone, ExternalLink, Shield, Camera, Clock, Star } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { MapPin, Phone, ExternalLink, Shield, Camera, Clock, Star, FootprintsIcon } from 'lucide-react';
 import { useSafeMeetupSpots, SafeMeetupSpot } from '@/hooks/useSafeMeetupSpots';
 import { formatDistance } from '@/lib/location';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -153,7 +155,8 @@ interface SafeMeetupSpotsProps {
 }
 
 const SafeMeetupSpots: React.FC<SafeMeetupSpotsProps> = ({ radiusKm = 25 }) => {
-  const { spots, loading, error, hasLocation } = useSafeMeetupSpots(radiusKm);
+  const [walkingOnly, setWalkingOnly] = useState(false);
+  const { spots, loading, error, hasLocation, isWalkingMode, effectiveRadius } = useSafeMeetupSpots(radiusKm, walkingOnly);
 
   if (!hasLocation) {
     return (
@@ -220,13 +223,37 @@ const SafeMeetupSpots: React.FC<SafeMeetupSpotsProps> = ({ radiusKm = 25 }) => {
           Safe MeetUp Spots
         </h3>
         <span className="text-sm text-muted-foreground">
-          {spots.length} location{spots.length !== 1 ? 's' : ''} within {radiusKm}km
+          {spots.length} location{spots.length !== 1 ? 's' : ''} within {isWalkingMode ? '10 min walk' : `${effectiveRadius}km`}
         </span>
+      </div>
+      
+      {/* Walking Distance Filter */}
+      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+        <div className="flex items-center gap-2">
+          <FootprintsIcon className="h-4 w-4 text-muted-foreground" />
+          <Label htmlFor="walking-filter" className="text-sm font-medium">
+            Walking Distance Only
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="walking-filter"
+            checked={walkingOnly}
+            onCheckedChange={setWalkingOnly}
+          />
+          <span className="text-xs text-muted-foreground">
+            {walkingOnly ? '~10 min walk' : 'All distances'}
+          </span>
+        </div>
       </div>
       
       <p className="text-sm text-muted-foreground">
         Meet safely at these verified locations with security cameras and monitoring.
-        Perfect for buying/selling items from our marketplace.
+        {walkingOnly && (
+          <span className="block mt-1 text-blue-600 font-medium">
+            🚶‍♂️ Showing only locations within a 10-minute walk (~1km)
+          </span>
+        )}
       </p>
 
       {spots.length === 0 ? (

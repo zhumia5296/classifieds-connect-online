@@ -21,11 +21,14 @@ export interface SafeMeetupSpot {
   distance_km?: number;
 }
 
-export const useSafeMeetupSpots = (radiusKm: number = 25) => {
+export const useSafeMeetupSpots = (radiusKm: number = 25, walkingOnly: boolean = false) => {
   const [spots, setSpots] = useState<SafeMeetupSpot[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { location } = useLocation();
+
+  // Walking distance is approximately 1km for 10-12 minutes of walk
+  const effectiveRadius = walkingOnly ? Math.min(radiusKm, 1.0) : radiusKm;
 
   const fetchNearbySpots = async () => {
     if (!location?.coords) return;
@@ -53,7 +56,7 @@ export const useSafeMeetupSpots = (radiusKm: number = 25) => {
             spot.longitude
           )
         }))
-        .filter(spot => spot.distance_km <= radiusKm)
+        .filter(spot => spot.distance_km <= effectiveRadius)
         .sort((a, b) => a.distance_km - b.distance_km) || [];
 
       setSpots(spotsWithDistance);
@@ -67,13 +70,15 @@ export const useSafeMeetupSpots = (radiusKm: number = 25) => {
 
   useEffect(() => {
     fetchNearbySpots();
-  }, [location?.coords, radiusKm]);
+  }, [location?.coords, effectiveRadius]);
 
   return {
     spots,
     loading,
     error,
     refetch: fetchNearbySpots,
-    hasLocation: !!location?.coords
+    hasLocation: !!location?.coords,
+    isWalkingMode: walkingOnly,
+    effectiveRadius
   };
 };
