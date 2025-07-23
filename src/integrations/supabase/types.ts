@@ -455,6 +455,72 @@ export type Database = {
           },
         ]
       }
+      checkin_notifications: {
+        Row: {
+          checkin_id: string
+          contact_id: string
+          created_at: string
+          id: string
+          is_sent: boolean | null
+          message: string
+          notification_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          checkin_id: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          message: string
+          notification_type: string
+          sent_at?: string | null
+        }
+        Update: {
+          checkin_id?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          message?: string
+          notification_type?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
+      checkin_updates: {
+        Row: {
+          checkin_id: string
+          created_at: string
+          id: string
+          is_automatic: boolean | null
+          location_latitude: number | null
+          location_longitude: number | null
+          message: string | null
+          status: string
+        }
+        Insert: {
+          checkin_id: string
+          created_at?: string
+          id?: string
+          is_automatic?: boolean | null
+          location_latitude?: number | null
+          location_longitude?: number | null
+          message?: string | null
+          status: string
+        }
+        Update: {
+          checkin_id?: string
+          created_at?: string
+          id?: string
+          is_automatic?: boolean | null
+          location_latitude?: number | null
+          location_longitude?: number | null
+          message?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       conversion_events: {
         Row: {
           created_at: string
@@ -1233,6 +1299,69 @@ export type Database = {
         }
         Relationships: []
       }
+      safety_checkins: {
+        Row: {
+          ad_id: string | null
+          contact_person_name: string | null
+          contact_person_phone: string | null
+          created_at: string
+          emergency_contacts: string[] | null
+          expected_duration_minutes: number | null
+          expected_return_time: string | null
+          id: string
+          last_checkin_time: string | null
+          meetup_address: string | null
+          meetup_latitude: number | null
+          meetup_location: string
+          meetup_longitude: number | null
+          notes: string | null
+          scheduled_time: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_id?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          created_at?: string
+          emergency_contacts?: string[] | null
+          expected_duration_minutes?: number | null
+          expected_return_time?: string | null
+          id?: string
+          last_checkin_time?: string | null
+          meetup_address?: string | null
+          meetup_latitude?: number | null
+          meetup_location: string
+          meetup_longitude?: number | null
+          notes?: string | null
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          created_at?: string
+          emergency_contacts?: string[] | null
+          expected_duration_minutes?: number | null
+          expected_return_time?: string | null
+          id?: string
+          last_checkin_time?: string | null
+          meetup_address?: string | null
+          meetup_latitude?: number | null
+          meetup_location?: string
+          meetup_longitude?: number | null
+          notes?: string | null
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_ads: {
         Row: {
           ad_id: string
@@ -1634,6 +1763,45 @@ export type Database = {
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      trusted_contacts: {
+        Row: {
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          contact_user_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          relationship: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          contact_user_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          relationship?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          contact_user_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          relationship?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
