@@ -42,6 +42,7 @@ import Orders from "./pages/Orders";
 import { OrderDetails } from "./components/OrderDetails";
 import Inventory from "./pages/Inventory";
 import SafeMeetup from "./pages/SafeMeetup";
+import SafetyCenter from "./pages/SafetyCenter";
 import NearbyAlerts from "./pages/NearbyAlerts";
 import SearchAlerts from "./pages/SearchAlerts";
 import MapView from "./pages/MapView";
@@ -98,6 +99,7 @@ const App = () => (
                 <Route path="/orders/:orderId" element={<Layout><OrderDetails /></Layout>} />
                 <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
                 <Route path="/safe-meetup" element={<Layout><SafeMeetup /></Layout>} />
+                <Route path="/safety-center" element={<Layout><SafetyCenter /></Layout>} />
                 <Route path="/nearby-alerts" element={<Layout><NearbyAlerts /></Layout>} />
                 <Route path="/search-alerts" element={<Layout><SearchAlerts /></Layout>} />
                 <Route path="/alert" element={<Layout><SearchAlerts /></Layout>} />

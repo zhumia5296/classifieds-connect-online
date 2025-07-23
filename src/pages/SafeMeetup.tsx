@@ -1,8 +1,11 @@
 import React from 'react';
-import { Shield, MapPin, Camera, Clock, Info } from 'lucide-react';
+import { Shield, MapPin, Camera, Clock, Info, Users, ArrowRight } from 'lucide-react';
 import SafeMeetupSpots from '@/components/SafeMeetupSpots';
+import SafetyCheckinModal from '@/components/SafetyCheckinModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Link } from 'react-router-dom';
 
 const SafeMeetup = () => {
   return (
@@ -96,6 +99,35 @@ const SafeMeetup = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Safety Check-in Section */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-blue-600" />
+            Real-time Safety Check-ins
+          </CardTitle>
+          <CardDescription>
+            Share your meetup details with trusted contacts for enhanced safety
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Create safety check-ins to automatically notify your emergency contacts about your 
+            meetup location, time, and status updates in real-time.
+          </p>
+          <div className="flex gap-3">
+            <SafetyCheckinModal />
+            <Button variant="outline" asChild>
+              <Link to="/safety-center" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Safety Center
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Alert */}
       <Alert>
