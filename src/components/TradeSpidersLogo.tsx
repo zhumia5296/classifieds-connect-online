@@ -31,16 +31,6 @@ const TradeSpidersLogo = ({
         alt="TradeSpider logo"
         className={cn("object-contain", iconSizeClasses[size])}
       />
-      
-      {/* TradeSpiders Text - Matching Mockup */}
-      {showText && (
-        <span className={cn(
-          "font-semibold text-gray-900 dark:text-white",
-          textSizeClasses[size]
-        )}>
-          TradeSpider
-        </span>
-      )}
     </div>
   );
 };
