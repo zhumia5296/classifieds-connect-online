@@ -46,6 +46,8 @@ import SafetyCenter from "./pages/SafetyCenter";
 import NearbyAlerts from "./pages/NearbyAlerts";
 import SearchAlerts from "./pages/SearchAlerts";
 import MapView from "./pages/MapView";
+import DeliveryNetwork from "./pages/DeliveryNetwork";
+import LiveTrackingMap from "./pages/LiveTrackingMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -104,6 +106,8 @@ const App = () => (
                 <Route path="/search-alerts" element={<Layout><SearchAlerts /></Layout>} />
                 <Route path="/alert" element={<Layout><SearchAlerts /></Layout>} />
                 <Route path="/map" element={<Layout><MapView /></Layout>} />
+                <Route path="/delivery-network" element={<Layout><DeliveryNetwork /></Layout>} />
+                <Route path="/live-tracking" element={<LiveTrackingMap />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<Layout><NotFound /></Layout>} />
               </Routes>

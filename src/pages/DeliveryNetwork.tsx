@@ -10,15 +10,20 @@ import {
   MapPin, 
   Clock, 
   Star,
-  Navigation
+  Navigation,
+  Map,
+  ExternalLink
 } from 'lucide-react';
 import { useDeliveryNetwork } from '@/hooks/useDeliveryNetwork';
 import { DeliveryRequestForm } from '@/components/delivery/DeliveryRequestForm';
+import { InteractiveTrackingMap } from '@/components/InteractiveTrackingMap';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export default function DeliveryNetwork() {
   const { deliveryRequests, loading } = useDeliveryNetwork();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const navigate = useNavigate();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -133,6 +138,7 @@ export default function DeliveryNetwork() {
       <Tabs defaultValue="requests" className="space-y-4">
         <TabsList>
           <TabsTrigger value="requests">My Delivery Requests</TabsTrigger>
+          <TabsTrigger value="tracking">Live Tracking</TabsTrigger>
           <TabsTrigger value="providers">Find Providers</TabsTrigger>
         </TabsList>
         
@@ -205,6 +211,38 @@ export default function DeliveryNetwork() {
               ))}
             </div>
           )}
+        </TabsContent>
+        
+        <TabsContent value="tracking" className="space-y-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Map className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Live Delivery Tracking</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">Real-time</Badge>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/live-tracking')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Full Screen
+                  </Button>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-6">
+                Track all your deliveries in real-time with live location updates from delivery providers.
+              </p>
+              
+              <InteractiveTrackingMap 
+                height="600px"
+                showAllProviders={false}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="providers" className="space-y-4">
