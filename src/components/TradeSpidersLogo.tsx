@@ -27,7 +27,7 @@ const TradeSpidersLogo = ({
     <div className={cn("flex items-center gap-1", className)}>
       {/* Red Spider Icon - Using uploaded image */}
       <img 
-        src="/lovable-uploads/05f060de-a749-4983-b100-f2466ab249e7.png"
+        src="/lovable-uploads/23f6c4ce-07da-44ee-9f91-d424687ddf86.png"
         alt="TradeSpider logo"
         className={cn("object-contain", iconSizeClasses[size])}
       />
